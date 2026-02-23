@@ -5,10 +5,13 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](https://nodejs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org)
+[![Docs](https://img.shields.io/badge/docs-online-blue.svg)](https://sitharaj88.github.io/xcode-pilot-mcp/)
 
 A comprehensive [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for iOS and macOS development. Provides **67 tools** across **11 categories** that give AI assistants full control over the Xcode development lifecycle — from building and testing to simulator management, app deployment, code signing, and more.
 
 > The iOS equivalent of [android-pilot-mcp](https://github.com/sitharaj88/android-pilot-mcp).
+
+**[Read the full documentation](https://sitharaj88.github.io/xcode-pilot-mcp/)**
 
 ---
 
