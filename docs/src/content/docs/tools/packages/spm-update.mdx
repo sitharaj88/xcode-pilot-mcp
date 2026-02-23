@@ -1,0 +1,90 @@
+---
+title: spm_update
+description: Update Swift Package Manager dependencies to the latest compatible versions.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Update all Swift Package Manager dependencies in your project to the latest versions that satisfy the version requirements defined in your `Package.swift` or Xcode project settings. This modifies `Package.resolved` with the new version pins. Use this to pick up bug fixes, security patches, and new features from your dependencies.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | No | — | Absolute path to the `.xcodeproj`, `.xcworkspace`, or directory containing `Package.swift`. If omitted, uses the current working directory. |
+
+## Usage Examples
+
+### Update all SPM packages
+
+> "Update all Swift packages to their latest compatible versions"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp/MyApp.xcodeproj"
+}
+```
+
+### Update packages in a Swift library
+
+> "Update dependencies for my Swift package"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyLibrary"
+}
+```
+
+### Update packages in a workspace
+
+> "Update all SPM dependencies in my workspace"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp/MyApp.xcworkspace"
+}
+```
+
+## Example Output
+
+```
+Updating Swift Package Manager dependencies...
+Project: /Users/johndoe/Projects/MyApp/MyApp.xcodeproj
+
+Updating https://github.com/Alamofire/Alamofire.git
+Updating https://github.com/SnapKit/SnapKit.git
+Updating https://github.com/onevcat/Kingfisher.git
+Updating https://github.com/apple/swift-collections.git
+
+Updated packages:
+  Alamofire: 5.9.0 -> 5.9.1
+  Kingfisher: 8.0.3 -> 8.1.0
+
+Unchanged packages:
+  SnapKit: 5.7.1 (already up to date)
+  swift-collections: 1.1.4 (already up to date)
+
+Package.resolved has been updated.
+```
+
+## Related Tools
+
+- [`spm_resolve`](/xcode-pilot-mcp/tools/packages/spm-resolve/) — Resolve packages to the exact pinned versions without updating
+- [`spm_show_dependencies`](/xcode-pilot-mcp/tools/packages/spm-show-dependencies/) — View the dependency tree after updating
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build the project to verify compatibility after updating
+
+## Tips
+
+<Aside type="tip">
+  After running `spm_update`, always build and run your tests to verify that the updated packages are compatible with your code. Breaking changes can occur even in minor version updates.
+</Aside>
+
+<Aside type="tip">
+  Commit your updated `Package.resolved` file to source control so that your teammates and CI get the same dependency versions after the update.
+</Aside>
+
+<Aside type="caution">
+  This updates **all** SPM dependencies at once. If you need to update a single package, adjust the version requirement for that specific package in your `Package.swift` or Xcode project settings, then run `spm_resolve`.
+</Aside>

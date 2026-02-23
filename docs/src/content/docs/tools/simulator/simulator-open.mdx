@@ -1,0 +1,83 @@
+---
+title: simulator_open
+description: Open the Simulator.app GUI window for a specific simulator device.
+sidebar:
+  order: 7
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Open the Simulator.app graphical window for a specific simulator device. This brings up the visual simulator interface where you can see and interact with the device screen. If the simulator is not yet booted, this command will also boot it.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the simulator to open in Simulator.app. Use `simulator_list` to find the UDID. |
+
+## Usage Examples
+
+### Open a simulator window
+
+> "Open the iPhone 16 Pro simulator so I can see it"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+### Open an iPad simulator for visual inspection
+
+> "Show me the iPad Pro simulator window"
+
+```json
+{
+  "deviceId": "B2C3D4E5-F6A7-8901-BCDE-F12345678901"
+}
+```
+
+### Open a simulator to verify UI manually
+
+> "Open the iPhone SE simulator so I can check the layout"
+
+```json
+{
+  "deviceId": "C3D4E5F6-A7B8-9012-CDEF-123456789012"
+}
+```
+
+## Example Output
+
+```
+Simulator.app opened successfully.
+
+Name: iPhone 16 Pro
+UDID: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+Runtime: iOS 18.0
+State: Booted
+
+The Simulator.app window is now visible.
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find the UDID of the simulator you want to open
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot a simulator without opening the GUI window
+- [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/) — Shut down the simulator when done
+- [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) — Capture a screenshot of the simulator screen
+- [`screen_record`](/xcode-pilot-mcp/tools/debug/screen-record/) — Record the simulator screen as video
+
+## Tips
+
+<Aside type="tip">
+  Use `simulator_open` when you need to visually inspect your app's UI, verify animations, or perform manual exploratory testing. For automated test pipelines, `simulator_boot` alone is usually sufficient.
+</Aside>
+
+<Aside type="note">
+  If the simulator is already booted but the Simulator.app window is not visible, `simulator_open` will bring the window to the foreground without rebooting the device.
+</Aside>
+
+<Aside type="tip">
+  You can have multiple simulator windows open simultaneously. This is useful for comparing your app's layout across different device sizes, such as an iPhone SE and an iPad Pro side by side.
+</Aside>

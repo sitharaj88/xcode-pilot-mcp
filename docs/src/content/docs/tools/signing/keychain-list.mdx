@@ -1,0 +1,71 @@
+---
+title: keychain_list
+description: List all keychains in the macOS keychain search list.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+List all keychains currently in the macOS keychain search list. This shows the path and lock status of each keychain, which is helpful for verifying that certificates are accessible during code signing and for troubleshooting CI/CD environments where keychains may need to be explicitly added or unlocked.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| — | — | — | — | This tool takes no parameters. |
+
+## Usage Examples
+
+### List all keychains
+
+> "Show me all keychains on this machine"
+
+```json
+{}
+```
+
+### Verify keychain setup for CI
+
+> "What keychains are available for code signing?"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Keychains:
+
+1) /Users/johndoe/Library/Keychains/login.keychain-db
+   Status: Unlocked
+
+2) /Library/Keychains/System.keychain
+   Status: Unlocked
+
+3) /Users/johndoe/Library/Keychains/ci-signing.keychain-db
+   Status: Locked
+
+Found 3 keychains (2 unlocked, 1 locked).
+```
+
+## Related Tools
+
+- [`signing_identities`](/xcode-pilot-mcp/tools/signing/signing-identities/) — List signing certificates stored in these keychains
+- [`provisioning_profiles`](/xcode-pilot-mcp/tools/signing/provisioning-profiles/) — List provisioning profiles that reference certificates in these keychains
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build your app, which requires access to signing certificates in an unlocked keychain
+
+## Tips
+
+<Aside type="tip">
+  In CI/CD environments, you may need to create a temporary keychain, import your certificates, and add it to the search list before building. Verify with `keychain_list` that the keychain appears and is unlocked.
+</Aside>
+
+<Aside type="tip">
+  If a keychain is listed as **Locked**, Xcode cannot access the certificates inside it for code signing. Unlock it via `security unlock-keychain` before building.
+</Aside>
+
+<Aside type="note">
+  The default login keychain is automatically unlocked when you log into macOS. On headless CI machines, you typically need to unlock keychains manually as part of your build script.
+</Aside>

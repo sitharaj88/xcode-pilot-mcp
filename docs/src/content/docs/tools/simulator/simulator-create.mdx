@@ -1,0 +1,102 @@
+---
+title: simulator_create
+description: Create a new iOS simulator with a specific device type and runtime.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Create a new iOS simulator by specifying a name, device type, and runtime. This tool is essential for setting up test environments for different device and OS combinations, enabling you to verify your app works across the full range of supported configurations.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `name` | string | Yes | — | A human-readable name for the new simulator (e.g., `"My Test iPhone"`). |
+| `deviceTypeId` | string | Yes | — | The device type identifier. Use `simulator_list_device_types` to see available values. |
+| `runtimeId` | string | Yes | — | The runtime identifier. Use `simulator_list_runtimes` to see available values. |
+
+## Usage Examples
+
+### Create an iPhone 16 Pro with iOS 18.0
+
+> "Create a new iPhone 16 Pro simulator running iOS 18"
+
+```json
+{
+  "name": "iPhone 16 Pro - Test",
+  "deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro",
+  "runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-18-0"
+}
+```
+
+### Create an iPad Air for UI testing
+
+> "I need an iPad Air simulator on iOS 17.5 for layout testing"
+
+```json
+{
+  "name": "iPad Air - Layout Tests",
+  "deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPad-Air-6th-generation-M2",
+  "runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-17-5"
+}
+```
+
+### Create an iPhone 15 for backward compatibility testing
+
+> "Set up an iPhone 15 with iOS 17.0 to test backward compatibility"
+
+```json
+{
+  "name": "iPhone 15 - iOS 17 Compat",
+  "deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPhone-15",
+  "runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-17-0"
+}
+```
+
+### Create an iPhone SE for small screen testing
+
+> "Create an iPhone SE simulator so I can test my layouts on a small screen"
+
+```json
+{
+  "name": "iPhone SE - Small Screen",
+  "deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
+  "runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-18-0"
+}
+```
+
+## Example Output
+
+```
+Simulator created successfully.
+
+Name: iPhone 16 Pro - Test
+UDID: A9F8E7D6-C5B4-3A21-9087-654321FEDCBA
+Device Type: iPhone 16 Pro
+Runtime: iOS 18.0
+State: Shutdown
+```
+
+## Related Tools
+
+- [`simulator_list_device_types`](/xcode-pilot-mcp/tools/simulator/simulator-list-device-types/) — List available device types to find valid `deviceTypeId` values
+- [`simulator_list_runtimes`](/xcode-pilot-mcp/tools/simulator/simulator-list-runtimes/) — List installed runtimes to find valid `runtimeId` values
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot the newly created simulator
+- [`simulator_clone`](/xcode-pilot-mcp/tools/simulator/simulator-clone/) — Clone an existing simulator instead of creating from scratch
+- [`simulator_delete`](/xcode-pilot-mcp/tools/simulator/simulator-delete/) — Delete a simulator you no longer need
+
+## Tips
+
+<Aside type="tip">
+  Before creating a simulator, run [`simulator_list_device_types`](/xcode-pilot-mcp/tools/simulator/simulator-list-device-types/) and [`simulator_list_runtimes`](/xcode-pilot-mcp/tools/simulator/simulator-list-runtimes/) to find the exact identifiers you need.
+</Aside>
+
+<Aside type="caution">
+  The runtime must be installed on your system. If you specify a runtime that is not available, the creation will fail. Use Xcode &gt; Settings &gt; Platforms to download additional runtimes.
+</Aside>
+
+<Aside type="tip">
+  Use descriptive names like `"iPhone 16 Pro - iOS 18 Regression"` instead of generic names. This makes it easier to identify the purpose of each simulator when you have many devices listed.
+</Aside>

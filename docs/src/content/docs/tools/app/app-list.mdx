@@ -1,0 +1,78 @@
+---
+title: app_list
+description: List all apps installed on a simulator device.
+sidebar:
+  order: 6
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Lists all user-installed applications on a simulator device, returning their bundle identifiers, display names, version numbers, and bundle paths. This is useful for verifying installations, finding the correct bundle ID for other app lifecycle operations, or auditing which apps are present on a test simulator.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator device. |
+
+## Usage Examples
+
+### List all installed apps
+> "What apps are installed on my test simulator?"
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+### Verify a specific simulator's apps
+> "Show me all apps on the iPad Air simulator."
+```json
+{
+  "deviceId": "B9C8D7E6-F5A4-3210-9876-FEDCBA987654"
+}
+```
+
+## Example Output
+
+```
+Installed apps on F3A1B2C3-D4E5-6789-ABCD-EF0123456789:
+
+1. WeatherApp
+   Bundle ID: com.example.weatherapp
+   Version: 2.1.0 (45)
+   Path: /Users/dev/Library/Developer/CoreSimulator/Devices/F3A1B2C3-D4E5-6789-ABCD-EF0123456789/data/Containers/Bundle/Application/1A2B3C4D-5E6F-7890-ABCD-EF0123456789/WeatherApp.app
+
+2. ShopApp
+   Bundle ID: com.example.shopapp
+   Version: 1.5.2 (112)
+   Path: /Users/dev/Library/Developer/CoreSimulator/Devices/F3A1B2C3-D4E5-6789-ABCD-EF0123456789/data/Containers/Bundle/Application/2B3C4D5E-6F78-9012-BCDE-F01234567890/ShopApp.app
+
+3. NotesApp
+   Bundle ID: com.example.notesapp
+   Version: 3.0.0 (7)
+   Path: /Users/dev/Library/Developer/CoreSimulator/Devices/F3A1B2C3-D4E5-6789-ABCD-EF0123456789/data/Containers/Bundle/Application/3C4D5E6F-7890-1234-CDEF-012345678901/NotesApp.app
+
+Total: 3 apps
+```
+
+## Related Tools
+
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Install an app onto the simulator.
+- [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/) — Uninstall an app using its bundle ID from this list.
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch an app using its bundle ID from this list.
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — List available simulators to find the device ID.
+
+## Tips
+
+<Aside type="tip">
+  This tool only lists **user-installed** apps, not the built-in system apps (Settings, Safari, etc.) that come with the simulator runtime.
+</Aside>
+
+<Aside type="tip">
+  Use this tool to quickly look up the exact bundle identifier before calling [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/), [`app_terminate`](/xcode-pilot-mcp/tools/app/app-terminate/), or [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/). Bundle IDs are case-sensitive.
+</Aside>
+
+<Aside type="tip">
+  If you expect an app to appear but it does not, make sure the simulator is booted and the most recent build was compiled for the correct simulator architecture (`iphonesimulator` destination).
+</Aside>

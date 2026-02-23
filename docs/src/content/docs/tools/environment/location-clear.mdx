@@ -1,0 +1,60 @@
+---
+title: location_clear
+description: Clear the simulated GPS location on an iOS simulator.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Clear any previously simulated GPS location on an iOS simulator, reverting it to its default behavior. After clearing, location services will no longer report a spoofed position. This is useful for cleaning up after location-based tests or restoring normal simulator operation.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator (must be booted). |
+
+## Usage Examples
+
+### Clear simulated location
+
+> "Stop spoofing the location on my simulator"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+### Clear location after geofence testing
+
+> "I'm done testing the geofence feature, clear the fake location"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+## Example Output
+
+```
+Location simulation cleared.
+Device: iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+```
+
+## Related Tools
+
+- [`location_set`](/xcode-pilot-mcp/tools/environment/location-set/) — Simulate a GPS location on the device
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find simulator UDIDs for the `deviceId` parameter
+
+## Tips
+
+<Aside type="tip">
+  Always clear the simulated location at the end of your location-based test runs to avoid stale coordinates affecting subsequent tests.
+</Aside>
+
+<Aside type="note">
+  If the simulator is rebooted, the simulated location is automatically cleared, so this call is only necessary while the simulator remains booted.
+</Aside>

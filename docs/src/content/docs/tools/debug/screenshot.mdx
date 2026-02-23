@@ -1,0 +1,81 @@
+---
+title: screenshot
+description: Capture a PNG screenshot from a simulator or physical device.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The `screenshot` tool captures the current screen of a booted simulator or connected physical device and saves it as a PNG file. If no output path is provided, a timestamped file is automatically generated in a temporary directory. This is useful for visual regression checks, documenting UI states, and capturing evidence of bugs during debugging sessions.
+
+## Parameters
+
+| Parameter    | Type   | Required | Default        | Description                                                                                  |
+|--------------|--------|----------|----------------|----------------------------------------------------------------------------------------------|
+| `deviceId`   | string | Yes      | —              | UDID of the simulator or physical device to capture.                                         |
+| `outputPath` | string | No       | Auto-generated | File path where the PNG screenshot will be saved. A timestamped path is created if omitted.  |
+
+## Usage Examples
+
+### Capture a screenshot with auto-generated path
+
+> "Take a screenshot of my iPhone simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+### Save screenshot to a specific location
+
+> "Take a screenshot of the simulator and save it to my Desktop"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Desktop/login-screen-dark-mode.png"
+}
+```
+
+### Capture screenshot for a bug report
+
+> "Screenshot the current state of the simulator and save it in my project's bug-reports folder"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Projects/WeatherApp/bug-reports/layout-overflow-issue.png"
+}
+```
+
+## Example Output
+
+```
+Screenshot saved to: /var/folders/xk/7q2m1h3n0fg3_rl5zt8k5c9w0000gn/T/screenshot-2026-02-23-143205.png
+File size: 284 KB
+Resolution: 1290 x 2796 pixels (3x Retina)
+Device: iPhone 16 Pro (A1B2C3D4-E5F6-7890-ABCD-EF1234567890)
+```
+
+## Related Tools
+
+- [`screen_record`](/xcode-pilot-mcp/tools/debug/screen-record/) — Record a video of the screen instead of a single frame.
+- [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) — Switch between light and dark mode before capturing screenshots.
+- [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) — Set a clean, consistent status bar (9:41 AM, full battery) for polished App Store screenshots.
+- [`accessibility_audit`](/xcode-pilot-mcp/tools/debug/accessibility-audit/) — Pair a screenshot with an accessibility audit to visually document issues.
+
+## Tips
+
+<Aside type="tip">
+  For App Store screenshots, use [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) first to set the time to 9:41 AM and battery to 100%, then capture the screenshot. This gives you the clean, professional look Apple uses in marketing materials.
+</Aside>
+
+<Aside type="tip">
+  Capture screenshots in both light and dark mode by calling [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) before each capture. This is an efficient way to verify your app's visual consistency across appearance modes.
+</Aside>
+
+<Aside type="tip">
+  When no `outputPath` is provided, the auto-generated path is printed in the output. Copy it to reference the file later, or provide an explicit path in a project directory to keep screenshots organized alongside your codebase.
+</Aside>

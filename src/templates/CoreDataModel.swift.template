@@ -1,0 +1,15 @@
+import Foundation
+import CoreData
+
+@objc({{NAME}})
+public class {{NAME}}: NSManagedObject {
+    @nonobjc public class func fetchRequest() -> NSFetchRequest<{{NAME}}> {
+        return NSFetchRequest<{{NAME}}>(entityName: "{{NAME}}")
+    }
+
+    @NSManaged public var id: UUID?
+    @NSManaged public var name: String?
+    @NSManaged public var createdAt: Date?
+}
+
+extension {{NAME}}: Identifiable {}

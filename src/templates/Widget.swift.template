@@ -1,0 +1,48 @@
+import WidgetKit
+import SwiftUI
+
+struct {{NAME}}Entry: TimelineEntry {
+    let date: Date
+    let message: String
+}
+
+struct {{NAME}}Provider: TimelineProvider {
+    func placeholder(in context: Context) -> {{NAME}}Entry {
+        {{NAME}}Entry(date: Date(), message: "Placeholder")
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping ({{NAME}}Entry) -> Void) {
+        let entry = {{NAME}}Entry(date: Date(), message: "Snapshot")
+        completion(entry)
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<{{NAME}}Entry>) -> Void) {
+        let entry = {{NAME}}Entry(date: Date(), message: "Hello")
+        let timeline = Timeline(entries: [entry], policy: .atEnd)
+        completion(timeline)
+    }
+}
+
+struct {{NAME}}View: View {
+    var entry: {{NAME}}Provider.Entry
+
+    var body: some View {
+        VStack {
+            Text(entry.message)
+            Text(entry.date, style: .time)
+        }
+    }
+}
+
+@main
+struct {{NAME}}: Widget {
+    let kind: String = "{{NAME}}"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: {{NAME}}Provider()) { entry in
+            {{NAME}}View(entry: entry)
+        }
+        .configurationDisplayName("{{NAME}}")
+        .description("A widget.")
+    }
+}

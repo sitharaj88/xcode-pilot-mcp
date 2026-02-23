@@ -1,0 +1,104 @@
+---
+title: Xcode Pilot MCP
+description: 67 tools for complete iOS/macOS development control via the Model Context Protocol.
+template: splash
+hero:
+  tagline: 67 Tools. One Prompt. Full iOS Control.
+  image:
+    html: '<div style="font-size:6rem;line-height:1">🛫</div>'
+  actions:
+    - text: Get Started
+      link: /xcode-pilot-mcp/getting-started/installation/
+      icon: right-arrow
+      variant: primary
+    - text: View on GitHub
+      link: https://github.com/sitharaj88/xcode-pilot-mcp
+      icon: external
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+## What is Xcode Pilot MCP?
+
+Xcode Pilot MCP is a **Model Context Protocol server** that gives AI assistants like Claude complete control over the iOS and macOS development toolchain. Instead of copy-pasting terminal commands, just describe what you want in plain English.
+
+```bash
+# Install and start using immediately
+npx xcode-pilot-mcp
+```
+
+## 11 Categories. 67 Tools. Zero Friction.
+
+<CardGrid>
+  <Card title="Build & Compile" icon="rocket">
+    Build, clean, archive, export, test, and inspect build settings — all through
+    `xcodebuild` with full parameter control. **8 tools**
+  </Card>
+  <Card title="Simulator Management" icon="laptop">
+    Create, boot, shutdown, clone, and manage iOS simulators. List runtimes and
+    device types. **10 tools**
+  </Card>
+  <Card title="App Lifecycle" icon="puzzle">
+    Install, launch, terminate, and uninstall apps. Manage containers, open URLs,
+    and control privacy permissions. **8 tools**
+  </Card>
+  <Card title="Debugging & Logging" icon="magnifier">
+    Stream logs, capture screenshots, record screens, run accessibility audits,
+    and toggle dark mode. **7 tools**
+  </Card>
+  <Card title="Simulator Environment" icon="setting">
+    Set GPS coordinates, send push notifications, override status bars, and input
+    text via keyboard. **6 tools**
+  </Card>
+  <Card title="Code Signing" icon="approve-check">
+    List signing identities, inspect provisioning profiles, check entitlements,
+    and manage keychains. **5 tools**
+  </Card>
+  <Card title="Package Management" icon="document">
+    Resolve, update, and inspect Swift Package Manager and CocoaPods
+    dependencies. **6 tools**
+  </Card>
+  <Card title="Scaffolding" icon="add-document">
+    Create new projects (SwiftUI/UIKit), generate views, viewmodels, Core Data
+    models, and widgets. **5 tools**
+  </Card>
+  <Card title="App Analysis" icon="information">
+    Analyze IPA contents, inspect permissions, measure binary size, and verify
+    dSYM files. **4 tools**
+  </Card>
+  <Card title="Code Quality" icon="approve-check-circle">
+    Run SwiftLint, auto-fix violations, check swift-format, and extract build
+    warnings. **4 tools**
+  </Card>
+  <Card title="Physical Devices" icon="phone">
+    List connected devices, install and launch apps, and stream console logs from
+    real hardware. **4 tools**
+  </Card>
+</CardGrid>
+
+## Quick Start
+
+<LinkCard
+  title="Installation"
+  description="Get up and running in under a minute with npx or global install."
+  href="/xcode-pilot-mcp/getting-started/installation/"
+/>
+
+<LinkCard
+  title="Configuration"
+  description="Set up your MCP client — Claude Code, Cursor, Windsurf, or any MCP-compatible editor."
+  href="/xcode-pilot-mcp/getting-started/configuration/"
+/>
+
+<LinkCard
+  title="Tools Overview"
+  description="Browse all 67 tools organized by category with descriptions and links."
+  href="/xcode-pilot-mcp/tools/overview/"
+/>
+
+<LinkCard
+  title="Prompt Cookbook"
+  description="Ready-to-use prompts for every workflow — build, test, debug, deploy, and more."
+  href="/xcode-pilot-mcp/guides/prompts-quick-reference/"
+/>

@@ -1,0 +1,101 @@
+---
+title: screen_record
+description: Record the simulator or device screen as an MP4 video.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The `screen_record` tool captures a video recording of a booted simulator or connected physical device screen and saves it as an MP4 file. The recording runs for a configurable duration (defaulting to 10 seconds) and then stops automatically. This is ideal for capturing UI animations, reproducing interaction bugs, recording demo clips, and documenting multi-step user flows.
+
+## Parameters
+
+| Parameter    | Type   | Required | Default        | Description                                                                                    |
+|--------------|--------|----------|----------------|------------------------------------------------------------------------------------------------|
+| `deviceId`   | string | Yes      | —              | UDID of the simulator or physical device to record.                                            |
+| `outputPath` | string | No       | Auto-generated | File path where the MP4 recording will be saved. A timestamped path is created if omitted.     |
+| `duration`   | number | No       | `10`           | Recording duration in seconds. The recording stops automatically after this time elapses.       |
+
+## Usage Examples
+
+### Record 10 seconds of simulator screen
+
+> "Record my simulator screen for the default duration"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+### Record a specific interaction for 20 seconds
+
+> "Record the simulator for 20 seconds while I test the onboarding flow and save it to my Desktop"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Desktop/onboarding-flow-recording.mp4",
+  "duration": 20
+}
+```
+
+### Quick 5-second capture of an animation bug
+
+> "Record 5 seconds of the simulator to capture the tab bar animation glitch"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Projects/WeatherApp/bug-reports/tab-bar-animation-glitch.mp4",
+  "duration": 5
+}
+```
+
+### Record a full user flow for a demo
+
+> "Record 60 seconds of the simulator so I can walk through the complete checkout flow"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Projects/ShopApp/demos/checkout-flow-demo.mp4",
+  "duration": 60
+}
+```
+
+## Example Output
+
+```
+Recording started on device A1B2C3D4-E5F6-7890-ABCD-EF1234567890...
+Recording stopped after 20 seconds.
+
+Video saved to: /Users/developer/Desktop/onboarding-flow-recording.mp4
+File size: 3.2 MB
+Duration: 20.0 seconds
+Resolution: 1290 x 2796 pixels
+Format: MP4 (H.264)
+Device: iPhone 16 Pro (A1B2C3D4-E5F6-7890-ABCD-EF1234567890)
+```
+
+## Related Tools
+
+- [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) — Capture a single PNG frame instead of a video.
+- [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) — Switch to light or dark mode before recording to demonstrate both appearance variants.
+- [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) — Set a clean status bar before recording demo videos for presentations.
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch the app right before recording to capture the full startup experience.
+
+## Tips
+
+<Aside type="tip">
+  Start the recording before triggering the interaction you want to capture. The tool begins recording immediately, so initiate the user action a moment after calling `screen_record` to ensure the full sequence is included.
+</Aside>
+
+<Aside type="tip">
+  For bug reports, keep recordings short (5-10 seconds) and focused on the specific issue. Shorter videos are easier for teammates to review and reproduce. Use a descriptive `outputPath` filename so the context is clear at a glance.
+</Aside>
+
+<Aside type="tip">
+  Combine with [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) and [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) to produce polished demo recordings suitable for presentations, App Store previews, or social media.
+</Aside>

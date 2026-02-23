@@ -1,0 +1,87 @@
+---
+title: provisioning_profiles
+description: List all provisioning profiles installed on your Mac.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+List all provisioning profiles currently installed in `~/Library/MobileDevice/Provisioning Profiles/`. This displays each profile's name, UUID, app ID, team, expiration date, and type (development, ad hoc, App Store, or enterprise). Use this to verify that the correct profiles are available before building or to troubleshoot signing issues.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| — | — | — | — | This tool takes no parameters. |
+
+## Usage Examples
+
+### List all provisioning profiles
+
+> "Show me all provisioning profiles on my Mac"
+
+```json
+{}
+```
+
+### Verify profiles before release build
+
+> "What provisioning profiles do I have installed?"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Provisioning Profiles:
+
+1) MyApp Development
+   UUID: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+   App ID: ABCDE12345.com.acme.myapp
+   Team: ABCDE12345 (Acme Corp)
+   Type: iOS Development
+   Expires: 2027-03-15
+   Status: Active
+
+2) MyApp App Store
+   UUID: 2b3c4d5e-6f78-9012-bcde-f12345678901
+   App ID: ABCDE12345.com.acme.myapp
+   Team: ABCDE12345 (Acme Corp)
+   Type: App Store
+   Expires: 2027-03-15
+   Status: Active
+
+3) Wildcard Development
+   UUID: 3c4d5e6f-7890-1234-cdef-123456789012
+   App ID: ABCDE12345.*
+   Team: ABCDE12345 (Acme Corp)
+   Type: iOS Development
+   Expires: 2025-08-01
+   Status: Expired
+
+Found 3 provisioning profiles (2 active, 1 expired).
+```
+
+## Related Tools
+
+- [`profile_inspect`](/xcode-pilot-mcp/tools/signing/profile-inspect/) — Inspect a specific provisioning profile for detailed information
+- [`signing_identities`](/xcode-pilot-mcp/tools/signing/signing-identities/) — List signing certificates that these profiles reference
+- [`entitlements_check`](/xcode-pilot-mcp/tools/signing/entitlements-check/) — Check entitlements on a built app bundle
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build your app with a specific provisioning profile
+
+## Tips
+
+<Aside type="tip">
+  If a profile is missing, open Xcode and go to Settings > Accounts > Manage Certificates, then download profiles. Alternatively, download them manually from the Apple Developer portal and double-click to install.
+</Aside>
+
+<Aside type="tip">
+  Use the **UUID** from this list to match against the `PROVISIONING_PROFILE_SPECIFIER` build setting in your Xcode project if you are configuring manual signing.
+</Aside>
+
+<Aside type="note">
+  Expired profiles cannot be used for signing. Remove expired profiles and download updated ones from the Apple Developer portal or let Xcode manage them automatically.
+</Aside>

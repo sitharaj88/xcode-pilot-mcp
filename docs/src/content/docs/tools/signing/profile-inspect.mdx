@@ -1,0 +1,104 @@
+---
+title: profile_inspect
+description: Inspect a provisioning profile to view its full details.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Inspect a specific provisioning profile (`.mobileprovision` file) to view its complete details, including the app ID, team, entitlements, included device UDIDs, certificates, and expiration date. This is invaluable for debugging signing issues, verifying that a profile has the correct entitlements, or confirming that a test device is included in a development or ad hoc profile.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `profilePath` | string | Yes | — | Absolute path to the `.mobileprovision` file to inspect. |
+
+## Usage Examples
+
+### Inspect a profile from the default location
+
+> "Show me the details of my app's development provisioning profile"
+
+```json
+{
+  "profilePath": "/Users/johndoe/Library/MobileDevice/Provisioning Profiles/1a2b3c4d-5e6f-7890-abcd-ef1234567890.mobileprovision"
+}
+```
+
+### Inspect a profile downloaded from the Developer portal
+
+> "Check the provisioning profile I just downloaded"
+
+```json
+{
+  "profilePath": "/Users/johndoe/Downloads/MyApp_App_Store.mobileprovision"
+}
+```
+
+### Inspect a profile in a project directory
+
+> "Inspect the ad hoc profile in our CI config"
+
+```json
+{
+  "profilePath": "/Users/johndoe/Projects/MyApp/ci/profiles/MyApp_AdHoc.mobileprovision"
+}
+```
+
+## Example Output
+
+```
+Profile: MyApp Development
+File: /Users/johndoe/Library/MobileDevice/Provisioning Profiles/1a2b3c4d-5e6f-7890-abcd-ef1234567890.mobileprovision
+
+UUID: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+App ID: ABCDE12345.com.acme.myapp
+Team: ABCDE12345 (Acme Corp)
+Type: iOS Development
+Created: 2026-01-10
+Expires: 2027-01-10
+Status: Active
+
+Entitlements:
+  application-identifier: ABCDE12345.com.acme.myapp
+  com.apple.developer.team-identifier: ABCDE12345
+  get-task-allow: true
+  keychain-access-groups: [ABCDE12345.*]
+  aps-environment: development
+  com.apple.developer.associated-domains: *
+
+Certificates (2):
+  - Apple Development: John Doe (A1B2C3D4E5) — Expires 2027-03-15
+  - Apple Development: Jane Smith (B2C3D4E5F6) — Expires 2027-05-20
+
+Provisioned Devices (3):
+  - 00001111-AAABBBCCCDDD (iPhone)
+  - 00002222-DDDEEEFFF000 (iPad)
+  - 00003333-111222333444 (iPhone)
+```
+
+## Related Tools
+
+- [`provisioning_profiles`](/xcode-pilot-mcp/tools/signing/provisioning-profiles/) — List all installed profiles and their UUIDs
+- [`signing_identities`](/xcode-pilot-mcp/tools/signing/signing-identities/) — Verify that the certificates referenced in the profile are installed
+- [`entitlements_check`](/xcode-pilot-mcp/tools/signing/entitlements-check/) — Compare entitlements between the profile and a built app
+
+## Tips
+
+<Aside type="tip">
+  Use `provisioning_profiles` first to find the UUID of the profile you want to inspect. Installed profiles are stored at `~/Library/MobileDevice/Provisioning Profiles/{UUID}.mobileprovision`.
+</Aside>
+
+<Aside type="tip">
+  Check the **Provisioned Devices** list to verify that a tester's device UDID is included before distributing an ad hoc build.
+</Aside>
+
+<Aside type="tip">
+  Compare the **Entitlements** section with what your app expects. A mismatch between profile entitlements and your app's entitlements file is a common cause of signing failures.
+</Aside>
+
+<Aside type="note">
+  App Store and Enterprise profiles do not list specific device UDIDs because they are not restricted to individual devices.
+</Aside>

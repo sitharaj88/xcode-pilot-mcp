@@ -1,0 +1,109 @@
+---
+title: swiftlint_run
+description: Run SwiftLint to report code style violations without modifying files.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Run SwiftLint on your Swift source files to identify code style violations and potential issues. This tool performs a read-only analysis and reports warnings and errors based on your project's SwiftLint configuration. It does not modify any files -- use [`swiftlint_fix`](/xcode-pilot-mcp/tools/quality/swiftlint-fix/) to auto-correct fixable violations.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `path` | string | No | Current directory | Absolute path to the file or directory to lint |
+| `config` | string | No | Auto-detected `.swiftlint.yml` | Absolute path to a custom SwiftLint configuration file |
+
+## Usage Examples
+
+### Lint the entire project
+
+> "Run SwiftLint on my FitnessTracker project"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker"
+}
+```
+
+### Lint a specific file
+
+> "Check the WorkoutViewModel for lint issues"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels/WorkoutViewModel.swift"
+}
+```
+
+### Lint with a custom configuration
+
+> "Run SwiftLint with our team's strict config on the Sources directory"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker/Sources",
+  "config": "/Users/dev/Projects/FitnessTracker/.swiftlint-strict.yml"
+}
+```
+
+### Lint with default settings
+
+> "Run SwiftLint in the current directory"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Running SwiftLint...
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels/WorkoutViewModel.swift:12:1:
+  warning: Trailing Whitespace Violation: Lines should not have trailing whitespace (trailing_whitespace)
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Views/WorkoutDetailView.swift:34:5:
+  warning: Force Cast Violation: Force casts should be avoided (force_cast)
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Services/APIClient.swift:67:1:
+  warning: File Length Violation: File should contain 400 lines or less: currently contains 423 (file_length)
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Services/APIClient.swift:89:45:
+  error: Force Try Violation: Force tries should be avoided (force_try)
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Models/Workout.swift:8:5:
+  warning: Identifier Name Violation: Variable name 'x' should be between 2 and 40 characters long (identifier_name)
+
+Summary: 4 warnings, 1 error (5 total violations in 4 files)
+```
+
+When no violations are found:
+
+```
+Running SwiftLint...
+
+No violations found. All files pass SwiftLint checks.
+```
+
+## Related Tools
+
+- [`swiftlint_fix`](/xcode-pilot-mcp/tools/quality/swiftlint-fix/) — Auto-fix violations that SwiftLint can correct automatically
+- [`swift_format_run`](/xcode-pilot-mcp/tools/quality/swift-format-run/) — Run swift-format for additional formatting checks
+- [`build_warnings`](/xcode-pilot-mcp/tools/quality/build-warnings/) — Check for compiler warnings in addition to lint violations
+
+## Tips
+
+<Aside type="tip">
+  Run `swiftlint_run` before committing to catch issues early. Pair it with [`swiftlint_fix`](/xcode-pilot-mcp/tools/quality/swiftlint-fix/) to auto-correct what can be fixed, then manually address the remaining violations.
+</Aside>
+
+<Aside type="tip">
+  If you have a large project, lint specific directories or files to get faster results. Linting the entire project is thorough but can be slow on codebases with thousands of files.
+</Aside>
+
+<Aside type="caution">
+  SwiftLint must be installed on your system for this tool to work. Install it via Homebrew with `brew install swiftlint` or include it as a Swift Package Manager plugin in your project.
+</Aside>

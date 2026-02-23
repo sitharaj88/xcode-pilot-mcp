@@ -1,0 +1,66 @@
+---
+title: app_terminate
+description: Terminate a running app on a simulator device.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Terminates a running application on a simulator device by its bundle identifier. This performs a force-stop of the app process, equivalent to swiping the app away in the iOS app switcher.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator device. |
+| `bundleId` | string | Yes | — | The bundle identifier of the app to terminate. |
+
+## Usage Examples
+
+### Terminate a running app
+> "Stop the WeatherApp on the simulator."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+### Terminate before reinstalling
+> "Kill the running shopping app so I can install a new build."
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-1234567890EF",
+  "bundleId": "com.example.shopapp"
+}
+```
+
+## Example Output
+
+```
+App terminated successfully.
+Device: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+Bundle ID: com.example.weatherapp
+```
+
+## Related Tools
+
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Relaunch the app after terminating it.
+- [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/) — Uninstall the app completely after terminating.
+- [`app_list`](/xcode-pilot-mcp/tools/app/app-list/) — List installed apps to verify the correct bundle ID.
+- [`log_collect`](/xcode-pilot-mcp/tools/debug/log-collect/) — Collect logs before terminating to capture recent output.
+
+## Tips
+
+<Aside type="tip">
+  Use `app_terminate` before `app_launch` to ensure a **cold start**. This is especially useful for testing launch performance, onboarding flows, or verifying state restoration behavior.
+</Aside>
+
+<Aside type="tip">
+  Terminating an app does not remove any persisted data. UserDefaults, Core Data, and files in the app container are preserved. Use [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/) if you need to clear all data.
+</Aside>
+
+<Aside type="tip">
+  If the app is not currently running, the terminate command will complete without error. It is safe to call as a precautionary step before install or launch operations.
+</Aside>

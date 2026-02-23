@@ -1,0 +1,95 @@
+---
+title: entitlements_check
+description: Check the entitlements embedded in a built .app bundle.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Inspect the entitlements embedded in a compiled `.app` bundle to verify that the correct capabilities are present. This extracts and displays the entitlements from the code signature, allowing you to confirm that push notifications, App Groups, iCloud, HealthKit, and other capabilities are properly configured before distributing your app.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `appPath` | string | Yes | — | Absolute path to the `.app` bundle to inspect. |
+
+## Usage Examples
+
+### Check entitlements of a simulator build
+
+> "Show me the entitlements in my simulator build"
+
+```json
+{
+  "appPath": "/Users/johndoe/Library/Developer/Xcode/DerivedData/MyApp-abc123/Build/Products/Debug-iphonesimulator/MyApp.app"
+}
+```
+
+### Check entitlements of an archive build
+
+> "Verify the entitlements on the release build before submission"
+
+```json
+{
+  "appPath": "/Users/johndoe/Library/Developer/Xcode/Archives/2026-02-20/MyApp 2026-02-20.xcarchive/Products/Applications/MyApp.app"
+}
+```
+
+### Check entitlements of a sideloaded app
+
+> "Check what entitlements this app bundle has"
+
+```json
+{
+  "appPath": "/Users/johndoe/Desktop/MyApp.app"
+}
+```
+
+## Example Output
+
+```
+Entitlements for: MyApp.app
+Path: /Users/johndoe/Library/Developer/Xcode/DerivedData/MyApp-abc123/Build/Products/Debug-iphonesimulator/MyApp.app
+
+Entitlements:
+  application-identifier: ABCDE12345.com.acme.myapp
+  com.apple.developer.team-identifier: ABCDE12345
+  get-task-allow: true
+  keychain-access-groups:
+    - ABCDE12345.com.acme.myapp
+  aps-environment: development
+  com.apple.developer.associated-domains:
+    - applinks:example.com
+    - webcredentials:example.com
+  com.apple.developer.icloud-container-identifiers:
+    - iCloud.com.acme.myapp
+  com.apple.security.application-groups:
+    - group.com.acme.myapp
+```
+
+## Related Tools
+
+- [`profile_inspect`](/xcode-pilot-mcp/tools/signing/profile-inspect/) — Compare the entitlements in the profile with those in the built app
+- [`signing_identities`](/xcode-pilot-mcp/tools/signing/signing-identities/) — Verify the signing certificate used to sign the app
+- [`provisioning_profiles`](/xcode-pilot-mcp/tools/signing/provisioning-profiles/) — List profiles that grant these entitlements
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build the app bundle that you want to inspect
+
+## Tips
+
+<Aside type="tip">
+  Compare the output of `entitlements_check` with `profile_inspect` on the matching provisioning profile. If there is a mismatch, the app will fail to install on a device or be rejected during App Store review.
+</Aside>
+
+<Aside type="tip">
+  The `get-task-allow` entitlement should be `true` for development builds and `false` for distribution builds. If you see the wrong value, check your build configuration and signing settings.
+</Aside>
+
+<Aside type="tip">
+  For release builds, verify that `aps-environment` is set to `production` instead of `development` to ensure push notifications work in the live environment.
+</Aside>
+
+<Aside type="note">
+  The `.app` bundle must be signed for entitlements to be present. Unsigned builds will show no entitlements.
+</Aside>

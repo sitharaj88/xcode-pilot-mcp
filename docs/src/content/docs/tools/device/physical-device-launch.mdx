@@ -1,0 +1,99 @@
+---
+title: physical_device_launch
+description: Launch an installed app on a connected physical iOS device.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Launch an app that is already installed on a connected physical iOS device. This tool starts the specified app by its bundle identifier on the target device, bringing it to the foreground. It is typically used after [`physical_device_install`](/xcode-pilot-mcp/tools/device/physical-device-install/) to immediately run the newly installed build.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target device (obtain from [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/)) |
+| `bundleId` | string | Yes | — | The bundle identifier of the app to launch (e.g., `"com.acmecorp.fitnesstracker"`) |
+
+## Usage Examples
+
+### Launch the app after installation
+
+> "Launch FitnessTracker on my iPhone 15 Pro Max"
+
+```json
+{
+  "deviceId": "00008130-001A2B3C4D5E6F78",
+  "bundleId": "com.acmecorp.fitnesstracker"
+}
+```
+
+### Launch on a different test device
+
+> "Start the app on the iPhone 14 test device"
+
+```json
+{
+  "deviceId": "00008110-001122334455AABB",
+  "bundleId": "com.acmecorp.fitnesstracker"
+}
+```
+
+### Launch a different app on the same device
+
+> "Open the Settings companion app on my iPhone"
+
+```json
+{
+  "deviceId": "00008130-001A2B3C4D5E6F78",
+  "bundleId": "com.acmecorp.fitnesstracker.settings"
+}
+```
+
+## Example Output
+
+```
+Launching app on device...
+
+Device:      iPhone 15 Pro Max (00008130-001A2B3C4D5E6F78)
+Bundle ID:   com.acmecorp.fitnesstracker
+
+App launched successfully.
+```
+
+When the launch fails:
+
+```
+Launching app on device...
+
+Device:      iPhone 15 Pro Max (00008130-001A2B3C4D5E6F78)
+Bundle ID:   com.acmecorp.fitnesstracker
+
+Error: Launch failed.
+  The app with bundle ID "com.acmecorp.fitnesstracker" is not installed
+  on device 00008130-001A2B3C4D5E6F78.
+
+  Use physical_device_install to install the app first.
+```
+
+## Related Tools
+
+- [`physical_device_install`](/xcode-pilot-mcp/tools/device/physical-device-install/) — Install the app before launching it
+- [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/) — Find the UDID of the target device
+- [`physical_device_console`](/xcode-pilot-mcp/tools/device/physical-device-console/) — Stream console logs after launching to debug runtime behavior
+- [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) — Build the app before installing and launching
+
+## Tips
+
+<Aside type="tip">
+  Chain the full device workflow: [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/) to find the UDID, [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) to compile, [`physical_device_install`](/xcode-pilot-mcp/tools/device/physical-device-install/) to deploy, then `physical_device_launch` to run. Follow up with [`physical_device_console`](/xcode-pilot-mcp/tools/device/physical-device-console/) to watch the logs.
+</Aside>
+
+<Aside type="tip">
+  The `bundleId` must exactly match the bundle identifier the app was signed with. If you are unsure, use [`ipa_analyze`](/xcode-pilot-mcp/tools/analyze/ipa-analyze/) on the IPA or check the `Info.plist` in the `.app` bundle.
+</Aside>
+
+<Aside type="caution">
+  The device must be unlocked for the app to launch. If the device is locked or the screen is off, the launch command may succeed but the app will not appear until the user unlocks the device.
+</Aside>

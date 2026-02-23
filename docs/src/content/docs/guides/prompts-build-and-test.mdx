@@ -1,0 +1,287 @@
+---
+title: "Build & Test Workflows"
+description: Multi-step prompt recipes for building, testing, and managing dependencies.
+sidebar:
+  order: 11
+  badge:
+    text: Cookbook
+    variant: tip
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+These are multi-step workflow recipes. Each recipe shows a sequence of prompts that work together to accomplish a common development task.
+
+## Clean Build and Test
+
+A fresh build-and-test cycle, useful when you suspect cached artifacts are causing issues.
+
+<Steps>
+
+1. > "Clean the build artifacts for the WeatherApp scheme"
+
+2. > "Build WeatherApp for iPhone 16 simulator in Debug mode"
+
+3. > "Run all tests for WeatherApp on iPhone 16 simulator"
+
+</Steps>
+
+**One-shot version:**
+
+> "Clean, rebuild, and run all tests for WeatherApp on the iPhone 16 simulator"
+
+<Aside type="tip">
+  If tests fail after a clean build, the issue is in your code — not cached
+  state. This is a great first step when debugging flaky tests.
+</Aside>
+
+## Archive and Export IPA
+
+Build an IPA for distribution (TestFlight, App Store, or ad-hoc).
+
+<Steps>
+
+1. **Check schemes and settings first:**
+
+   > "List the schemes in my project and show build settings for the Release configuration"
+
+2. **Create the archive:**
+
+   > "Archive the WeatherApp scheme to ~/Desktop/WeatherApp.xcarchive"
+
+   ```json
+   {
+     "scheme": "WeatherApp",
+     "archivePath": "/Users/dev/Desktop/WeatherApp.xcarchive",
+     "configuration": "Release"
+   }
+   ```
+
+3. **Export the IPA:**
+
+   > "Export an IPA from ~/Desktop/WeatherApp.xcarchive to ~/Desktop/ipa-output using ~/ExportOptions.plist"
+
+   ```json
+   {
+     "archivePath": "/Users/dev/Desktop/WeatherApp.xcarchive",
+     "exportPath": "/Users/dev/Desktop/ipa-output",
+     "exportOptionsPlist": "/Users/dev/ExportOptions.plist"
+   }
+   ```
+
+4. **Analyze the output:**
+
+   > "Analyze the exported IPA at ~/Desktop/ipa-output/WeatherApp.ipa"
+
+</Steps>
+
+<Aside type="note">
+  You need an `ExportOptions.plist` file for the export step. Xcode generates
+  one when you manually export from the Organizer, or you can create one
+  manually with keys like `method` (app-store, ad-hoc, development),
+  `teamID`, and `signingStyle`.
+</Aside>
+
+## Run Tests on Specific Simulator
+
+Target a specific device and OS version for testing.
+
+<Steps>
+
+1. **Find the right simulator:**
+
+   > "List all simulators that are shut down"
+
+2. **Boot it:**
+
+   > "Boot the iPhone 15 Pro - iOS 17.5 simulator"
+
+3. **Run tests:**
+
+   > "Run tests for WeatherApp on the iPhone 15 Pro simulator running iOS 17.5"
+
+   ```json
+   {
+     "scheme": "WeatherApp",
+     "destination": "platform=iOS Simulator,name=iPhone 15 Pro,OS=17.5"
+   }
+   ```
+
+</Steps>
+
+## Run Only Specific Test Classes
+
+Focus your test run on the area you're working on.
+
+<Tabs>
+  <TabItem label="Single Test Class">
+    > "Run only the WeatherServiceTests class on iPhone 16 simulator"
+
+    ```json
+    {
+      "scheme": "WeatherApp",
+      "destination": "platform=iOS Simulator,name=iPhone 16,OS=latest",
+      "onlyTesting": ["WeatherAppTests/WeatherServiceTests"]
+    }
+    ```
+  </TabItem>
+  <TabItem label="Multiple Classes">
+    > "Run WeatherServiceTests and LocationManagerTests on iPhone 16"
+
+    ```json
+    {
+      "scheme": "WeatherApp",
+      "destination": "platform=iOS Simulator,name=iPhone 16,OS=latest",
+      "onlyTesting": [
+        "WeatherAppTests/WeatherServiceTests",
+        "WeatherAppTests/LocationManagerTests"
+      ]
+    }
+    ```
+  </TabItem>
+  <TabItem label="Skip UI Tests">
+    > "Run all tests except UI tests on iPhone 16"
+
+    ```json
+    {
+      "scheme": "WeatherApp",
+      "destination": "platform=iOS Simulator,name=iPhone 16,OS=latest",
+      "skipTesting": ["WeatherAppUITests"]
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Check Build Settings for Signing Issues
+
+Debug code signing problems by inspecting the resolved build settings.
+
+<Steps>
+
+1. > "Show build settings for WeatherApp in Release configuration"
+
+   Look for these keys in the output:
+
+   ```
+   CODE_SIGN_IDENTITY = Apple Distribution: Your Team (ABC123)
+   DEVELOPMENT_TEAM = ABC123XYZ
+   PROVISIONING_PROFILE_SPECIFIER = WeatherApp Distribution
+   CODE_SIGN_STYLE = Manual
+   ```
+
+2. > "List my code signing identities"
+
+   Verify the identity from step 1 is installed.
+
+3. > "List my provisioning profiles"
+
+   Verify the profile from step 1 is installed and not expired.
+
+4. **If the profile looks wrong:**
+
+   > "Inspect the provisioning profile at ~/Library/MobileDevice/Provisioning Profiles/abc123.mobileprovision"
+
+</Steps>
+
+## Resolve and Update Dependencies
+
+### Swift Package Manager
+
+<Steps>
+
+1. > "Show the SPM dependency tree for my project"
+
+   Review what packages and versions are currently resolved.
+
+2. > "Update all Swift packages to their latest allowed versions"
+
+3. > "Resolve SPM dependencies to make sure everything is consistent"
+
+4. > "Build my project to verify the updates work"
+
+</Steps>
+
+### CocoaPods
+
+<Steps>
+
+1. > "Check for outdated CocoaPods in my project"
+
+   Review which pods have newer versions available.
+
+2. > "Update all pods"
+
+   Or update a specific one:
+
+   > "Update the Alamofire pod"
+
+3. > "Run pod install with repo update"
+
+   Ensures your local spec repo is current.
+
+4. > "Build my project to verify the pod updates work"
+
+</Steps>
+
+### Mixed SPM + CocoaPods Project
+
+> "Update all Swift packages and CocoaPods, then rebuild and run tests"
+
+The AI assistant will handle both package managers in sequence.
+
+## Run SwiftLint and Auto-Fix
+
+<Steps>
+
+1. **Check current violations:**
+
+   > "Run SwiftLint on my project"
+
+   ```
+   SwiftLint Analysis:
+   12 violations (8 warnings, 4 errors)
+
+   Sources/WeatherService.swift:45: warning: Line Length (line_length)
+   Sources/LocationManager.swift:12: error: Force Cast (force_cast)
+   ...
+   ```
+
+2. **Auto-fix what's possible:**
+
+   > "Auto-fix SwiftLint violations in my project"
+
+   ```
+   SwiftLint auto-fix complete.
+   Fixed 6 violations in 4 files.
+   ```
+
+3. **Check what remains:**
+
+   > "Run SwiftLint again to see remaining issues"
+
+   The remaining violations need manual fixes (force casts, complex issues).
+
+</Steps>
+
+## Full CI-Like Quality Gate
+
+Simulate what your CI pipeline does, all locally:
+
+> "Run the full quality check: clean build, run SwiftLint, check swift-format, run all tests on iPhone 16, and show any build warnings"
+
+<Steps>
+
+1. Clean and build
+2. SwiftLint analysis
+3. swift-format check
+4. Run full test suite
+5. Extract build warnings
+
+</Steps>
+
+This gives you confidence before pushing that your PR will pass CI.
+
+<Aside type="tip">
+  Run this workflow before every PR to catch issues early. It's much faster than
+  waiting for CI to run and report failures.
+</Aside>

@@ -1,0 +1,23 @@
+import Foundation
+import Observation
+
+@Observable
+final class {{NAME}} {
+    // MARK: - Properties
+
+    var isLoading = false
+    var errorMessage: String?
+
+    // MARK: - Methods
+
+    func load() async {
+        isLoading = true
+        defer { isLoading = false }
+
+        do {
+            // TODO: Implement data loading
+        } catch {
+            errorMessage = error.localizedDescription
+        }
+    }
+}

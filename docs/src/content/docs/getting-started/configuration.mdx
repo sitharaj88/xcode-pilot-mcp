@@ -1,0 +1,169 @@
+---
+title: Configuration
+description: Set up Xcode Pilot MCP with Claude Code, Cursor, Windsurf, and other MCP clients.
+sidebar:
+  order: 3
+---
+
+import { Tabs, TabItem, Aside, Steps } from "@astrojs/starlight/components";
+
+Xcode Pilot MCP works with any MCP-compatible client. Below are setup instructions for the most popular editors.
+
+## Claude Code
+
+<Tabs>
+  <TabItem label="npx (Recommended)">
+    Create or edit `.mcp.json` in your project root:
+
+    ```json
+    {
+      "mcpServers": {
+        "xcode-pilot": {
+          "command": "npx",
+          "args": ["xcode-pilot-mcp"]
+        }
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Global Install">
+    ```json
+    {
+      "mcpServers": {
+        "xcode-pilot": {
+          "command": "xcode-pilot-mcp"
+        }
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="From Source">
+    ```json
+    {
+      "mcpServers": {
+        "xcode-pilot": {
+          "command": "node",
+          "args": ["/path/to/xcode-pilot-mcp/build/index.js"]
+        }
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+<Aside type="tip">
+  Place `.mcp.json` at your project root so the tools are available whenever you
+  open that project in Claude Code.
+</Aside>
+
+## Cursor
+
+Edit `~/.cursor/mcp.json`:
+
+<Tabs>
+  <TabItem label="npx">
+    ```json
+    {
+      "mcpServers": {
+        "xcode-pilot": {
+          "command": "npx",
+          "args": ["xcode-pilot-mcp"]
+        }
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Global Install">
+    ```json
+    {
+      "mcpServers": {
+        "xcode-pilot": {
+          "command": "xcode-pilot-mcp"
+        }
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Windsurf
+
+Add to your Windsurf MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "xcode-pilot": {
+      "command": "npx",
+      "args": ["xcode-pilot-mcp"]
+    }
+  }
+}
+```
+
+## VS Code (Copilot MCP)
+
+Add to your VS Code `settings.json`:
+
+```json
+{
+  "mcp": {
+    "servers": {
+      "xcode-pilot": {
+        "command": "npx",
+        "args": ["xcode-pilot-mcp"]
+      }
+    }
+  }
+}
+```
+
+## Other MCP Clients
+
+Any MCP client that supports stdio transport can use Xcode Pilot. The server configuration follows the standard pattern:
+
+| Field | Value |
+|-------|-------|
+| **Command** | `npx` (or `xcode-pilot-mcp` if globally installed) |
+| **Arguments** | `["xcode-pilot-mcp"]` (only needed with `npx`) |
+| **Transport** | stdio (default) |
+| **Environment** | No additional env vars required |
+
+## Environment Variables
+
+Xcode Pilot auto-detects your Xcode installation. Override with:
+
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `DEVELOPER_DIR` | Path to Xcode developer directory | Auto-detected via `xcode-select -p` |
+
+```json
+{
+  "mcpServers": {
+    "xcode-pilot": {
+      "command": "npx",
+      "args": ["xcode-pilot-mcp"],
+      "env": {
+        "DEVELOPER_DIR": "/Applications/Xcode-beta.app/Contents/Developer"
+      }
+    }
+  }
+}
+```
+
+<Aside type="caution">
+  Setting `DEVELOPER_DIR` overrides the system-wide Xcode selection. Use this
+  only when you need to target a specific Xcode version (e.g., a beta).
+</Aside>
+
+## Verify It Works
+
+After configuring your editor, ask your AI assistant:
+
+> "List all available iOS simulator runtimes"
+
+If the server is running correctly, you'll see a list of installed simulator runtimes (iOS, watchOS, tvOS, visionOS).
+
+## Next Step
+
+Browse all available tools: [Tools Overview](/xcode-pilot-mcp/tools/overview/).

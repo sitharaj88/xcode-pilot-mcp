@@ -1,0 +1,95 @@
+---
+title: keyboard_input
+description: Type text into the focused field on an iOS simulator.
+sidebar:
+  order: 6
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Type a string of text into the currently focused input field on an iOS simulator. This simulates keyboard input as if the user were physically typing, making it useful for filling in forms, search bars, login screens, and other text-entry flows during automated testing or demonstrations.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator (must be booted). |
+| `text` | string | Yes | — | The text to type into the focused input field. |
+
+## Usage Examples
+
+### Type a username into a login form
+
+> "Type the test username into the login field"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "text": "testuser@example.com"
+}
+```
+
+### Enter a search query
+
+> "Type 'coffee shops nearby' into the search bar"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "text": "coffee shops nearby"
+}
+```
+
+### Fill in a street address
+
+> "Enter the shipping address in the text field"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "text": "1 Infinite Loop, Cupertino, CA 95014"
+}
+```
+
+### Type a multi-line message
+
+> "Type a message in the chat input"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "text": "Hey! Are we still meeting at 3pm today?"
+}
+```
+
+## Example Output
+
+```
+Text input sent successfully.
+Device: iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+Text: testuser@example.com
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find simulator UDIDs for the `deviceId` parameter
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch an app before interacting with its input fields
+- [`simulator_ui_tap`](/xcode-pilot-mcp/tools/simulator/simulator-ui-tap/) — Tap on a text field to focus it before typing
+
+## Tips
+
+<Aside type="tip">
+  Make sure a text field is focused (has an active cursor) before calling `keyboard_input`. You may need to tap on the input field first using a UI interaction tool.
+</Aside>
+
+<Aside type="tip">
+  For form-filling workflows, combine `keyboard_input` with UI tap actions to move between fields: tap the field, type the value, tap the next field, type the next value, and so on.
+</Aside>
+
+<Aside type="note">
+  This tool sends the entire text at once. It does not simulate individual key presses with delays between them.
+</Aside>
+
+<Aside type="caution">
+  If the software keyboard is disabled in the simulator (via Hardware > Keyboard > Toggle Software Keyboard), the text will still be sent to the focused responder. The on-screen keyboard does not need to be visible.
+</Aside>

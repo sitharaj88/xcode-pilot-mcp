@@ -1,0 +1,93 @@
+---
+title: Prerequisites
+description: What you need before installing Xcode Pilot MCP.
+sidebar:
+  order: 1
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+## Required
+
+<Steps>
+
+1. **Xcode** (14.0 or later, 15+ recommended)
+
+   Download from the [Mac App Store](https://apps.apple.com/app/xcode/id497799835) or [Apple Developer](https://developer.apple.com/xcode/).
+
+   After installing, open Xcode once to accept the license agreement and install components.
+
+2. **Xcode Command Line Tools**
+
+   ```bash
+   xcode-select --install
+   ```
+
+   Verify the installation:
+
+   ```bash
+   xcode-select -p
+   # Expected: /Applications/Xcode.app/Contents/Developer
+   ```
+
+3. **Node.js 20 or later**
+
+   Install via [nodejs.org](https://nodejs.org/), [Homebrew](https://brew.sh/), or a version manager:
+
+   ```bash
+   # Homebrew
+   brew install node@20
+
+   # nvm
+   nvm install 20
+   nvm use 20
+
+   # Verify
+   node --version
+   # Expected: v20.x.x or later
+   ```
+
+</Steps>
+
+## Optional Tools
+
+These tools extend Xcode Pilot's capabilities but are not required for core functionality:
+
+| Tool | Purpose | Install |
+|------|---------|---------|
+| **SwiftLint** | Code quality analysis and auto-fix | `brew install swiftlint` |
+| **swift-format** | Code formatting checks | `brew install swift-format` |
+| **CocoaPods** | Pod dependency management | `sudo gem install cocoapods` |
+| **xcbeautify** | Prettier Xcode build output | `brew install xcbeautify` |
+
+<Aside type="tip">
+  You don't need all optional tools upfront. Xcode Pilot will tell you if a
+  required tool is missing when you try to use a feature that depends on it.
+</Aside>
+
+## Verify Your Setup
+
+Run this quick check to make sure everything is ready:
+
+```bash
+# Xcode CLI tools
+xcodebuild -version
+# Xcode 16.0 (or your version)
+
+# Simulator runtime
+xcrun simctl list runtimes
+# Should list iOS runtimes
+
+# Node.js
+node --version
+# v20.x.x or later
+```
+
+<Aside type="caution">
+  If `xcodebuild -version` shows an error about licensing, open Xcode.app and
+  accept the license agreement first.
+</Aside>
+
+## Next Step
+
+Ready to install? Head to the [Installation](/xcode-pilot-mcp/getting-started/installation/) guide.

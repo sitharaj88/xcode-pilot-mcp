@@ -1,0 +1,232 @@
+---
+title: Debugging Workflow
+description: Log filtering, screenshots, screen recording, accessibility audits, and appearance testing.
+sidebar:
+  order: 2
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+This guide covers the full debugging toolkit — from streaming live logs to capturing visual evidence and running accessibility audits.
+
+## Log Analysis
+
+### Stream Live Logs
+
+Capture real-time logs while reproducing a bug:
+
+> "Stream logs from iPhone 16 for 15 seconds, filtering for my app's subsystem"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "predicate": "subsystem == \"com.example.weatherapp\"",
+  "timeout": 15
+}
+```
+
+<Aside type="tip">
+  Use predicates to filter noise. Common patterns:
+  - `subsystem == "com.example.myapp"` — your app's logs only
+  - `eventMessage contains "error"` — any error messages
+  - `category == "networking"` — specific log category
+  - `subsystem == "com.example.myapp" AND level >= error` — errors from your app
+</Aside>
+
+### Collect Historical Logs
+
+Review what happened in the last 5 minutes:
+
+> "Collect the last 5 minutes of logs from the iPhone 16 simulator"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "last": "5m",
+  "predicate": "subsystem == \"com.example.weatherapp\""
+}
+```
+
+Use JSON output for structured analysis:
+
+> "Collect the last 2 minutes of error logs from the simulator in JSON format"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "last": "2m",
+  "predicate": "level >= error",
+  "style": "json"
+}
+```
+
+## Visual Debugging
+
+### Screenshots
+
+Capture the current screen state:
+
+<Steps>
+
+1. **Basic screenshot**
+
+   > "Take a screenshot of the running simulator"
+
+   The screenshot is saved as PNG with an auto-generated path:
+
+   ```
+   Screenshot saved to /tmp/screenshot-20250223-143052.png
+   ```
+
+2. **Screenshot to specific path**
+
+   > "Take a screenshot and save it to ~/Desktop/bug-report.png"
+
+   ```json
+   {
+     "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+     "outputPath": "/Users/dev/Desktop/bug-report.png"
+   }
+   ```
+
+</Steps>
+
+### Screen Recording
+
+Record a video of the bug reproduction:
+
+> "Record the simulator screen for 20 seconds"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "duration": 20,
+  "outputPath": "/Users/dev/Desktop/bug-demo.mp4"
+}
+```
+
+<Aside type="caution">
+  Screen recording starts immediately. Make sure you're ready to reproduce the
+  issue before starting the recording.
+</Aside>
+
+## Dark Mode Testing
+
+Compare your app in both appearances:
+
+<Steps>
+
+1. **Set light mode and screenshot**
+
+   > "Set the simulator to light mode and take a screenshot"
+
+   ```json
+   // device_appearance
+   { "deviceId": "F3A1B2C3...", "appearance": "light" }
+   // screenshot
+   { "deviceId": "F3A1B2C3...", "outputPath": "/tmp/light-mode.png" }
+   ```
+
+2. **Set dark mode and screenshot**
+
+   > "Now switch to dark mode and take another screenshot"
+
+   ```json
+   // device_appearance
+   { "deviceId": "F3A1B2C3...", "appearance": "dark" }
+   // screenshot
+   { "deviceId": "F3A1B2C3...", "outputPath": "/tmp/dark-mode.png" }
+   ```
+
+</Steps>
+
+Or do it all at once:
+
+> "Take screenshots of my app in both light mode and dark mode"
+
+## Accessibility Audit
+
+Run an automated accessibility check on the current screen:
+
+> "Run an accessibility audit on the iPhone 16 simulator"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+Example output:
+
+```
+Accessibility Audit Results:
+
+[Warning] Button "Submit" — Missing accessibility label
+[Warning] Image "hero-banner" — Missing accessibility description
+[Pass] Navigation bar — Proper heading hierarchy
+[Pass] Text fields — Correct input traits
+[Pass] Color contrast — Meets WCAG AA standards
+
+2 warnings, 0 errors
+```
+
+<Aside type="note">
+  The accessibility audit requires **Xcode 15 or later**. It checks for common
+  issues like missing labels, insufficient contrast, and improper element types.
+</Aside>
+
+## Location Testing
+
+Test location-dependent features:
+
+<Steps>
+
+1. **Set a GPS location**
+
+   > "Set the simulator location to Apple Park"
+
+   ```json
+   {
+     "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+     "latitude": 37.3349,
+     "longitude": -122.0090
+   }
+   ```
+
+2. **Launch your map feature and screenshot**
+
+   > "Launch the app, wait a moment, then take a screenshot"
+
+3. **Clear the location when done**
+
+   > "Clear the simulated location"
+
+</Steps>
+
+Common test coordinates:
+
+| Location | Latitude | Longitude |
+|----------|----------|-----------|
+| Apple Park, Cupertino | 37.3349 | -122.0090 |
+| Times Square, NYC | 40.7580 | -73.9855 |
+| Tower of London | 51.5081 | -0.0759 |
+| Sydney Opera House | -33.8568 | 151.2153 |
+| Tokyo Tower | 35.6586 | 139.7454 |
+
+## Full Debug Session Example
+
+Here's a complete debugging workflow in one conversation:
+
+> "I'm debugging a crash in my weather app. Here's what I need:
+> 1. Stream logs for 10 seconds while I reproduce the crash
+> 2. Collect the last 2 minutes of error logs
+> 3. Take a screenshot of the crash state
+> 4. Run an accessibility audit
+> 5. Record 15 seconds of video showing the issue"
+
+The AI assistant will execute each tool in sequence, providing all the diagnostic data you need.
+
+## Next Steps
+
+- [Simulator Management](/xcode-pilot-mcp/guides/simulator-management/) — Set up multiple test environments
+- [Device & Debug Prompts](/xcode-pilot-mcp/guides/prompts-device-and-debug/) — Ready-to-use debugging prompts

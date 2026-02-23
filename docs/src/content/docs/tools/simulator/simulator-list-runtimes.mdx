@@ -1,0 +1,87 @@
+---
+title: simulator_list_runtimes
+description: List all installed simulator runtimes (iOS, watchOS, tvOS, visionOS).
+sidebar:
+  order: 8
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+List all simulator runtimes installed on your system, including iOS, watchOS, tvOS, and visionOS. Each runtime entry shows its name, version, build number, identifier, and availability status. Use this tool to discover which runtimes are available before creating a new simulator.
+
+## Parameters
+
+This tool takes no parameters.
+
+## Usage Examples
+
+### List all installed runtimes
+
+> "What iOS simulator runtimes do I have installed?"
+
+```json
+{}
+```
+
+### Check available runtimes before creating a simulator
+
+> "Which runtimes can I use to create a new simulator?"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Installed Runtimes:
+
+iOS 18.0 (22A3354)
+  Identifier: com.apple.CoreSimulator.SimRuntime.iOS-18-0
+  Available: Yes
+
+iOS 17.5 (21F79)
+  Identifier: com.apple.CoreSimulator.SimRuntime.iOS-17-5
+  Available: Yes
+
+iOS 17.0 (21A328)
+  Identifier: com.apple.CoreSimulator.SimRuntime.iOS-17-0
+  Available: Yes
+
+iOS 16.4 (20E247)
+  Identifier: com.apple.CoreSimulator.SimRuntime.iOS-16-4
+  Available: No (runtime not installed)
+
+watchOS 11.0 (22R5348a)
+  Identifier: com.apple.CoreSimulator.SimRuntime.watchOS-11-0
+  Available: Yes
+
+tvOS 18.0 (22J5356a)
+  Identifier: com.apple.CoreSimulator.SimRuntime.tvOS-18-0
+  Available: Yes
+
+visionOS 2.0 (22N5297g)
+  Identifier: com.apple.CoreSimulator.SimRuntime.xrOS-2-0
+  Available: Yes
+```
+
+## Related Tools
+
+- [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/) — Create a simulator using a runtime identifier from this list
+- [`simulator_list_device_types`](/xcode-pilot-mcp/tools/simulator/simulator-list-device-types/) — List device types to pair with a runtime when creating a simulator
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — See which runtimes your existing simulators are using
+- [`simulator_delete`](/xcode-pilot-mcp/tools/simulator/simulator-delete/) — Clean up simulators whose runtimes are no longer available
+
+## Tips
+
+<Aside type="tip">
+  Copy the `Identifier` value (e.g., `com.apple.CoreSimulator.SimRuntime.iOS-18-0`) directly into the `runtimeId` parameter of [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/).
+</Aside>
+
+<Aside type="note">
+  Runtimes marked as "Not Available" need to be downloaded first. Open Xcode &gt; Settings &gt; Platforms to download additional simulator runtimes.
+</Aside>
+
+<Aside type="tip">
+  After upgrading Xcode, run this tool to verify that the runtimes you need are still available. Major Xcode updates sometimes drop support for older runtimes.
+</Aside>

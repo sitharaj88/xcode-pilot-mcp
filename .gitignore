@@ -1,0 +1,14 @@
+node_modules/
+build/
+coverage/
+*.tsbuildinfo
+.DS_Store
+*.log
+.env
+.env.local
+
+# Docs
+docs/package-lock.json
+docs/node_modules/
+docs/dist/
+docs/.astro/

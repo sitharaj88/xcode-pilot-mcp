@@ -1,0 +1,105 @@
+---
+title: ipa_analyze
+description: Analyze an IPA file to extract metadata, entitlements, and structural information.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Analyze an IPA archive to extract comprehensive metadata including the bundle identifier, version numbers, supported architectures, embedded frameworks, entitlements, and minimum deployment target. This tool inspects the IPA without installing it, making it ideal for pre-release validation or auditing third-party builds.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `ipaPath` | string | Yes | — | Absolute path to the `.ipa` file to analyze |
+
+## Usage Examples
+
+### Analyze a release build
+
+> "Analyze the IPA I just exported for FitnessTracker"
+
+```json
+{
+  "ipaPath": "/Users/dev/Projects/FitnessTracker/build/FitnessTracker.ipa"
+}
+```
+
+### Inspect a downloaded IPA
+
+> "Check the metadata of this IPA from our CI pipeline"
+
+```json
+{
+  "ipaPath": "/Users/dev/Downloads/FitnessTracker-v2.3.1-build47.ipa"
+}
+```
+
+### Analyze an ad-hoc distribution build
+
+> "Analyze the ad-hoc build before sending it to testers"
+
+```json
+{
+  "ipaPath": "/Users/dev/Archives/FitnessTracker-adhoc-2025-01-15.ipa"
+}
+```
+
+## Example Output
+
+```
+IPA Analysis: /Users/dev/Projects/FitnessTracker/build/FitnessTracker.ipa
+
+General:
+  Bundle Name:        FitnessTracker
+  Bundle ID:          com.acmecorp.fitnesstracker
+  Version:            2.3.1
+  Build Number:       47
+  Min iOS Version:    17.0
+
+Binary:
+  Architectures:      arm64
+  Executable:         FitnessTracker
+  Binary Size:        14.2 MB
+
+Signing:
+  Team ID:            A1B2C3D4E5
+  Provisioning:       FitnessTracker Ad Hoc
+  Expiration:         2025-08-20
+
+Entitlements:
+  aps-environment:    production
+  com.apple.developer.associated-domains
+  com.apple.developer.healthkit
+  keychain-access-groups
+
+Embedded Frameworks:
+  Alamofire.framework       (2.1 MB)
+  Charts.framework          (1.8 MB)
+  KeychainAccess.framework  (320 KB)
+
+Total IPA Size: 22.7 MB
+```
+
+## Related Tools
+
+- [`ipa_permissions`](/xcode-pilot-mcp/tools/analyze/ipa-permissions/) — Extract and list only the permission usage descriptions from the IPA
+- [`binary_size`](/xcode-pilot-mcp/tools/analyze/binary-size/) — Get a detailed size breakdown of the binary executable
+- [`dsym_verify`](/xcode-pilot-mcp/tools/analyze/dsym-verify/) — Verify the dSYM file matches this IPA's binary for crash symbolication
+- [`xcode_archive`](/xcode-pilot-mcp/tools/build/xcode-archive/) — Create an archive that produces an IPA for analysis
+
+## Tips
+
+<Aside type="tip">
+  Run this tool on every IPA before submitting to App Store Connect. It gives you a quick sanity check on the bundle ID, version numbers, and entitlements without opening Xcode.
+</Aside>
+
+<Aside type="tip">
+  Compare the output across builds to catch unexpected size increases or missing frameworks. If the total IPA size jumps significantly, check the embedded frameworks section for newly added dependencies.
+</Aside>
+
+<Aside type="note">
+  The IPA file is a ZIP archive internally. This tool extracts it to a temporary location for inspection and cleans up afterward.
+</Aside>

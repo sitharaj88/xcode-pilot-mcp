@@ -1,0 +1,104 @@
+---
+title: dsym_verify
+description: Verify that a dSYM file matches a binary for crash log symbolication.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Verify that a dSYM (debug symbols) file matches a compiled binary by comparing their UUIDs. When crash reports come in from production, you need the matching dSYM to symbolicate stack traces back to source code. This tool confirms the pairing is correct before you upload symbols to a crash reporting service or attempt local symbolication.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `dsymPath` | string | Yes | — | Absolute path to the `.dSYM` bundle |
+| `binaryPath` | string | Yes | — | Absolute path to the Mach-O binary executable to verify against |
+
+## Usage Examples
+
+### Verify a dSYM from an archive
+
+> "Verify the dSYM matches the FitnessTracker binary from my latest archive"
+
+```json
+{
+  "dsymPath": "/Users/dev/Library/Developer/Xcode/Archives/2025-01-15/FitnessTracker.xcarchive/dSYMs/FitnessTracker.app.dSYM",
+  "binaryPath": "/Users/dev/Library/Developer/Xcode/Archives/2025-01-15/FitnessTracker.xcarchive/Products/Applications/FitnessTracker.app/FitnessTracker"
+}
+```
+
+### Verify symbols before uploading to Crashlytics
+
+> "Make sure this dSYM is correct before I upload it to Firebase Crashlytics"
+
+```json
+{
+  "dsymPath": "/Users/dev/Desktop/dSYMs/FitnessTracker.app.dSYM",
+  "binaryPath": "/Users/dev/Desktop/builds/FitnessTracker.app/FitnessTracker"
+}
+```
+
+### Verify a framework's dSYM
+
+> "Check if the Charts framework dSYM matches the embedded framework binary"
+
+```json
+{
+  "dsymPath": "/Users/dev/Library/Developer/Xcode/Archives/2025-01-15/FitnessTracker.xcarchive/dSYMs/Charts.framework.dSYM",
+  "binaryPath": "/Users/dev/Library/Developer/Xcode/Archives/2025-01-15/FitnessTracker.xcarchive/Products/Applications/FitnessTracker.app/Frameworks/Charts.framework/Charts"
+}
+```
+
+## Example Output
+
+When the dSYM matches the binary:
+
+```
+dSYM Verification: MATCH
+
+Binary:  /Users/dev/.../FitnessTracker.app/FitnessTracker
+dSYM:    /Users/dev/.../dSYMs/FitnessTracker.app.dSYM
+
+Binary UUID:  A1B2C3D4-E5F6-7890-ABCD-EF1234567890
+dSYM UUID:    A1B2C3D4-E5F6-7890-ABCD-EF1234567890
+Architecture: arm64
+
+Status: UUIDs match. This dSYM can be used to symbolicate crash reports for this binary.
+```
+
+When they do not match:
+
+```
+dSYM Verification: MISMATCH
+
+Binary:  /Users/dev/.../FitnessTracker.app/FitnessTracker
+dSYM:    /Users/dev/.../dSYMs/FitnessTracker.app.dSYM
+
+Binary UUID:  A1B2C3D4-E5F6-7890-ABCD-EF1234567890
+dSYM UUID:    F9E8D7C6-B5A4-3210-FEDC-BA9876543210
+Architecture: arm64
+
+Status: UUIDs DO NOT match. This dSYM was generated from a different build and cannot symbolicate crashes from this binary.
+```
+
+## Related Tools
+
+- [`binary_size`](/xcode-pilot-mcp/tools/analyze/binary-size/) — Analyze the size of the binary whose dSYM you are verifying
+- [`ipa_analyze`](/xcode-pilot-mcp/tools/analyze/ipa-analyze/) — Extract metadata from the IPA that contains this binary
+- [`xcode_archive`](/xcode-pilot-mcp/tools/build/xcode-archive/) — Create an archive that produces both the binary and its dSYM
+
+## Tips
+
+<Aside type="tip">
+  Always verify dSYMs immediately after archiving and before uploading to your crash reporting service (Firebase Crashlytics, Sentry, Bugsnag). A mismatched dSYM means crash reports will show unsymbolicated addresses instead of readable function names.
+</Aside>
+
+<Aside type="tip">
+  If the UUIDs do not match, check that you are pointing to the dSYM from the same archive as the binary. Each build produces a unique UUID, so a dSYM from a previous build will not work with a newer binary.
+</Aside>
+
+<Aside type="note">
+  The `dsymPath` should point to the `.dSYM` bundle directory (e.g., `FitnessTracker.app.dSYM`), not to the DWARF file inside it. The tool navigates the bundle structure internally to find the DWARF data.
+</Aside>

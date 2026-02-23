@@ -1,0 +1,122 @@
+---
+title: simulator_list_device_types
+description: List all available simulator device types (iPhone, iPad, Apple Watch, Apple TV, Apple Vision Pro).
+sidebar:
+  order: 9
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+List all device types available for creating simulators, including iPhones, iPads, Apple Watches, Apple TVs, and Apple Vision Pro. Each entry shows the device name, identifier, and supported product family. Use this tool to find the correct `deviceTypeId` before creating a new simulator.
+
+## Parameters
+
+This tool takes no parameters.
+
+## Usage Examples
+
+### List all available device types
+
+> "What device types can I create simulators for?"
+
+```json
+{}
+```
+
+### Find iPhone device type identifiers
+
+> "Show me all available simulator device types so I can create an iPhone"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Available Device Types:
+
+iPhone SE (3rd generation)
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation
+  Product Family: iPhone
+
+iPhone 14
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-14
+  Product Family: iPhone
+
+iPhone 14 Pro
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro
+  Product Family: iPhone
+
+iPhone 14 Pro Max
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-14-Pro-Max
+  Product Family: iPhone
+
+iPhone 15
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-15
+  Product Family: iPhone
+
+iPhone 15 Pro
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro
+  Product Family: iPhone
+
+iPhone 15 Pro Max
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro-Max
+  Product Family: iPhone
+
+iPhone 16
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-16
+  Product Family: iPhone
+
+iPhone 16 Pro
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro
+  Product Family: iPhone
+
+iPhone 16 Pro Max
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro-Max
+  Product Family: iPhone
+
+iPad Air (6th generation - M2)
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPad-Air-6th-generation-M2
+  Product Family: iPad
+
+iPad Pro 11-inch (M4)
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPad-Pro-11-inch-M4
+  Product Family: iPad
+
+iPad Pro 13-inch (M4)
+  Identifier: com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4
+  Product Family: iPad
+
+Apple Watch Ultra 2 (49mm)
+  Identifier: com.apple.CoreSimulator.SimDeviceType.Apple-Watch-Ultra-2-49mm
+  Product Family: Apple Watch
+
+Apple TV 4K (3rd generation)
+  Identifier: com.apple.CoreSimulator.SimDeviceType.Apple-TV-4K-3rd-generation-4K
+  Product Family: Apple TV
+
+Apple Vision Pro
+  Identifier: com.apple.CoreSimulator.SimDeviceType.Apple-Vision-Pro
+  Product Family: Apple Reality
+```
+
+## Related Tools
+
+- [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/) — Create a simulator using a device type identifier from this list
+- [`simulator_list_runtimes`](/xcode-pilot-mcp/tools/simulator/simulator-list-runtimes/) — List runtimes to pair with a device type when creating a simulator
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — See which device types your existing simulators use
+
+## Tips
+
+<Aside type="tip">
+  Copy the `Identifier` value (e.g., `com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro`) directly into the `deviceTypeId` parameter of [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/).
+</Aside>
+
+<Aside type="tip">
+  When testing responsive layouts, create simulators for the smallest and largest devices in your supported range. For example, pair an iPhone SE (3rd generation) with an iPhone 16 Pro Max to cover both extremes of screen size.
+</Aside>
+
+<Aside type="note">
+  Not all device type and runtime combinations are valid. For example, you cannot create an iPhone 16 simulator with an iOS 16.4 runtime because that device was not available in that iOS version. The `simulator_create` tool will report an error if the combination is invalid.
+</Aside>

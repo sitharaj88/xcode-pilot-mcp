@@ -1,0 +1,107 @@
+---
+title: Installation
+description: Install Xcode Pilot MCP via npm, npx, or from source.
+sidebar:
+  order: 2
+---
+
+import { Tabs, TabItem, Steps, Aside } from "@astrojs/starlight/components";
+
+## Quick Install
+
+The fastest way to get started — no global install needed:
+
+```bash
+npx xcode-pilot-mcp
+```
+
+This downloads and runs the latest version on demand. Most MCP clients use this approach in their configuration.
+
+## Global Install
+
+If you prefer a permanent installation:
+
+<Tabs>
+  <TabItem label="npm">
+    ```bash
+    npm install -g xcode-pilot-mcp
+    ```
+  </TabItem>
+  <TabItem label="yarn">
+    ```bash
+    yarn global add xcode-pilot-mcp
+    ```
+  </TabItem>
+  <TabItem label="pnpm">
+    ```bash
+    pnpm add -g xcode-pilot-mcp
+    ```
+  </TabItem>
+</Tabs>
+
+Verify the installation:
+
+```bash
+xcode-pilot-mcp --help
+```
+
+## Install from Source
+
+For development or to run the latest unreleased changes:
+
+<Steps>
+
+1. Clone the repository:
+
+   ```bash
+   git clone https://github.com/sitharaj88/xcode-pilot-mcp.git
+   cd xcode-pilot-mcp
+   ```
+
+2. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+3. Build the project:
+
+   ```bash
+   npm run build
+   ```
+
+4. Run the server:
+
+   ```bash
+   node build/index.js
+   ```
+
+</Steps>
+
+<Aside type="tip">
+  During development, use `npm run dev` for watch mode — it rebuilds
+  automatically when you change source files.
+</Aside>
+
+## How It Works
+
+Xcode Pilot MCP is a **stdio-based MCP server**. It communicates with your AI assistant over stdin/stdout using the Model Context Protocol. You don't interact with it directly — your MCP client (Claude Code, Cursor, etc.) launches it automatically.
+
+```
+┌──────────────┐     MCP (stdio)     ┌──────────────────┐
+│  AI Assistant │ ◄────────────────► │  Xcode Pilot MCP │
+│  (Claude, etc)│                    │  (this server)    │
+└──────────────┘                    └────────┬─────────┘
+                                             │
+                                    ┌────────▼─────────┐
+                                    │  Xcode Toolchain  │
+                                    │  xcodebuild       │
+                                    │  xcrun simctl      │
+                                    │  devicectl         │
+                                    │  security          │
+                                    └──────────────────┘
+```
+
+## Next Step
+
+Configure your editor to use Xcode Pilot MCP: [Configuration](/xcode-pilot-mcp/getting-started/configuration/).

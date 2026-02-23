@@ -1,0 +1,109 @@
+---
+title: accessibility_audit
+description: Run an accessibility audit on a simulator to detect a11y issues in the current UI.
+sidebar:
+  order: 6
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The `accessibility_audit` tool performs an automated accessibility audit on the currently displayed screen of a booted simulator. It inspects the view hierarchy for common accessibility issues such as missing labels, insufficient contrast ratios, unsupported Dynamic Type, small touch targets, and elements hidden from assistive technologies. The audit leverages Xcode's built-in accessibility testing framework, introduced in Xcode 15.
+
+## Parameters
+
+| Parameter  | Type   | Required | Default | Description                                                              |
+|------------|--------|----------|---------|--------------------------------------------------------------------------|
+| `deviceId` | string | Yes      | —       | UDID of the booted simulator to audit. Must be running iOS 17+ runtime.  |
+
+## Usage Examples
+
+### Audit the current screen
+
+> "Run an accessibility audit on my simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+### Audit after navigating to a specific screen
+
+> "Run an accessibility audit on the settings screen of my app in the simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+### Audit in dark mode
+
+> "Switch to dark mode and run an accessibility audit to check contrast"
+
+First call [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) to set dark mode, then run the audit:
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+## Example Output
+
+```
+Accessibility Audit Results
+Device: iPhone 16 Pro (A1B2C3D4-E5F6-7890-ABCD-EF1234567890)
+Screen: SettingsView
+
+Issues found: 5
+
+[WARNING] Missing accessibility label
+  Element: UIButton at (24, 142, 44, 44)
+  Description: Image-only button with no accessibility label set.
+  Suggestion: Add an accessibilityLabel describing the button's action (e.g., "Close" or "Settings").
+
+[ERROR] Insufficient contrast ratio
+  Element: UILabel "Last updated 2 min ago" at (16, 308, 343, 18)
+  Contrast ratio: 2.8:1 (minimum required: 4.5:1 for normal text)
+  Foreground: #A0A0A0, Background: #F2F2F7
+  Suggestion: Darken the text color to at least #767676 to meet WCAG AA requirements.
+
+[WARNING] Small touch target
+  Element: UIButton "Clear cache" at (280, 520, 60, 28)
+  Size: 60 x 28 pt (minimum recommended: 44 x 44 pt)
+  Suggestion: Increase the tappable area to at least 44 x 44 points.
+
+[WARNING] Missing accessibility trait
+  Element: Custom UIView at (16, 410, 343, 80)
+  Description: Interactive element missing .button or .link trait.
+  Suggestion: Add the appropriate accessibility trait so VoiceOver announces the element correctly.
+
+[INFO] Dynamic Type not supported
+  Element: UILabel "Version 2.4.1" at (16, 680, 200, 16)
+  Description: Fixed font size (13pt) does not respond to Dynamic Type settings.
+  Suggestion: Use a scalable text style (e.g., .footnote) or UIFontMetrics for custom fonts.
+
+Summary: 1 error, 3 warnings, 1 info
+```
+
+## Related Tools
+
+- [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) — Capture a screenshot of the screen being audited to visually document issues.
+- [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) — Switch between light and dark mode to test contrast and readability in both appearances.
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch the app and navigate to the target screen before running the audit.
+- [`xcode_test`](/xcode-pilot-mcp/tools/build/xcode-test/) — Run automated UI tests that include programmatic accessibility assertions.
+
+## Tips
+
+<Aside type="tip">
+  Run the audit on every major screen of your app, not just the main view. Accessibility issues often hide in secondary screens like settings, profile editing, or detail views that receive less design attention.
+</Aside>
+
+<Aside type="tip">
+  Pair the audit with [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) to run it in both light and dark mode. Contrast ratio violations frequently appear in only one appearance mode, especially for custom colors that were not tested against both backgrounds.
+</Aside>
+
+<Aside type="caution">
+  This tool requires **Xcode 15 or later** and a simulator running **iOS 17+**. On older Xcode versions the command will fail. Verify your Xcode version with [`diagnostics`](/xcode-pilot-mcp/tools/debug/diagnostics/) if you encounter compatibility errors.
+</Aside>

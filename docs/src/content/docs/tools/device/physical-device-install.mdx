@@ -1,0 +1,108 @@
+---
+title: physical_device_install
+description: Install an app bundle onto a connected physical iOS device.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Install a compiled `.app` bundle onto a connected physical iOS device. This tool pushes the application binary to the device and installs it, similar to what Xcode does when you click Run targeting a physical device. The app must be properly code-signed for the target device.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target device (obtain from [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/)) |
+| `appPath` | string | Yes | — | Absolute path to the `.app` bundle to install |
+
+## Usage Examples
+
+### Install a debug build on iPhone
+
+> "Install FitnessTracker on my iPhone 15 Pro Max"
+
+```json
+{
+  "deviceId": "00008130-001A2B3C4D5E6F78",
+  "appPath": "/Users/dev/Library/Developer/Xcode/DerivedData/FitnessTracker-abc123/Build/Products/Debug-iphoneos/FitnessTracker.app"
+}
+```
+
+### Install on an iPad over Wi-Fi
+
+> "Deploy the latest build to my iPad Air"
+
+```json
+{
+  "deviceId": "00008103-000A1B2C3D4E5F60",
+  "appPath": "/Users/dev/Library/Developer/Xcode/DerivedData/FitnessTracker-abc123/Build/Products/Debug-iphoneos/FitnessTracker.app"
+}
+```
+
+### Install a release build from an archive
+
+> "Install the archived release build on my test device"
+
+```json
+{
+  "deviceId": "00008110-001122334455AABB",
+  "appPath": "/Users/dev/Library/Developer/Xcode/Archives/2025-01-15/FitnessTracker.xcarchive/Products/Applications/FitnessTracker.app"
+}
+```
+
+## Example Output
+
+```
+Installing app on device...
+
+Device:      iPhone 15 Pro Max (00008130-001A2B3C4D5E6F78)
+App:         FitnessTracker.app
+Bundle ID:   com.acmecorp.fitnesstracker
+
+Progress:
+  Copying app to device...    done
+  Verifying code signature... done
+  Installing app...           done
+
+App installed successfully. Use physical_device_launch to start the app.
+```
+
+When installation fails:
+
+```
+Installing app on device...
+
+Device:      iPhone 15 Pro Max (00008130-001A2B3C4D5E6F78)
+App:         FitnessTracker.app
+Bundle ID:   com.acmecorp.fitnesstracker
+
+Error: Installation failed.
+  The code signature is not valid for this device. The provisioning profile
+  "iOS Team Provisioning Profile: com.acmecorp.fitnesstracker" does not
+  include this device's UDID.
+
+  Add device UDID 00008130-001A2B3C4D5E6F78 to your provisioning profile
+  in the Apple Developer portal and re-sign the app.
+```
+
+## Related Tools
+
+- [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/) — List connected devices to find the target UDID
+- [`physical_device_launch`](/xcode-pilot-mcp/tools/device/physical-device-launch/) — Launch the app after installation
+- [`physical_device_console`](/xcode-pilot-mcp/tools/device/physical-device-console/) — Stream logs from the device after launching
+- [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) — Build the app for a physical device before installing
+
+## Tips
+
+<Aside type="tip">
+  Build with `sdk: "iphoneos"` and `destination: "generic/platform=iOS"` using [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) to produce an `.app` bundle compatible with physical devices. Simulator builds (built with `iphonesimulator` SDK) will not install on real hardware.
+</Aside>
+
+<Aside type="tip">
+  After installation, use [`physical_device_launch`](/xcode-pilot-mcp/tools/device/physical-device-launch/) with the same `deviceId` and the app's bundle identifier to start it immediately without manually tapping the icon on the device.
+</Aside>
+
+<Aside type="caution">
+  The app must be signed with a provisioning profile that includes the target device's UDID. If you get a code signing error, ensure the device is registered in your Apple Developer account and included in the provisioning profile.
+</Aside>

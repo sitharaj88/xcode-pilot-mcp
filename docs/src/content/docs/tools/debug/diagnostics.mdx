@@ -1,0 +1,93 @@
+---
+title: diagnostics
+description: Collect a comprehensive diagnostic report including system info, logs, and crash data.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The `diagnostics` tool gathers a comprehensive diagnostic report from the development environment. The report bundles system information, Xcode version details, simulator states, recent crash logs, system logs, and resource usage metrics into a single output directory. This is invaluable when filing bug reports with Apple, sharing context with teammates, or triaging issues that span multiple subsystems.
+
+## Parameters
+
+| Parameter    | Type   | Required | Default        | Description                                                                                         |
+|--------------|--------|----------|----------------|-----------------------------------------------------------------------------------------------------|
+| `outputPath` | string | No       | Auto-generated | Directory path where the diagnostic report will be saved. A timestamped directory is created if omitted. |
+
+## Usage Examples
+
+### Collect diagnostics with auto-generated output
+
+> "Run a full diagnostic report"
+
+```json
+{}
+```
+
+### Save diagnostics to a specific directory
+
+> "Collect a diagnostic report and save it to my project's diagnostics folder"
+
+```json
+{
+  "outputPath": "/Users/developer/Projects/WeatherApp/diagnostics/2026-02-23-report"
+}
+```
+
+### Collect diagnostics for a support ticket
+
+> "Generate a diagnostic report on my Desktop so I can attach it to a support ticket"
+
+```json
+{
+  "outputPath": "/Users/developer/Desktop/xcode-diagnostics-ticket-4521"
+}
+```
+
+## Example Output
+
+```
+Collecting diagnostic information...
+
+[1/6] System information.............. done
+[2/6] Xcode and toolchain versions.... done
+[3/6] Simulator runtime inventory..... done
+[4/6] Recent crash logs............... done (3 crash reports found)
+[5/6] System log snapshot............. done
+[6/6] Disk and memory usage........... done
+
+Diagnostic report saved to: /Users/developer/Desktop/xcode-diagnostics-ticket-4521/
+
+Report contents:
+  system-info.txt          macOS 15.3 (24D60), Apple M3 Pro, 36 GB RAM
+  xcode-version.txt        Xcode 16.2 (16C5032a), Swift 6.0.3
+  simulator-runtimes.json  4 runtimes (iOS 18.2, watchOS 11.2, tvOS 18.2, visionOS 2.2)
+  simulator-devices.json   12 devices (3 booted, 9 shutdown)
+  crash-logs/              3 reports (WeatherApp-2026-02-23-141205.ips, ...)
+  system-log.txt           Last 10 minutes of unified log entries
+  resource-usage.txt       Disk: 245 GB free / 1 TB, Memory: 18.2 GB used / 36 GB
+
+Total report size: 4.7 MB
+```
+
+## Related Tools
+
+- [`log_collect`](/xcode-pilot-mcp/tools/debug/log-collect/) — Collect filtered logs from a specific device with fine-grained predicate and time control.
+- [`log_stream`](/xcode-pilot-mcp/tools/debug/log-stream/) — Stream live logs from a device for real-time debugging.
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — List all simulators and their states individually.
+- [`simulator_list_runtimes`](/xcode-pilot-mcp/tools/simulator/simulator-list-runtimes/) — List installed simulator runtimes.
+
+## Tips
+
+<Aside type="tip">
+  Run `diagnostics` as the first step when triaging an unfamiliar issue. The report provides a complete snapshot of the development environment, which often reveals version mismatches, missing runtimes, or resource exhaustion problems that are not immediately obvious.
+</Aside>
+
+<Aside type="tip">
+  When filing a bug report with Apple via Feedback Assistant, attach the full diagnostics directory. It contains exactly the kind of system context Apple engineers need to reproduce and investigate issues.
+</Aside>
+
+<Aside type="tip">
+  Use a descriptive `outputPath` that includes the date or ticket number (e.g., `/diagnostics/2026-02-23-crash-investigation`). This keeps reports organized and easy to reference later when you have multiple diagnostic snapshots from different debugging sessions.
+</Aside>

@@ -1,0 +1,92 @@
+---
+title: ipa_permissions
+description: Extract privacy permission usage descriptions from an IPA file.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Extract all privacy permission usage descriptions (`NS...UsageDescription` keys) from an IPA's `Info.plist`. This tool lists every permission your app declares along with the user-facing description string, helping you audit privacy disclosures before App Store submission or review third-party builds for unexpected permission requests.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `ipaPath` | string | Yes | — | Absolute path to the `.ipa` file to inspect |
+
+## Usage Examples
+
+### Check permissions before App Store submission
+
+> "What permissions does my FitnessTracker IPA request?"
+
+```json
+{
+  "ipaPath": "/Users/dev/Projects/FitnessTracker/build/FitnessTracker.ipa"
+}
+```
+
+### Audit a third-party SDK build
+
+> "Check what permissions are declared in this vendor-provided IPA"
+
+```json
+{
+  "ipaPath": "/Users/dev/Downloads/VendorSDKDemo-1.0.0.ipa"
+}
+```
+
+## Example Output
+
+```
+Permissions found in: FitnessTracker.ipa
+
+NSCameraUsageDescription:
+  "FitnessTracker needs camera access to scan food barcodes for calorie tracking."
+
+NSHealthShareUsageDescription:
+  "FitnessTracker reads your health data to display workout summaries and activity trends."
+
+NSHealthUpdateUsageDescription:
+  "FitnessTracker writes workout data to Health so your activity rings stay up to date."
+
+NSLocationWhenInUseUsageDescription:
+  "FitnessTracker uses your location to map outdoor runs and bike rides."
+
+NSMotionUsageDescription:
+  "FitnessTracker accesses motion data to count your steps and detect workout types."
+
+NSPhotoLibraryUsageDescription:
+  "FitnessTracker accesses your photo library to let you add progress photos to workouts."
+
+Total permissions declared: 6
+```
+
+When no permissions are found:
+
+```
+Permissions found in: SimpleCalculator.ipa
+
+No privacy permission usage descriptions found in Info.plist.
+```
+
+## Related Tools
+
+- [`ipa_analyze`](/xcode-pilot-mcp/tools/analyze/ipa-analyze/) — Get comprehensive metadata including entitlements, frameworks, and signing info
+- [`binary_size`](/xcode-pilot-mcp/tools/analyze/binary-size/) — Analyze the binary size to understand the app's footprint
+- [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) — Build the project before exporting an IPA for permission review
+
+## Tips
+
+<Aside type="tip">
+  Run this tool as part of your pre-submission checklist. Apple will reject apps that use permissions without providing a clear, user-facing explanation in the usage description string.
+</Aside>
+
+<Aside type="tip">
+  Make sure every usage description clearly explains why your app needs the permission and how the data will be used. Vague descriptions like "This app needs access to your camera" are frequently flagged during App Review.
+</Aside>
+
+<Aside type="caution">
+  This tool only reads the `Info.plist` declarations. It does not detect whether your code actually calls the APIs that trigger those permission prompts. You may have declared permissions that are no longer used, which could raise unnecessary concerns during App Review.
+</Aside>

@@ -1,0 +1,101 @@
+---
+title: push_notification
+description: Send a simulated push notification to an app on an iOS simulator.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Send a simulated Apple Push Notification (APNs) to a specific app running on an iOS simulator. This allows you to test push notification handling, including alerts, badges, sounds, custom data payloads, and silent notifications, all without requiring a real APNs server or device token.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator (must be booted). |
+| `bundleId` | string | Yes | — | The bundle identifier of the target app (e.g., `com.mycompany.myapp`). |
+| `payload` | string | Yes | — | A JSON string representing the APNs payload. Must include an `aps` dictionary. |
+
+## Usage Examples
+
+### Send a simple alert notification
+
+> "Send a push notification with the message 'Your order has shipped!' to my app"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.shopify",
+  "payload": "{\"aps\":{\"alert\":{\"title\":\"Order Update\",\"body\":\"Your order has shipped!\"},\"sound\":\"default\",\"badge\":3}}"
+}
+```
+
+### Send a silent push notification
+
+> "Trigger a background fetch via silent push"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.newsreader",
+  "payload": "{\"aps\":{\"content-available\":1},\"refresh-type\":\"articles\"}"
+}
+```
+
+### Send a notification with custom data
+
+> "Send a chat notification with sender info in the payload"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.messenger",
+  "payload": "{\"aps\":{\"alert\":{\"title\":\"Jane Doe\",\"body\":\"Hey, are you free for lunch?\"},\"sound\":\"message.caf\",\"badge\":5},\"senderId\":\"user_8842\",\"chatId\":\"conv_1234\"}"
+}
+```
+
+### Send a notification with category actions
+
+> "Test the notification actions for the ride request category"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.rideshare",
+  "payload": "{\"aps\":{\"alert\":{\"title\":\"New Ride Request\",\"body\":\"Pickup at 123 Main St in 5 minutes\"},\"category\":\"RIDE_REQUEST\",\"sound\":\"default\"}}"
+}
+```
+
+## Example Output
+
+```
+Push notification sent successfully.
+Device: iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+Bundle ID: com.example.shopify
+Payload delivered: {"aps":{"alert":{"title":"Order Update","body":"Your order has shipped!"},"sound":"default","badge":3}}
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find simulator UDIDs for the `deviceId` parameter
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Install the app before sending notifications
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch the app to test foreground notification handling
+
+## Tips
+
+<Aside type="tip">
+  The `payload` must be a valid JSON string. If your payload contains double quotes, make sure they are properly escaped when passed as a string value.
+</Aside>
+
+<Aside type="tip">
+  To test how your app handles notifications in different states, send the notification while the app is in the foreground, background, and terminated. Each state triggers a different callback in `UNUserNotificationCenterDelegate`.
+</Aside>
+
+<Aside type="note">
+  The target app must be installed on the simulator. The app does not need to be in the foreground — notifications will still be delivered to a backgrounded or terminated app.
+</Aside>
+
+<Aside type="caution">
+  Simulated push notifications only work on simulators, not physical devices. For physical device testing, you need a real APNs configuration.
+</Aside>

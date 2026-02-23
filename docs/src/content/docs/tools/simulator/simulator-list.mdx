@@ -1,0 +1,97 @@
+---
+title: simulator_list
+description: List all iOS simulators with their state.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+List all iOS simulators with their current state (Booted, Shutdown, Creating, etc.). Use this tool to discover available simulators, check which ones are running, or find a specific device UDID before performing other simulator operations.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `state` | string | No | — | Filter simulators by state. Accepted values: `"Booted"`, `"Shutdown"`, `"Creating"`, `"Shutting Down"`. |
+
+## Usage Examples
+
+### List all simulators
+
+> "Show me all my iOS simulators"
+
+```json
+{}
+```
+
+### List only booted simulators
+
+> "Which simulators are currently running?"
+
+```json
+{
+  "state": "Booted"
+}
+```
+
+### List shutdown simulators
+
+> "Which simulators are available but not running?"
+
+```json
+{
+  "state": "Shutdown"
+}
+```
+
+## Example Output
+
+```
+Simulators:
+
+iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+  Runtime: iOS 18.0
+  State: Booted
+
+iPhone 15 (A1B2C3D4-E5F6-7890-ABCD-EF1234567890)
+  Runtime: iOS 17.5
+  State: Shutdown
+
+iPad Pro 13-inch (M4) (B2C3D4E5-F6A7-8901-BCDE-F12345678901)
+  Runtime: iOS 18.0
+  State: Shutdown
+
+iPhone 16 (C3D4E5F6-A7B8-9012-CDEF-123456789012)
+  Runtime: iOS 18.0
+  State: Shutdown
+
+Apple Watch Ultra 2 (D4E5F6A7-B8C9-0123-DEFA-234567890123)
+  Runtime: watchOS 11.0
+  State: Shutdown
+
+Apple TV 4K (3rd generation) (E5F6A7B8-C9D0-1234-EFAB-345678901234)
+  Runtime: tvOS 18.0
+  State: Shutdown
+```
+
+## Related Tools
+
+- [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/) — Create a new simulator device
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot a shutdown simulator
+- [`simulator_list_runtimes`](/xcode-pilot-mcp/tools/simulator/simulator-list-runtimes/) — List available runtimes installed on your system
+- [`simulator_list_device_types`](/xcode-pilot-mcp/tools/simulator/simulator-list-device-types/) — List available device types
+
+## Tips
+
+<Aside type="tip">
+  Use `state: "Booted"` to quickly find which simulators are currently running before launching an app or capturing a screenshot.
+</Aside>
+
+<Aside type="note">
+  The UDID shown in parentheses is the unique identifier you need for most other simulator tools like `simulator_boot`, `simulator_erase`, and `app_install`.
+</Aside>
+
+<Aside type="tip">
+  Run `simulator_list` without any parameters first to get an overview of all available simulators, then use the UDID from the output in subsequent commands.
+</Aside>

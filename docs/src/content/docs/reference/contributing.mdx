@@ -1,0 +1,262 @@
+---
+title: Contributing
+description: How to contribute to Xcode Pilot MCP — dev setup, coding standards, and PR guidelines.
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+## Development Setup
+
+<Steps>
+
+1. **Clone the repository:**
+
+   ```bash
+   git clone https://github.com/sitharaj88/xcode-pilot-mcp.git
+   cd xcode-pilot-mcp
+   ```
+
+2. **Install dependencies:**
+
+   ```bash
+   npm install
+   ```
+
+3. **Run the quality gate:**
+
+   ```bash
+   npm run check
+   ```
+
+   This runs typecheck, lint, format check, and tests in sequence.
+
+4. **Build:**
+
+   ```bash
+   npm run build
+   ```
+
+</Steps>
+
+## Available Scripts
+
+| Script | Command | Description |
+|--------|---------|-------------|
+| `npm run build` | `tsc && copy-templates` | Compile TypeScript and copy templates |
+| `npm run dev` | `tsc --watch` | Watch mode for development |
+| `npm test` | `vitest run` | Run all tests once |
+| `npm run test:coverage` | `vitest run --coverage` | Run tests with coverage report |
+| `npm run lint` | `eslint .` | Check for lint issues |
+| `npm run lint:fix` | `eslint . --fix` | Auto-fix lint issues |
+| `npm run format` | `prettier --write .` | Format all files |
+| `npm run format:check` | `prettier --check .` | Check formatting |
+| `npm run typecheck` | `tsc --noEmit` | Type check without emitting |
+| `npm run check` | All of the above | Full quality gate |
+
+## Adding a New Tool
+
+<Steps>
+
+1. **Create the handler file:**
+
+   ```
+   src/tools/<category>/<tool-name>.ts
+   ```
+
+   ```typescript
+   import { executeCommand } from "../../executor.js";
+   import { textResponse } from "../../utils/response.js";
+   import { validateAbsolutePath } from "../../utils/validation.js";
+   import type { Environment } from "../../types.js";
+
+   interface MyToolParams {
+     requiredParam: string;
+     optionalParam?: string;
+   }
+
+   export async function myTool(
+     params: MyToolParams,
+     env: Environment,
+   ) {
+     validateAbsolutePath(params.requiredParam);
+
+     const args = ["my-command", params.requiredParam];
+     if (params.optionalParam) {
+       args.push("--flag", params.optionalParam);
+     }
+
+     const result = await executeCommand(env.xcrunPath, args);
+
+     if (!result.success) {
+       return { content: [{ type: "text" as const, text: result.stderr }], isError: true };
+     }
+
+     return textResponse(result.stdout);
+   }
+   ```
+
+2. **Register the tool in the category index:**
+
+   ```
+   src/tools/<category>/index.ts
+   ```
+
+   ```typescript
+   import { z } from "zod";
+   import { withErrorHandling } from "../../utils/response.js";
+   import { myTool } from "./my-tool.js";
+
+   // Add to the existing register function:
+   server.tool(
+     "my_tool",
+     "Description of what the tool does",
+     {
+       requiredParam: z.string().describe("What this parameter is for"),
+       optionalParam: z.string().optional().describe("Optional flag"),
+     },
+     withErrorHandling(async (params) => myTool(params, env)),
+   );
+   ```
+
+3. **Write tests:**
+
+   ```
+   tests/tools/<category>.test.ts
+   ```
+
+   ```typescript
+   import { describe, it, expect, beforeEach, vi } from "vitest";
+
+   const { execFile } = vi.hoisted(() => ({
+     execFile: vi.fn(),
+   }));
+
+   vi.mock("node:child_process", () => ({ execFile, spawn: vi.fn() }));
+
+   import { myTool } from "../../src/tools/<category>/my-tool.js";
+
+   const env = {
+     xcodePath: "/Applications/Xcode.app/Contents/Developer",
+     xcrunPath: "/usr/bin/xcrun",
+     xcodebuildPath: "/usr/bin/xcodebuild",
+     simctlAvailable: true,
+     devicectlAvailable: true,
+   };
+
+   describe("myTool", () => {
+     beforeEach(() => vi.clearAllMocks());
+
+     it("executes the command correctly", async () => {
+       execFile.mockImplementation((_c, _a, _o, cb) => {
+         cb(null, "expected output", "");
+       });
+
+       const result = await myTool({ requiredParam: "/path/to/file" }, env);
+       expect(result.content[0].text).toContain("expected output");
+     });
+
+     it("validates absolute path", async () => {
+       await expect(
+         myTool({ requiredParam: "relative/path" }, env),
+       ).rejects.toThrow();
+     });
+   });
+   ```
+
+4. **Run the quality gate:**
+
+   ```bash
+   npm run check
+   ```
+
+   All tests must pass, no lint errors, no type errors, formatting correct.
+
+</Steps>
+
+## Coding Standards
+
+### TypeScript
+
+- **Strict mode** enabled — no `any`, no implicit `undefined`
+- **ES modules** with `.js` extensions in imports
+- **Target ES2022** — modern JS features are fine
+
+### Naming Conventions
+
+| Item | Convention | Example |
+|------|-----------|---------|
+| Tool names | `snake_case` | `xcode_build`, `simulator_list` |
+| File names | `kebab-case` | `build-settings.ts`, `log-stream.ts` |
+| Functions | `camelCase` | `xcodeBuild`, `logStream` |
+| Interfaces | `PascalCase` | `Environment`, `ExecResult` |
+| Constants | `SCREAMING_SNAKE` | `MAX_BUFFER_SIZE` |
+
+### Tool Descriptions
+
+- Start with a verb: "Build", "List", "Run", "Create"
+- Be specific about what the tool does
+- Mention the underlying CLI tool if relevant
+- Keep it under 100 characters
+
+### Formatting
+
+- **Prettier** handles all formatting
+- 100 character line width
+- Double quotes for strings
+- Trailing commas everywhere
+- 2-space indentation
+
+### Linting
+
+- **ESLint** with TypeScript plugin and Prettier integration
+- No unused variables or imports
+- No explicit `any`
+- Pre-commit hooks enforce lint and format via **Husky** + **lint-staged**
+
+## Testing
+
+### Framework
+
+- **Vitest** for all tests
+- Mock `child_process` using `vi.hoisted()` + `vi.mock()`
+- Never call real Xcode tools in tests
+
+### What to Test
+
+For each tool:
+
+1. **Successful execution** — correct command args, proper output parsing
+2. **Input validation** — invalid paths, missing required params
+3. **Error handling** — command failures, timeouts
+4. **Edge cases** — empty output, special characters
+
+### Coverage
+
+Minimum **15% statement coverage** is enforced by vitest config, but aim higher. The current test suite has 112 tests across 15 files.
+
+## Pull Request Guidelines
+
+<Steps>
+
+1. **One feature per PR** — keep changes focused
+2. **Include tests** — all new tools must have test coverage
+3. **Run `npm run check`** — must pass before submitting
+4. **Write a clear description** — explain what and why
+5. **Clean history** — squash WIP commits before review
+
+</Steps>
+
+### PR Checklist
+
+- [ ] New tool has a handler file in `src/tools/<category>/`
+- [ ] Tool is registered in the category `index.ts` with Zod schema
+- [ ] Tests are written in `tests/tools/<category>.test.ts`
+- [ ] `npm run check` passes (typecheck, lint, format, tests)
+- [ ] PR description explains the purpose and approach
+
+<Aside type="tip">
+  Run `npm run check` locally before pushing. It runs the same checks as CI and
+  catches issues early.
+</Aside>

@@ -1,0 +1,104 @@
+---
+title: log_stream
+description: Stream live device logs in real time with predicate-based filtering.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The `log_stream` tool captures live, real-time log output from a booted simulator or connected physical device. It uses Apple's unified logging system (`os_log`) under the hood, allowing you to apply powerful predicate filters to isolate logs from specific subsystems, categories, or processes. The stream runs for a configurable duration and returns the captured entries.
+
+## Parameters
+
+| Parameter   | Type   | Required | Default     | Description                                                                                          |
+|-------------|--------|----------|-------------|------------------------------------------------------------------------------------------------------|
+| `deviceId`  | string | Yes      | —           | UDID of the simulator or physical device to stream logs from.                                        |
+| `predicate` | string | No       | —           | NSPredicate-style filter expression (e.g., `subsystem == "com.example.app"`).                        |
+| `level`     | enum   | No       | `"default"` | Minimum log level to include. One of `"default"`, `"info"`, or `"debug"`.                            |
+| `timeout`   | number | No       | `10`        | Duration in seconds to capture the log stream before automatically stopping.                         |
+
+## Usage Examples
+
+### Stream all logs from a simulator for 10 seconds
+
+> "Show me live logs from my iPhone 16 Pro simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+### Filter logs to a specific app subsystem
+
+> "Stream logs from my WeatherApp on the booted simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "predicate": "subsystem == \"com.myteam.WeatherApp\"",
+  "level": "debug",
+  "timeout": 15
+}
+```
+
+### Monitor networking activity
+
+> "Stream only network-related logs from my app for 20 seconds"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "predicate": "subsystem == \"com.myteam.WeatherApp\" AND category == \"networking\"",
+  "level": "info",
+  "timeout": 20
+}
+```
+
+### Capture error-level logs across the entire system
+
+> "Show me all default-level-and-above logs from the simulator for 5 seconds"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "level": "default",
+  "timeout": 5
+}
+```
+
+## Example Output
+
+```
+2026-02-23 14:32:01.234  WeatherApp[1842:67890] [networking] Starting request: GET https://api.weather.example.com/v1/forecast?lat=37.7749&lon=-122.4194
+2026-02-23 14:32:01.567  WeatherApp[1842:67890] [networking] Response received: 200 OK (245 bytes, 333ms)
+2026-02-23 14:32:01.589  WeatherApp[1842:67891] [viewmodel] Decoded 7-day forecast for San Francisco
+2026-02-23 14:32:01.602  WeatherApp[1842:67891] [ui] Refreshing ForecastListView with 7 items
+2026-02-23 14:32:02.105  WeatherApp[1842:67892] [coredata] Saved forecast snapshot to persistent store
+2026-02-23 14:32:05.001  WeatherApp[1842:67890] [networking] Starting request: GET https://api.weather.example.com/v1/alerts?lat=37.7749&lon=-122.4194
+2026-02-23 14:32:05.210  WeatherApp[1842:67890] [networking] Response received: 200 OK (82 bytes, 209ms)
+2026-02-23 14:32:05.230  WeatherApp[1842:67891] [viewmodel] No active weather alerts for region
+
+Stream ended after 15 seconds. 8 log entries captured.
+```
+
+## Related Tools
+
+- [`log_collect`](/xcode-pilot-mcp/tools/debug/log-collect/) — Collect historical logs from a past time range instead of streaming live.
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch an app with console output captured at startup.
+- [`diagnostics`](/xcode-pilot-mcp/tools/debug/diagnostics/) — Collect a full diagnostic report including system logs, crash reports, and more.
+
+## Tips
+
+<Aside type="tip">
+  Use the `predicate` parameter to filter noise. A predicate like `subsystem == "com.myteam.WeatherApp" AND category == "networking"` dramatically reduces output and makes it easy to trace specific behavior.
+</Aside>
+
+<Aside type="tip">
+  Set `level` to `"debug"` when you need the most verbose output. Debug-level messages are suppressed by default in Apple's unified logging, so this ensures nothing is hidden.
+</Aside>
+
+<Aside type="tip">
+  If you are debugging a crash or hang, increase the `timeout` to 30 or 60 seconds so you have enough time to reproduce the issue while the stream is running.
+</Aside>

@@ -1,0 +1,121 @@
+---
+title: physical_device_console
+description: Stream real-time console logs from a connected physical iOS device.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Stream real-time console output (system logs, `os_log` messages, `print()` statements, and crash information) from a connected physical iOS device. This tool captures the unified log stream from the device for a specified duration, making it invaluable for debugging issues that only reproduce on real hardware such as push notifications, HealthKit access, Bluetooth interactions, and camera usage.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target device (obtain from [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/)) |
+| `timeout` | number | No | `10` | Duration in seconds to capture console output before stopping |
+
+## Usage Examples
+
+### Capture a quick log snapshot
+
+> "Show me the console logs from my iPhone for the last few seconds"
+
+```json
+{
+  "deviceId": "00008130-001A2B3C4D5E6F78"
+}
+```
+
+### Extended log capture for debugging
+
+> "Stream logs from my iPhone for 30 seconds while I reproduce the crash"
+
+```json
+{
+  "deviceId": "00008130-001A2B3C4D5E6F78",
+  "timeout": 30
+}
+```
+
+### Capture logs from a different device
+
+> "Get 15 seconds of console output from the iPad"
+
+```json
+{
+  "deviceId": "00008103-000A1B2C3D4E5F60",
+  "timeout": 15
+}
+```
+
+### Brief log check after app launch
+
+> "Capture 5 seconds of logs right after launching the app"
+
+```json
+{
+  "deviceId": "00008130-001A2B3C4D5E6F78",
+  "timeout": 5
+}
+```
+
+## Example Output
+
+```
+Console output from iPhone 15 Pro Max (00008130-001A2B3C4D5E6F78)
+Duration: 10 seconds
+---
+
+2025-01-15 14:23:01.234 FitnessTracker[1842:45678] [AppDelegate] Application did finish launching
+2025-01-15 14:23:01.456 FitnessTracker[1842:45678] [HealthKitManager] Requesting HealthKit authorization...
+2025-01-15 14:23:01.789 FitnessTracker[1842:45678] [HealthKitManager] Authorization granted for: stepCount, activeEnergyBurned, workoutType
+2025-01-15 14:23:02.012 FitnessTracker[1842:45678] [WorkoutService] Fetching workouts for date range: 2025-01-08 to 2025-01-15
+2025-01-15 14:23:02.345 FitnessTracker[1842:45678] [WorkoutService] Found 12 workouts in range
+2025-01-15 14:23:02.567 FitnessTracker[1842:45690] [NetworkClient] POST /api/v2/sync — 200 OK (234ms)
+2025-01-15 14:23:03.890 FitnessTracker[1842:45678] [CoreData] Merged 12 workout records from remote
+2025-01-15 14:23:04.123 FitnessTracker[1842:45678] [UI] Dashboard loaded with 12 workouts, 47,832 steps today
+
+--- End of capture (10 seconds) ---
+```
+
+When no relevant logs are produced:
+
+```
+Console output from iPhone 15 Pro Max (00008130-001A2B3C4D5E6F78)
+Duration: 10 seconds
+---
+
+2025-01-15 14:25:01.001 kernel[0:0] [IOHIDSession] Session opened
+2025-01-15 14:25:05.234 SpringBoard[55:1234] [Display] Screen brightness adjusted
+
+--- End of capture (10 seconds) ---
+
+Note: Very few app-level logs were captured. Make sure the target app is running
+and producing output during the capture window.
+```
+
+## Related Tools
+
+- [`physical_device_launch`](/xcode-pilot-mcp/tools/device/physical-device-launch/) — Launch the app before capturing logs to see startup output
+- [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/) — Find the UDID of the device to stream logs from
+- [`physical_device_install`](/xcode-pilot-mcp/tools/device/physical-device-install/) — Install a debug build with verbose logging enabled
+
+## Tips
+
+<Aside type="tip">
+  Launch the app with [`physical_device_launch`](/xcode-pilot-mcp/tools/device/physical-device-launch/) right before starting the console capture to see the full startup sequence, including initialization logs, network requests, and data loading.
+</Aside>
+
+<Aside type="tip">
+  Increase the `timeout` to 30-60 seconds when reproducing intermittent bugs. This gives you a longer window to trigger the issue and capture the surrounding log context. Keep in mind that longer captures produce more output.
+</Aside>
+
+<Aside type="caution">
+  The console stream includes logs from all processes on the device, not just your app. In a busy capture, look for your app's process name or bundle identifier to filter relevant entries.
+</Aside>
+
+<Aside type="note">
+  Console output only includes messages logged via `os_log`, `NSLog`, `Logger`, or `print()`. If you need to debug issues that do not produce log output, consider adding temporary logging statements to your code and rebuilding.
+</Aside>

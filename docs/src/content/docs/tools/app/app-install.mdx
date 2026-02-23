@@ -1,0 +1,68 @@
+---
+title: app_install
+description: Install a .app bundle onto a simulator device.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Installs an application bundle (`.app`) onto a target simulator device. This is the primary tool for deploying locally built applications to a simulator for testing. The app bundle is typically found in the Xcode DerivedData directory after a successful build.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator device. |
+| `appPath` | string | Yes | — | Absolute path to the `.app` bundle to install. |
+
+## Usage Examples
+
+### Install a freshly built app
+> "Install my WeatherApp onto the booted iPhone 16 Pro simulator."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "appPath": "/Users/dev/Library/Developer/Xcode/DerivedData/WeatherApp-abc123def/Build/Products/Debug-iphonesimulator/WeatherApp.app"
+}
+```
+
+### Install an app from a custom build directory
+> "Deploy the release build of MyApp to the test simulator."
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-1234567890EF",
+  "appPath": "/Users/dev/builds/Release-iphonesimulator/MyApp.app"
+}
+```
+
+## Example Output
+
+```
+App installed successfully.
+Device: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+App: /Users/dev/Library/Developer/Xcode/DerivedData/WeatherApp-abc123def/Build/Products/Debug-iphonesimulator/WeatherApp.app
+Bundle ID: com.example.weatherapp
+```
+
+## Related Tools
+
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch the app after installing it.
+- [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/) — Remove a previously installed app.
+- [`app_list`](/xcode-pilot-mcp/tools/app/app-list/) — Verify the app appears in the installed apps list.
+- [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) — Build the project to produce the `.app` bundle.
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot a simulator before installing.
+
+## Tips
+
+<Aside type="tip">
+  The simulator must be **booted** before you can install an app. Use [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) first if the device is in a shutdown state.
+</Aside>
+
+<Aside type="tip">
+  The `.app` path is typically located under `~/Library/Developer/Xcode/DerivedData/<ProjectName>-<hash>/Build/Products/<Configuration>-iphonesimulator/`. You can use [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) to produce a fresh build before installing.
+</Aside>
+
+<Aside type="tip">
+  If you reinstall an app that is already installed, the existing app data is preserved. To start fresh, use [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/) first, or use [`simulator_erase`](/xcode-pilot-mcp/tools/simulator/simulator-erase/) to reset the entire simulator.
+</Aside>

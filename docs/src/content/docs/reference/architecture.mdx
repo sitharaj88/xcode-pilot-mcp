@@ -1,0 +1,226 @@
+---
+title: Architecture
+description: How Xcode Pilot MCP works internally — server lifecycle, tool registration, command execution.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Overview
+
+Xcode Pilot MCP is a **Model Context Protocol (MCP) server** that bridges AI assistants to the iOS/macOS development toolchain. It translates structured tool calls into CLI commands and returns the results.
+
+```
+┌──────────────────┐         ┌──────────────────┐         ┌─────────────────┐
+│   MCP Client     │  stdio  │  Xcode Pilot     │  exec   │  Xcode CLI      │
+│  (Claude, etc.)  │◄───────►│  MCP Server      │────────►│  Tools          │
+│                  │   JSON  │                  │         │                 │
+│  - Sends tool    │         │  - Validates     │         │  - xcodebuild   │
+│    requests      │         │  - Executes      │         │  - xcrun simctl │
+│  - Receives      │         │  - Formats       │         │  - devicectl    │
+│    responses     │         │    responses     │         │  - security     │
+└──────────────────┘         └──────────────────┘         └─────────────────┘
+```
+
+## Server Lifecycle
+
+```
+Start
+  │
+  ├─► Detect Environment
+  │     xcode-select -p
+  │     which xcrun, xcodebuild
+  │     check simctl, devicectl
+  │
+  ├─► Create MCP Server
+  │     McpServer("xcode-pilot", "1.0.0")
+  │
+  ├─► Register Tools (67 tools)
+  │     registerBuildTools(server, env)
+  │     registerSimulatorTools(server, env)
+  │     registerAppTools(server, env)
+  │     ... (8 more categories)
+  │
+  ├─► Connect Transport
+  │     StdioServerTransport
+  │
+  └─► Ready (listening on stdin/stdout)
+        │
+        ├─► Handle tool calls
+        │     Validate → Execute → Format → Respond
+        │
+        └─► Shutdown on SIGINT/SIGTERM
+```
+
+## Project Structure
+
+```
+src/
+├── index.ts              # Entry point — server setup, tool registration
+├── types.ts              # TypeScript interfaces (Environment, ExecResult, etc.)
+├── executor.ts           # Command execution (execFile, spawn, stdin)
+├── environment.ts        # Xcode environment detection
+├── utils/
+│   ├── response.ts       # Response formatting (textResponse, errorResponse)
+│   ├── validation.ts     # Input validation (paths, bundle IDs, names)
+│   └── logger.ts         # Structured logging to stderr
+└── tools/
+    ├── build/            # 8 tools — xcodebuild operations
+    ├── simulator/        # 10 tools — xcrun simctl operations
+    ├── app/              # 8 tools — app lifecycle on simulator
+    ├── debug/            # 7 tools — logging, screenshots, recording
+    ├── environment/      # 6 tools — location, push, status bar
+    ├── signing/          # 5 tools — code signing, profiles, keychains
+    ├── packages/         # 6 tools — SPM + CocoaPods
+    ├── scaffold/         # 5 tools — project + file generation
+    ├── analyze/          # 4 tools — IPA, binary, dSYM analysis
+    ├── quality/          # 4 tools — SwiftLint, swift-format, warnings
+    └── device/           # 4 tools — physical device operations
+```
+
+Each tool category has:
+
+- **`index.ts`** — Registration function with Zod schemas and descriptions
+- **Individual tool files** — Handler functions (e.g., `build.ts`, `clean.ts`)
+
+## Tool Registration Pattern
+
+Every tool follows this pattern:
+
+```typescript
+// src/tools/build/index.ts
+import { z } from "zod";
+import { withErrorHandling } from "../../utils/response.js";
+
+export function registerBuildTools(server, env) {
+  server.tool(
+    "xcode_build",                           // Tool name
+    "Build an Xcode project or workspace",   // Description
+    {                                        // Zod schema
+      scheme: z.string().describe("Build scheme name"),
+      projectPath: z.string().optional()
+        .describe("Path to .xcworkspace or .xcodeproj"),
+      configuration: z.string().optional()
+        .describe('Build configuration (e.g., "Debug", "Release")'),
+    },
+    withErrorHandling(async (params) => {    // Handler
+      return await xcodeBuild(params, env);
+    }),
+  );
+}
+```
+
+Key design decisions:
+
+- **Zod schemas** validate inputs at the MCP protocol layer before reaching the handler
+- **`withErrorHandling`** catches all errors and returns formatted error responses
+- **Environment** is passed to handlers so they know where Xcode tools are located
+
+## Command Execution
+
+Three execution strategies for different use cases:
+
+### Standard Execution (`executeCommand`)
+
+For most commands that run to completion:
+
+```typescript
+const result = await executeCommand(
+  "xcodebuild",
+  ["build", "-scheme", "MyApp"],
+  { timeout: 600_000 }  // 10 minutes
+);
+```
+
+- Uses `child_process.execFile` (not `exec` — avoids shell injection)
+- Default 120s timeout, 10MB max buffer
+- Returns `{ success, stdout, stderr, exitCode, timedOut }`
+
+### Detached Spawn (`spawnDetached`)
+
+For background processes like screen recording:
+
+```typescript
+const child = spawnDetached(
+  "xcrun",
+  ["simctl", "io", deviceId, "recordVideo", outputPath]
+);
+
+// Later, after duration:
+child.kill("SIGINT");
+```
+
+### Stdin Piping (`executeCommandWithStdin`)
+
+For commands that need input data, like push notifications:
+
+```typescript
+await executeCommandWithStdin(
+  "xcrun",
+  ["simctl", "push", deviceId, bundleId, "-"],
+  jsonPayload
+);
+```
+
+## Response Types
+
+All tools return one of these response shapes:
+
+| Function | Use Case | Shape |
+|----------|----------|-------|
+| `textResponse(text)` | Successful text output | `{ content: [{ type: "text", text }] }` |
+| `errorResponse(text)` | Error with message | `{ content: [{ type: "text", text }], isError: true }` |
+| `execResultResponse(result)` | Raw command result | Formats stdout/stderr with exit code |
+
+Text responses are truncated at **100KB** to stay within MCP message limits.
+
+## Error Handling
+
+The `withErrorHandling` wrapper provides a consistent error boundary:
+
+```typescript
+function withErrorHandling(handler) {
+  return async (params) => {
+    try {
+      return await handler(params);
+    } catch (error) {
+      logger.error("Tool execution failed", { error: error.message });
+      return errorResponse(`Error: ${error.message}`);
+    }
+  };
+}
+```
+
+Validation errors (from `validateAbsolutePath`, `validateBundleId`, etc.) are thrown as `ValidationError` and caught by this wrapper.
+
+## Input Validation
+
+Validation happens at two levels:
+
+1. **Zod schema** — Type checking, required vs optional, enum values
+2. **Custom validators** — Business logic validation in handler functions
+
+| Validator | What It Checks |
+|-----------|---------------|
+| `validateAbsolutePath(path)` | Path starts with `/` |
+| `validateBundleId(id)` | Matches `com.x.y` pattern |
+| `validateSafeName(name)` | Alphanumeric + hyphens + underscores, starts with letter |
+
+<Aside type="note">
+  Validation prevents command injection attacks. By validating inputs and using
+  `execFile` (which doesn't invoke a shell), the server is protected against
+  malicious input in paths, bundle IDs, and other parameters.
+</Aside>
+
+## Design Principles
+
+1. **CLI-first**: Every tool maps directly to one or more CLI commands. No Xcode APIs, no frameworks — just the tools that ship with Xcode.
+
+2. **Stateless**: The server doesn't maintain state between tool calls. Each call is independent. This makes it reliable and easy to reason about.
+
+3. **Fail-fast**: Invalid inputs are rejected immediately with clear error messages, before any command is executed.
+
+4. **Stdout is sacred**: All logging goes to stderr. Stdout is exclusively for MCP protocol JSON messages.
+
+5. **No shell**: All commands use `execFile`, never `exec`. This avoids shell interpretation of arguments and prevents injection attacks.

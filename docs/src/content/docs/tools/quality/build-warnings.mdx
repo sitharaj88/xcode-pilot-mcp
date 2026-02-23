@@ -1,0 +1,112 @@
+---
+title: build_warnings
+description: Extract and list compiler warnings from the most recent Xcode build.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Extract and list all compiler warnings from the most recent Xcode build log. This tool parses the build output in derived data to surface warnings about deprecated APIs, type conversions, unused variables, and other issues the Swift or Clang compiler flags during compilation. Addressing these warnings improves code quality and prepares your project for future SDK changes.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | No | Current directory | Absolute path to the `.xcworkspace` or `.xcodeproj` file |
+| `derivedDataPath` | string | No | Xcode default | Absolute path to the derived data directory containing build logs |
+
+## Usage Examples
+
+### Check warnings for a project using default derived data
+
+> "Show me all build warnings for FitnessTracker"
+
+```json
+{
+  "projectPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker.xcodeproj"
+}
+```
+
+### Check warnings with custom derived data
+
+> "List build warnings using my custom derived data path"
+
+```json
+{
+  "projectPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker.xcodeproj",
+  "derivedDataPath": "/tmp/FitnessTracker-DerivedData"
+}
+```
+
+### Check warnings for a workspace
+
+> "What warnings does my workspace build produce?"
+
+```json
+{
+  "projectPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker.xcworkspace"
+}
+```
+
+### Check warnings using all defaults
+
+> "Show me the build warnings for the project in the current directory"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Build Warnings for FitnessTracker:
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Services/HealthKitManager.swift:45:9:
+  warning: 'authorizationStatus(for:)' was deprecated in iOS 18.0: Use
+  statusForAuthorizationType(_:) instead
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels/WorkoutViewModel.swift:23:13:
+  warning: Variable 'tempResult' was written to, but never read
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Views/ActivityChartView.swift:67:28:
+  warning: Conversion from 'Int' to 'Double' may lose precision
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Models/LegacyDataStore.swift:12:1:
+  warning: 'NSKeyedUnarchiver.unarchiveObject(withFile:)' was deprecated in
+  iOS 12.0: Use +unarchivedObjectOfClass:fromData:error: instead
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Networking/APIEndpoints.swift:34:9:
+  warning: Result of call to 'append(_:)' is unused
+
+Summary: 5 warnings across 5 files
+```
+
+When no warnings are found:
+
+```
+Build Warnings for FitnessTracker:
+
+No warnings found in the most recent build. Clean build!
+```
+
+## Related Tools
+
+- [`swiftlint_run`](/xcode-pilot-mcp/tools/quality/swiftlint-run/) — Check for style violations that the compiler does not catch
+- [`swiftlint_fix`](/xcode-pilot-mcp/tools/quality/swiftlint-fix/) — Auto-fix code style issues alongside compiler warning resolution
+- [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) — Build the project first to generate the build log that this tool reads
+- [`swift_format_run`](/xcode-pilot-mcp/tools/quality/swift-format-run/) — Check formatting after resolving compiler warnings
+
+## Tips
+
+<Aside type="tip">
+  Run [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) before using this tool. `build_warnings` reads from the most recent build log, so you need a fresh build to get accurate, up-to-date results.
+</Aside>
+
+<Aside type="tip">
+  Pay special attention to deprecation warnings. These indicate APIs that will be removed in future iOS versions. Fixing them now prevents your app from breaking when you update the deployment target or Xcode version.
+</Aside>
+
+<Aside type="note">
+  If you use a custom `derivedDataPath` with [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/), pass the same path here so the tool knows where to find the build logs.
+</Aside>

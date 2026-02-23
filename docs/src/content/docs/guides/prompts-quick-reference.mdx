@@ -1,0 +1,172 @@
+---
+title: "Prompt Quick Reference"
+description: Cheat sheet with prompts for all 67 tools organized by category.
+sidebar:
+  order: 10
+  badge:
+    text: Cookbook
+    variant: tip
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Copy-paste these prompts directly into your AI assistant. Each one maps to a specific Xcode Pilot MCP tool.
+
+## Build & Compile
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Build for simulator | "Build MyApp scheme for iPhone 16 simulator" |
+| Build for device | "Build MyApp scheme for a physical iOS device in Release mode" |
+| Clean build | "Clean the build artifacts for MyApp scheme" |
+| Clean and rebuild | "Clean and then rebuild MyApp for iPhone 16 simulator" |
+| Create archive | "Archive MyApp to ~/Desktop/MyApp.xcarchive" |
+| Export IPA | "Export an IPA from ~/Desktop/MyApp.xcarchive using ~/ExportOptions.plist" |
+| Run all tests | "Run tests for MyApp scheme on iPhone 16 simulator" |
+| Run specific tests | "Run only the LoginTests test class on iPhone 16 simulator" |
+| Skip slow tests | "Run tests but skip the UITests target" |
+| Run tests without building | "Run tests without rebuilding on the iPhone 16 simulator" |
+| List schemes | "List all schemes in my project" |
+| Show build settings | "Show the build settings for MyApp in Debug configuration" |
+
+## Simulator Management
+
+| What You Want | What to Say |
+|--------------|-------------|
+| List all simulators | "Show me all my iOS simulators" |
+| List running simulators | "Which simulators are currently booted?" |
+| Create simulator | "Create an iPhone 16 Pro simulator with iOS 18" |
+| Create iPad simulator | "Create an iPad Pro 13-inch simulator on iOS 18" |
+| Boot simulator | "Boot the iPhone 16 Pro simulator" |
+| Shut down one | "Shut down the iPhone 16 simulator" |
+| Shut down all | "Shut down all running simulators" |
+| Delete simulator | "Delete the simulator named 'Test Device'" |
+| Clean up old simulators | "Delete all unavailable simulators" |
+| Erase simulator | "Erase all data from the iPhone 16 simulator" |
+| Open Simulator.app | "Open the Simulator app for iPhone 16" |
+| List runtimes | "What iOS runtimes are installed?" |
+| List device types | "What simulator device types are available?" |
+| Clone simulator | "Clone the iPhone 16 simulator as 'iPhone 16 - Testing'" |
+
+## App Lifecycle
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Install app | "Install MyApp.app on the iPhone 16 simulator" |
+| Uninstall app | "Uninstall com.example.myapp from the simulator" |
+| Launch app | "Launch com.example.myapp on the iPhone 16 simulator" |
+| Launch with args | "Launch the app with --reset-state argument" |
+| Launch with console | "Launch the app with console output attached" |
+| Terminate app | "Terminate com.example.myapp on the simulator" |
+| Get app container | "Get the data container path for com.example.myapp" |
+| Get app group path | "Get the app group container for group.com.example.shared" |
+| List installed apps | "List all apps installed on the iPhone 16 simulator" |
+| Open URL / deep link | "Open myapp://profile/settings on the simulator" |
+| Open universal link | "Open https://example.com/invite/abc123 on the simulator" |
+| Grant camera access | "Grant camera permission to com.example.myapp" |
+| Revoke location | "Revoke location permission from com.example.myapp" |
+| Reset all permissions | "Reset all privacy permissions for com.example.myapp" |
+| Grant photos access | "Grant photo library access to com.example.myapp" |
+
+## Debugging & Logging
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Stream live logs | "Stream logs from the iPhone 16 simulator for 10 seconds" |
+| Filter by app | "Stream logs from the simulator filtering for subsystem com.example.myapp" |
+| Filter errors | "Stream only error-level logs from the simulator" |
+| Collect recent logs | "Show me the last 5 minutes of logs from the simulator" |
+| Collect as JSON | "Collect the last 2 minutes of logs in JSON format" |
+| Take screenshot | "Take a screenshot of the simulator" |
+| Screenshot to path | "Save a simulator screenshot to ~/Desktop/screenshot.png" |
+| Record screen | "Record the simulator screen for 15 seconds" |
+| Record to path | "Record 20 seconds of video to ~/Desktop/demo.mp4" |
+| Collect diagnostics | "Run simulator diagnostics" |
+| Accessibility audit | "Run an accessibility audit on the simulator" |
+| Set dark mode | "Switch the simulator to dark mode" |
+| Set light mode | "Switch the simulator to light mode" |
+
+## Simulator Environment
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Set location | "Set the simulator location to 37.3349, -122.0090 (Apple Park)" |
+| Set NYC location | "Set the simulator GPS to Times Square, NYC" |
+| Clear location | "Clear the simulated location" |
+| Send push notification | "Send a push notification to com.example.myapp with title 'Hello' and body 'World'" |
+| Send silent push | "Send a silent push notification to com.example.myapp" |
+| Override status bar | "Set status bar to 9:41, full battery, full signal, 5G" |
+| App Store status bar | "Set up the status bar for App Store screenshots" |
+| Clear status bar | "Reset the status bar to defaults" |
+| Type text | "Type 'john@example.com' into the simulator" |
+| Type search query | "Input 'weather forecast' into the simulator keyboard" |
+
+## Code Signing & Provisioning
+
+| What You Want | What to Say |
+|--------------|-------------|
+| List signing identities | "Show my code signing identities" |
+| List profiles | "List all installed provisioning profiles" |
+| Inspect profile | "Inspect the provisioning profile at ~/Downloads/profile.mobileprovision" |
+| List keychains | "List all keychains on this machine" |
+| Check entitlements | "Show the entitlements of MyApp.app" |
+
+## Package Management
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Resolve SPM packages | "Resolve Swift package dependencies for my project" |
+| Update SPM packages | "Update all Swift packages to their latest versions" |
+| Show dependency tree | "Show the SPM dependency tree as JSON" |
+| Install pods | "Run pod install for my project" |
+| Install pods (fresh) | "Run pod install with repo update" |
+| Update all pods | "Update all CocoaPods dependencies" |
+| Update one pod | "Update the Alamofire pod" |
+| Check outdated pods | "Check for outdated CocoaPods" |
+
+## Scaffolding
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Create SwiftUI project | "Create a new SwiftUI iOS project called MyApp in ~/Projects" |
+| Create UIKit project | "Create a new UIKit iOS project called MyApp in ~/Projects" |
+| Create macOS project | "Create a new SwiftUI macOS project called MyApp in ~/Projects" |
+| Generate view | "Create a SwiftUI view called ProfileView in ./Sources" |
+| Generate view (no preview) | "Create a SwiftUI view called SettingsView without a preview" |
+| Generate viewmodel | "Create a ViewModel called ProfileViewModel in ./Sources" |
+| Generate Core Data model | "Create a Core Data model called User with name (String) and email (String) attributes" |
+| Generate widget | "Create a static widget called StatusWidget in ./Sources" |
+| Generate configurable widget | "Create a configurable widget called QuoteWidget in ./Sources" |
+
+## IPA & App Analysis
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Analyze IPA | "Analyze the IPA at ~/Desktop/MyApp.ipa" |
+| Check permissions | "What privacy permissions does ~/Desktop/MyApp.ipa request?" |
+| Binary size breakdown | "Show the binary size breakdown for the MyApp executable" |
+| Verify dSYM | "Verify that MyApp.dSYM matches the MyApp binary" |
+
+## Code Quality
+
+| What You Want | What to Say |
+|--------------|-------------|
+| Run SwiftLint | "Run SwiftLint on my project" |
+| SwiftLint specific path | "Run SwiftLint on the Sources/ directory" |
+| Auto-fix lint issues | "Auto-fix SwiftLint violations in my project" |
+| Check formatting | "Check swift-format compliance for Sources/" |
+| Get build warnings | "Show build warnings from the latest Xcode build" |
+
+## Physical Devices
+
+| What You Want | What to Say |
+|--------------|-------------|
+| List devices | "List all connected physical iOS devices" |
+| Install on device | "Install MyApp.app on my connected iPhone" |
+| Launch on device | "Launch com.example.myapp on my physical device" |
+| Stream device logs | "Stream console logs from my connected iPhone for 30 seconds" |
+
+<Aside type="tip">
+  These prompts work as-is, but you can also combine them into multi-step
+  workflows. See the other cookbook pages for complex recipes.
+</Aside>

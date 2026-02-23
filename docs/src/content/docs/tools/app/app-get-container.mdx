@@ -1,0 +1,90 @@
+---
+title: app_get_container
+description: Get the filesystem path to an app's container directory on a simulator.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Retrieves the absolute filesystem path to an application's container directory on a simulator device. You can request the app bundle container, the data container (where documents, caches, and preferences are stored), or a specific App Group shared container. This is essential for inspecting app data, debugging file storage issues, or verifying Core Data databases.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator device. |
+| `bundleId` | string | Yes | — | The bundle identifier of the installed app. |
+| `container` | string | No | `"app"` | The container type to retrieve. Accepted values: `"app"` (the app bundle), `"data"` (the data/sandbox directory), `"groups"` (list all App Group containers), or a specific App Group identifier (e.g., `"group.com.example.shared"`). |
+
+## Usage Examples
+
+### Get the app bundle container
+> "Where is the WeatherApp bundle installed on the simulator?"
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+### Get the data container
+> "Show me the data directory for the WeatherApp so I can inspect its database."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp",
+  "container": "data"
+}
+```
+
+### Get a specific App Group container
+> "Find the shared container used by the app and its widget extension."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp",
+  "container": "group.com.example.weatherapp.shared"
+}
+```
+
+### List all App Group containers
+> "Show me all the App Group containers for this app."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp",
+  "container": "groups"
+}
+```
+
+## Example Output
+
+```
+Container path retrieved.
+Device: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+Bundle ID: com.example.weatherapp
+Container: data
+Path: /Users/dev/Library/Developer/CoreSimulator/Devices/F3A1B2C3-D4E5-6789-ABCD-EF0123456789/data/Containers/Data/Application/8E7F6A5B-4C3D-2E1F-0A9B-8C7D6E5F4A3B
+```
+
+## Related Tools
+
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Install the app whose container you want to inspect.
+- [`app_list`](/xcode-pilot-mcp/tools/app/app-list/) — List installed apps to confirm the bundle ID.
+- [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/) — Uninstall the app, which removes all container directories.
+- [`diagnostics`](/xcode-pilot-mcp/tools/debug/diagnostics/) — Collect a diagnostic report that may include container info.
+
+## Tips
+
+<Aside type="tip">
+  The **data** container is where you will find the app's `Documents/`, `Library/`, `Caches/`, and `tmp/` directories. This is the most useful container type for debugging persistent storage, Core Data SQLite files, or UserDefaults plists.
+</Aside>
+
+<Aside type="tip">
+  Use the **App Group** container path when debugging data sharing between your main app and extensions (widgets, share extensions, etc.). Pass the group identifier directly, such as `"group.com.example.weatherapp.shared"`.
+</Aside>
+
+<Aside type="tip">
+  Container paths change each time you reinstall the app. Always fetch the path fresh with this tool rather than caching it between install cycles.
+</Aside>

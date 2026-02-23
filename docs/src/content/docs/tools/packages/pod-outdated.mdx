@@ -1,0 +1,82 @@
+---
+title: pod_outdated
+description: Check which CocoaPods dependencies have newer versions available.
+sidebar:
+  order: 6
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Run `pod outdated` to check which CocoaPods dependencies in your project have newer versions available. This compares the currently installed versions (from `Podfile.lock`) against the latest versions in the CocoaPods spec repository, showing you what updates are available without making any changes. Use this to plan dependency updates and stay on top of security patches.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | No | — | Absolute path to the directory containing the `Podfile`. If omitted, uses the current working directory. |
+
+## Usage Examples
+
+### Check for outdated pods
+
+> "Which of my CocoaPods have newer versions?"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp"
+}
+```
+
+### Audit dependencies before a release
+
+> "Check if any pods are outdated before we cut the release"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp"
+}
+```
+
+## Example Output
+
+```
+Checking for outdated CocoaPods...
+Project: /Users/johndoe/Projects/MyApp
+
+The following pod updates are available:
+- Firebase 11.4.0 -> 11.6.0 (latest: 11.6.0)
+- FirebaseAnalytics 11.4.0 -> 11.6.0 (latest: 11.6.0)
+- FirebaseCore 11.4.0 -> 11.6.0 (latest: 11.6.0)
+- IQKeyboardManager 7.1.1 -> 7.2.0 (latest: 7.2.0)
+- SDWebImage 5.19.7 -> 5.20.0 (latest: 5.20.0)
+
+Up to date:
+- GoogleUtilities 8.0.2
+- SVProgressHUD 2.3.1
+
+5 out of 7 pods have updates available.
+```
+
+## Related Tools
+
+- [`pod_update`](/xcode-pilot-mcp/tools/packages/pod-update/) — Update pods to the newer versions shown by this tool
+- [`pod_install`](/xcode-pilot-mcp/tools/packages/pod-install/) — Install pods from the lock file at their current versions
+- [`spm_show_dependencies`](/xcode-pilot-mcp/tools/packages/spm-show-dependencies/) — View the SPM dependency tree if your project also uses Swift packages
+
+## Tips
+
+<Aside type="tip">
+  Run `pod_outdated` regularly (e.g., weekly or before each release) to stay on top of dependency updates, especially security patches.
+</Aside>
+
+<Aside type="tip">
+  After identifying outdated pods, use `pod_update` with the `podName` parameter to update them one at a time, testing your app between each update to isolate any issues.
+</Aside>
+
+<Aside type="note">
+  This tool only reports what is available. It does not modify `Podfile.lock` or install anything. Use `pod_update` to actually perform the updates.
+</Aside>
+
+<Aside type="note">
+  The "latest" version shown may exceed your `Podfile` version constraints. If so, you would need to update the version constraint in your `Podfile` first before running `pod_update`.
+</Aside>

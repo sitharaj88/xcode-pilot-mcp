@@ -1,0 +1,133 @@
+---
+title: app_privacy
+description: Grant, revoke, or reset privacy permissions for an app on a simulator.
+sidebar:
+  order: 8
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Manages privacy permissions for applications on a simulator device. You can grant or revoke specific permissions (such as camera, location, or contacts) for a given app, or reset all permissions to their default state. This eliminates the need to manually interact with system permission dialogs during automated testing and development workflows.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator device. |
+| `action` | enum | Yes | — | The privacy action to perform. One of: `"grant"`, `"revoke"`, `"reset"`. |
+| `service` | enum | Yes | — | The privacy service to modify. One of: `"all"`, `"calendar"`, `"contacts-limited"`, `"contacts"`, `"location"`, `"location-always"`, `"photos-add"`, `"photos"`, `"media-library"`, `"microphone"`, `"motion"`, `"reminders"`, `"siri"`, `"speech-recognition"`, `"camera"`, `"faceid"`, `"health"`, `"homekit"`, `"usertracking"`. |
+| `bundleId` | string | No* | — | The bundle identifier of the target app. **Required** when `action` is `"grant"` or `"revoke"`. Optional for `"reset"` (omit to reset all apps). |
+
+## Usage Examples
+
+### Grant camera access
+> "Allow the WeatherApp to use the camera without showing a permission dialog."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "action": "grant",
+  "service": "camera",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+### Grant location-always permission
+> "Give the running app background location access."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "action": "grant",
+  "service": "location-always",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+### Revoke photo library access
+> "Remove photo library permission so I can test the denied state."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "action": "revoke",
+  "service": "photos",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+### Reset all permissions for an app
+> "Reset all privacy permissions for the shopping app to test the first-launch experience."
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-1234567890EF",
+  "action": "reset",
+  "service": "all",
+  "bundleId": "com.example.shopapp"
+}
+```
+
+### Reset all permissions for all apps on the simulator
+> "Clear all privacy permission states on this simulator."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "action": "reset",
+  "service": "all"
+}
+```
+
+### Grant multiple permissions in sequence
+> "Set up the app with contacts and calendar access for integration testing."
+
+First call:
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "action": "grant",
+  "service": "contacts",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+Second call:
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "action": "grant",
+  "service": "calendar",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+## Example Output
+
+```
+Privacy permission updated.
+Device: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+Action: grant
+Service: camera
+Bundle ID: com.example.weatherapp
+```
+
+## Related Tools
+
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch the app after configuring its permissions.
+- [`app_terminate`](/xcode-pilot-mcp/tools/app/app-terminate/) — Restart the app to ensure permission changes take effect.
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Install the app before setting its permissions.
+- [`simulator_erase`](/xcode-pilot-mcp/tools/simulator/simulator-erase/) — Fully reset the simulator, which also clears all permissions.
+
+## Tips
+
+<Aside type="tip">
+  The `"grant"` and `"revoke"` actions require a `bundleId`. The `"reset"` action can be used without a `bundleId` to reset permissions for **all** apps on the simulator at once.
+</Aside>
+
+<Aside type="tip">
+  Permission changes take effect immediately. However, some apps cache their authorization status at launch. For the most reliable results, call [`app_terminate`](/xcode-pilot-mcp/tools/app/app-terminate/) and then [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) after changing permissions.
+</Aside>
+
+<Aside type="tip">
+  Use `"reset"` with `"service": "all"` before running UI tests to ensure a clean permission state. This makes your tests deterministic regardless of previous manual interactions with permission dialogs.
+</Aside>
+
+<Aside type="tip">
+  The `"usertracking"` service corresponds to the App Tracking Transparency (ATT) permission introduced in iOS 14.5. This is useful for testing ATT prompt flows and consent handling.
+</Aside>

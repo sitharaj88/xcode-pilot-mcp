@@ -1,0 +1,132 @@
+---
+title: Tools Overview
+description: All 67 tools organized by category with descriptions and links.
+sidebar:
+  order: 0
+---
+
+import { LinkCard, CardGrid } from "@astrojs/starlight/components";
+
+Xcode Pilot MCP provides **67 tools** across **11 categories**, covering the full iOS/macOS development lifecycle.
+
+## Build & Compile (8 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) | Build project/workspace with scheme, configuration, and destination |
+| [`xcode_clean`](/xcode-pilot-mcp/tools/build/xcode-clean/) | Clean build artifacts for a scheme |
+| [`xcode_archive`](/xcode-pilot-mcp/tools/build/xcode-archive/) | Create archive for distribution |
+| [`xcode_export`](/xcode-pilot-mcp/tools/build/xcode-export/) | Export IPA from archive |
+| [`xcode_test`](/xcode-pilot-mcp/tools/build/xcode-test/) | Run unit and UI tests |
+| [`xcode_test_without_building`](/xcode-pilot-mcp/tools/build/xcode-test-without-building/) | Run tests on previously built code |
+| [`xcode_list`](/xcode-pilot-mcp/tools/build/xcode-list/) | List schemes, targets, configurations |
+| [`xcode_build_settings`](/xcode-pilot-mcp/tools/build/xcode-build-settings/) | Show resolved build settings |
+
+## Simulator Management (10 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) | List all simulators with state filtering |
+| [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/) | Create simulator with device type and runtime |
+| [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) | Boot a simulator |
+| [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/) | Shutdown simulator(s) |
+| [`simulator_delete`](/xcode-pilot-mcp/tools/simulator/simulator-delete/) | Delete a simulator or unavailable devices |
+| [`simulator_erase`](/xcode-pilot-mcp/tools/simulator/simulator-erase/) | Erase all content and settings |
+| [`simulator_open`](/xcode-pilot-mcp/tools/simulator/simulator-open/) | Open Simulator.app for a device |
+| [`simulator_list_runtimes`](/xcode-pilot-mcp/tools/simulator/simulator-list-runtimes/) | List iOS/watchOS/tvOS/visionOS runtimes |
+| [`simulator_list_device_types`](/xcode-pilot-mcp/tools/simulator/simulator-list-device-types/) | List available device types |
+| [`simulator_clone`](/xcode-pilot-mcp/tools/simulator/simulator-clone/) | Clone an existing simulator |
+
+## App Lifecycle (8 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) | Install .app on simulator |
+| [`app_uninstall`](/xcode-pilot-mcp/tools/app/app-uninstall/) | Uninstall by bundle ID |
+| [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) | Launch app with arguments and console output |
+| [`app_terminate`](/xcode-pilot-mcp/tools/app/app-terminate/) | Terminate running app |
+| [`app_get_container`](/xcode-pilot-mcp/tools/app/app-get-container/) | Get app/data/group container paths |
+| [`app_list`](/xcode-pilot-mcp/tools/app/app-list/) | List installed apps |
+| [`app_open_url`](/xcode-pilot-mcp/tools/app/app-open-url/) | Open URL for deep link testing |
+| [`app_privacy`](/xcode-pilot-mcp/tools/app/app-privacy/) | Grant/revoke/reset privacy permissions |
+
+## Debugging & Logging (7 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`log_stream`](/xcode-pilot-mcp/tools/debug/log-stream/) | Stream live logs with predicate filtering |
+| [`log_collect`](/xcode-pilot-mcp/tools/debug/log-collect/) | Collect recent logs with time range |
+| [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) | Capture screenshot as PNG |
+| [`screen_record`](/xcode-pilot-mcp/tools/debug/screen-record/) | Record screen as MP4 |
+| [`diagnostics`](/xcode-pilot-mcp/tools/debug/diagnostics/) | Collect diagnostic report |
+| [`accessibility_audit`](/xcode-pilot-mcp/tools/debug/accessibility-audit/) | Run accessibility audit (Xcode 15+) |
+| [`device_appearance`](/xcode-pilot-mcp/tools/debug/device-appearance/) | Set light/dark mode |
+
+## Simulator Environment (6 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`location_set`](/xcode-pilot-mcp/tools/environment/location-set/) | Set GPS coordinates |
+| [`location_clear`](/xcode-pilot-mcp/tools/environment/location-clear/) | Clear simulated location |
+| [`push_notification`](/xcode-pilot-mcp/tools/environment/push-notification/) | Send push notification via APNs payload |
+| [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) | Override status bar appearance |
+| [`status_bar_clear`](/xcode-pilot-mcp/tools/environment/status-bar-clear/) | Reset status bar to defaults |
+| [`keyboard_input`](/xcode-pilot-mcp/tools/environment/keyboard-input/) | Send text input to simulator |
+
+## Code Signing & Provisioning (5 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`signing_identities`](/xcode-pilot-mcp/tools/signing/signing-identities/) | List code signing identities |
+| [`provisioning_profiles`](/xcode-pilot-mcp/tools/signing/provisioning-profiles/) | List installed provisioning profiles |
+| [`profile_inspect`](/xcode-pilot-mcp/tools/signing/profile-inspect/) | Decode and inspect a profile |
+| [`keychain_list`](/xcode-pilot-mcp/tools/signing/keychain-list/) | List keychains |
+| [`entitlements_check`](/xcode-pilot-mcp/tools/signing/entitlements-check/) | Show entitlements of a built app |
+
+## Package Management (6 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`spm_resolve`](/xcode-pilot-mcp/tools/packages/spm-resolve/) | Resolve SPM dependencies |
+| [`spm_update`](/xcode-pilot-mcp/tools/packages/spm-update/) | Update SPM packages |
+| [`spm_show_dependencies`](/xcode-pilot-mcp/tools/packages/spm-show-dependencies/) | Show dependency tree as JSON |
+| [`pod_install`](/xcode-pilot-mcp/tools/packages/pod-install/) | Run CocoaPods install |
+| [`pod_update`](/xcode-pilot-mcp/tools/packages/pod-update/) | Update pods |
+| [`pod_outdated`](/xcode-pilot-mcp/tools/packages/pod-outdated/) | Check for outdated pods |
+
+## Project Scaffolding (5 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`project_create`](/xcode-pilot-mcp/tools/scaffold/project-create/) | Create new project (SwiftUI/UIKit) |
+| [`scaffold_view`](/xcode-pilot-mcp/tools/scaffold/scaffold-view/) | Generate SwiftUI View with preview |
+| [`scaffold_viewmodel`](/xcode-pilot-mcp/tools/scaffold/scaffold-viewmodel/) | Generate @Observable ViewModel |
+| [`scaffold_coredata_model`](/xcode-pilot-mcp/tools/scaffold/scaffold-coredata-model/) | Generate Core Data model class |
+| [`scaffold_widget`](/xcode-pilot-mcp/tools/scaffold/scaffold-widget/) | Generate WidgetKit extension |
+
+## IPA & App Analysis (4 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`ipa_analyze`](/xcode-pilot-mcp/tools/analyze/ipa-analyze/) | Inspect IPA: size, bundle ID, version, architectures |
+| [`ipa_permissions`](/xcode-pilot-mcp/tools/analyze/ipa-permissions/) | List privacy usage descriptions |
+| [`binary_size`](/xcode-pilot-mcp/tools/analyze/binary-size/) | Analyze Mach-O binary size by segment |
+| [`dsym_verify`](/xcode-pilot-mcp/tools/analyze/dsym-verify/) | Verify dSYM matches binary UUID |
+
+## Code Quality (4 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`swiftlint_run`](/xcode-pilot-mcp/tools/quality/swiftlint-run/) | Run SwiftLint analysis |
+| [`swiftlint_fix`](/xcode-pilot-mcp/tools/quality/swiftlint-fix/) | Auto-fix SwiftLint violations |
+| [`swift_format_run`](/xcode-pilot-mcp/tools/quality/swift-format-run/) | Run swift-format lint |
+| [`build_warnings`](/xcode-pilot-mcp/tools/quality/build-warnings/) | Extract warnings from build logs |
+
+## Physical Devices (4 tools)
+
+| Tool | Description |
+|------|-------------|
+| [`physical_device_list`](/xcode-pilot-mcp/tools/device/physical-device-list/) | List connected iOS devices |
+| [`physical_device_install`](/xcode-pilot-mcp/tools/device/physical-device-install/) | Install app on physical device |
+| [`physical_device_launch`](/xcode-pilot-mcp/tools/device/physical-device-launch/) | Launch app on physical device |
+| [`physical_device_console`](/xcode-pilot-mcp/tools/device/physical-device-console/) | Stream console logs from device |

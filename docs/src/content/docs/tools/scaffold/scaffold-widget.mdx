@@ -1,0 +1,114 @@
+---
+title: scaffold_widget
+description: Generate a WidgetKit extension with timeline provider and view boilerplate.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Generate a WidgetKit extension target with all required boilerplate including a `TimelineProvider`, `TimelineEntry`, widget view, and configuration. This tool creates either a static or configurable widget, setting up the complete file structure needed to display a widget on the home screen.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `name` | string | Yes | — | The name of the widget (e.g., `"DailyStats"` generates a `DailyStatsWidget` extension) |
+| `outputPath` | string | Yes | — | Absolute path to the directory where the widget extension folder will be created |
+| `kind` | string | No | `"static"` | The widget configuration type. Accepted values: `"static"`, `"configurable"` |
+
+## Usage Examples
+
+### Create a static widget
+
+> "Create a widget called DailyStats for showing fitness progress on the home screen"
+
+```json
+{
+  "name": "DailyStats",
+  "outputPath": "/Users/dev/Projects/FitnessTracker"
+}
+```
+
+### Create a configurable widget
+
+> "Scaffold a configurable widget called WorkoutGoal that lets users pick which goal to track"
+
+```json
+{
+  "name": "WorkoutGoal",
+  "outputPath": "/Users/dev/Projects/FitnessTracker",
+  "kind": "configurable"
+}
+```
+
+### Create a static widget in a specific extensions folder
+
+> "Generate a static CalorieCounter widget inside the Extensions directory"
+
+```json
+{
+  "name": "CalorieCounter",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/Extensions",
+  "kind": "static"
+}
+```
+
+## Example Output
+
+```
+Created widget extension: /Users/dev/Projects/FitnessTracker/DailyStatsWidget
+
+Files generated:
+  DailyStatsWidget/
+    DailyStatsWidget.swift
+    DailyStatsWidgetBundle.swift
+    DailyStatsTimelineProvider.swift
+    DailyStatsEntry.swift
+    DailyStatsWidgetView.swift
+    Assets.xcassets/
+    Info.plist
+
+Widget type: Static
+Configuration: StaticConfiguration
+```
+
+When `kind` is set to `"configurable"`:
+
+```
+Created widget extension: /Users/dev/Projects/FitnessTracker/WorkoutGoalWidget
+
+Files generated:
+  WorkoutGoalWidget/
+    WorkoutGoalWidget.swift
+    WorkoutGoalWidgetBundle.swift
+    WorkoutGoalTimelineProvider.swift
+    WorkoutGoalEntry.swift
+    WorkoutGoalWidgetView.swift
+    WorkoutGoalIntent.swift
+    Assets.xcassets/
+    Info.plist
+
+Widget type: Configurable
+Configuration: AppIntentConfiguration
+```
+
+## Related Tools
+
+- [`scaffold_view`](/xcode-pilot-mcp/tools/scaffold/scaffold-view/) — Create additional SwiftUI views used within the widget
+- [`project_create`](/xcode-pilot-mcp/tools/scaffold/project-create/) — Create the host app project if you have not started one
+- [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) — Build the widget extension target to verify it compiles
+
+## Tips
+
+<Aside type="tip">
+  Use `"static"` for widgets that display data your app controls (e.g., daily step count). Use `"configurable"` when you want users to customize the widget from the long-press edit screen (e.g., choosing which workout goal to display).
+</Aside>
+
+<Aside type="tip">
+  After generating the widget, you need to add the new extension target to your Xcode project manually or via Xcode's "Add Target" flow. The generated files provide all the source code, but the target must be registered in the `.xcodeproj` to build.
+</Aside>
+
+<Aside type="caution">
+  Widgets run in a separate process from your main app. If the widget needs to share data with the host app, you must configure an App Group in both targets and use a shared `UserDefaults` suite or a shared Core Data store.
+</Aside>

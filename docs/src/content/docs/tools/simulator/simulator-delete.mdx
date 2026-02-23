@@ -1,0 +1,81 @@
+---
+title: simulator_delete
+description: Delete a simulator device or remove all unavailable simulators.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Permanently delete a specific simulator by its UDID, or remove all unavailable simulators (devices whose runtime is no longer installed). Deleting simulators you no longer need keeps your device list clean and frees disk space.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the simulator to delete, or `"unavailable"` to remove all simulators whose runtime is no longer installed. |
+
+## Usage Examples
+
+### Delete a specific simulator
+
+> "Delete the old iPhone 14 test simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+### Remove all unavailable simulators
+
+> "Clean up simulators with missing runtimes"
+
+```json
+{
+  "deviceId": "unavailable"
+}
+```
+
+## Example Output
+
+### Single device deletion
+
+```
+Simulator deleted successfully.
+
+Deleted: iPhone 14 - Old Tests (A1B2C3D4-E5F6-7890-ABCD-EF1234567890)
+```
+
+### Unavailable devices cleanup
+
+```
+Unavailable simulators removed.
+
+Deleted 4 unavailable simulator(s):
+  - iPhone 13 (12345678-ABCD-EF01-2345-6789ABCDEF01) — iOS 16.4 (runtime not installed)
+  - iPhone 13 mini (23456789-BCDE-F012-3456-789ABCDEF012) — iOS 16.4 (runtime not installed)
+  - iPad mini (6th generation) (3456789A-CDEF-0123-4567-89ABCDEF0123) — iOS 16.2 (runtime not installed)
+  - iPhone 12 (456789AB-DEF0-1234-5678-9ABCDEF01234) — iOS 15.5 (runtime not installed)
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — List simulators to find the UDID of the one you want to delete
+- [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/) — Shut down a simulator before deleting it
+- [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/) — Create a new simulator to replace a deleted one
+- [`simulator_erase`](/xcode-pilot-mcp/tools/simulator/simulator-erase/) — Reset a simulator without deleting it entirely
+
+## Tips
+
+<Aside type="caution">
+  Deletion is permanent and cannot be undone. Make sure you have the correct UDID before deleting. If you just want to reset the simulator to a clean state, use [`simulator_erase`](/xcode-pilot-mcp/tools/simulator/simulator-erase/) instead.
+</Aside>
+
+<Aside type="tip">
+  Run `simulator_delete` with `"unavailable"` periodically after upgrading Xcode or removing old platform runtimes. This cleans up orphaned simulators that can no longer be booted.
+</Aside>
+
+<Aside type="note">
+  A simulator must be shut down before it can be deleted. If the simulator is currently booted, shut it down first with [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/).
+</Aside>

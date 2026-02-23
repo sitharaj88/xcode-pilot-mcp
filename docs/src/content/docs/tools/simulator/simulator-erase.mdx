@@ -1,0 +1,77 @@
+---
+title: simulator_erase
+description: Erase all content and settings from an iOS simulator.
+sidebar:
+  order: 6
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Erase all content and settings from a simulator, restoring it to a clean factory state. This removes all installed apps, user data, accounts, and custom settings while keeping the simulator device itself. It is the equivalent of "Erase All Content and Settings" on a physical iOS device.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the simulator to erase. Use `simulator_list` to find the UDID. |
+
+## Usage Examples
+
+### Erase a simulator to start fresh
+
+> "Reset my iPhone 16 Pro simulator to a clean state"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+### Erase before a regression test run
+
+> "Wipe the iPad Air simulator before I run the full test suite"
+
+```json
+{
+  "deviceId": "B2C3D4E5-F6A7-8901-BCDE-F12345678901"
+}
+```
+
+## Example Output
+
+```
+Simulator erased successfully.
+
+Name: iPhone 16 Pro
+UDID: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+Runtime: iOS 18.0
+State: Shutdown
+
+All apps, data, and settings have been removed.
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find the UDID of the simulator you want to erase
+- [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/) — Shut down a simulator before erasing it
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot the simulator after erasing to use it again
+- [`simulator_delete`](/xcode-pilot-mcp/tools/simulator/simulator-delete/) — Permanently delete a simulator instead of just erasing it
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Reinstall your app after erasing
+
+## Tips
+
+<Aside type="tip">
+  Erase simulators before running integration or UI test suites to ensure tests start from a known clean state. This prevents leftover data from previous runs from causing flaky tests.
+</Aside>
+
+<Aside type="caution">
+  The simulator must be shut down before erasing. If it is currently booted, shut it down first with [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/).
+</Aside>
+
+<Aside type="note">
+  Erasing removes everything: installed apps, keychain data, user defaults, cached files, and permission grants. You will need to reinstall your app and re-grant any permissions after erasing.
+</Aside>
+
+<Aside type="tip">
+  If you frequently need a clean simulator with specific apps pre-installed and configured, consider using [`simulator_clone`](/xcode-pilot-mcp/tools/simulator/simulator-clone/) to create a snapshot of your configured simulator instead of erasing and reconfiguring each time.
+</Aside>

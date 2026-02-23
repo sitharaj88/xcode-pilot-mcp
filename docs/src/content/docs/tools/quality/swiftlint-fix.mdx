@@ -1,0 +1,98 @@
+---
+title: swiftlint_fix
+description: Auto-correct fixable SwiftLint violations in your Swift source files.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Run SwiftLint in auto-correction mode to automatically fix violations that have safe, mechanical corrections. This tool modifies your source files in place, applying fixes for issues like trailing whitespace, missing colons, vertical whitespace, and other formatting rules. Violations that cannot be safely auto-corrected are reported but left unchanged.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `path` | string | No | Current directory | Absolute path to the file or directory to fix |
+| `config` | string | No | Auto-detected `.swiftlint.yml` | Absolute path to a custom SwiftLint configuration file |
+
+## Usage Examples
+
+### Fix the entire project
+
+> "Auto-fix all SwiftLint violations in my FitnessTracker project"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker"
+}
+```
+
+### Fix a specific file
+
+> "Fix lint issues in my APIClient file"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Services/APIClient.swift"
+}
+```
+
+### Fix with a custom configuration
+
+> "Run SwiftLint auto-fix using the team's config"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker",
+  "config": "/Users/dev/Projects/FitnessTracker/.swiftlint.yml"
+}
+```
+
+## Example Output
+
+```
+Running SwiftLint auto-correction...
+
+Corrected:
+  /Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels/WorkoutViewModel.swift
+    - trailing_whitespace (3 occurrences)
+    - vertical_whitespace (1 occurrence)
+
+  /Users/dev/Projects/FitnessTracker/FitnessTracker/Views/WorkoutDetailView.swift
+    - colon (2 occurrences)
+    - trailing_whitespace (1 occurrence)
+
+  /Users/dev/Projects/FitnessTracker/FitnessTracker/Models/Workout.swift
+    - opening_brace (1 occurrence)
+    - trailing_semicolon (1 occurrence)
+
+Remaining (not auto-correctable):
+  /Users/dev/Projects/FitnessTracker/FitnessTracker/Views/WorkoutDetailView.swift:34:5:
+    warning: Force Cast Violation: Force casts should be avoided (force_cast)
+
+  /Users/dev/Projects/FitnessTracker/FitnessTracker/Services/APIClient.swift:89:45:
+    error: Force Try Violation: Force tries should be avoided (force_try)
+
+Summary: 8 violations corrected in 3 files, 2 violations remaining
+```
+
+## Related Tools
+
+- [`swiftlint_run`](/xcode-pilot-mcp/tools/quality/swiftlint-run/) — Run a read-only lint check first to see all violations before fixing
+- [`swift_format_run`](/xcode-pilot-mcp/tools/quality/swift-format-run/) — Apply swift-format for additional formatting corrections
+- [`build_warnings`](/xcode-pilot-mcp/tools/quality/build-warnings/) — Check for compiler warnings after fixing lint issues
+
+## Tips
+
+<Aside type="tip">
+  Run [`swiftlint_run`](/xcode-pilot-mcp/tools/quality/swiftlint-run/) first to preview all violations, then use `swiftlint_fix` to auto-correct what it can. Review the remaining violations and fix those manually.
+</Aside>
+
+<Aside type="tip">
+  Run this tool on your working directory before committing to keep your codebase consistently formatted. It pairs well with a pre-commit hook to enforce style automatically.
+</Aside>
+
+<Aside type="caution">
+  This tool modifies files in place. Make sure your changes are committed or stashed before running it so you can easily review and revert the auto-corrections if needed using `git diff`.
+</Aside>

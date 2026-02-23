@@ -1,0 +1,98 @@
+---
+title: pod_update
+description: Update CocoaPods dependencies to newer versions.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Run `pod update` to update CocoaPods dependencies to the latest versions that satisfy the version constraints in your `Podfile`. You can update all pods at once or target a specific pod by name. This modifies `Podfile.lock` with the new version pins and regenerates the Pods project.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | No | — | Absolute path to the directory containing the `Podfile`. If omitted, uses the current working directory. |
+| `podName` | string | No | — | The name of a specific pod to update. If omitted, all pods are updated. |
+
+## Usage Examples
+
+### Update all pods
+
+> "Update all CocoaPods to their latest compatible versions"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp"
+}
+```
+
+### Update a specific pod
+
+> "Update only the Firebase pod"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp",
+  "podName": "Firebase"
+}
+```
+
+### Update SDWebImage
+
+> "Update SDWebImage to the latest version"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp",
+  "podName": "SDWebImage"
+}
+```
+
+## Example Output
+
+```
+Updating CocoaPods dependencies...
+Project: /Users/johndoe/Projects/MyApp
+Updating pod: Firebase
+
+Analyzing dependencies
+Downloading dependencies
+Installing Firebase 11.6.0 (was 11.4.0)
+Installing FirebaseAnalytics 11.6.0 (was 11.4.0)
+Installing FirebaseCore 11.6.0 (was 11.4.0)
+Using GoogleUtilities 8.0.2
+Using IQKeyboardManager 7.1.1
+Using SDWebImage 5.20.0
+Using SVProgressHUD 2.3.1
+Generating Pods project
+Integrating client project
+
+Updated 3 pods. 4 pods unchanged.
+Podfile.lock has been updated.
+```
+
+## Related Tools
+
+- [`pod_install`](/xcode-pilot-mcp/tools/packages/pod-install/) — Install pods from the lock file without updating versions
+- [`pod_outdated`](/xcode-pilot-mcp/tools/packages/pod-outdated/) — Check which pods have newer versions before deciding to update
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build the project to verify compatibility after updating
+
+## Tips
+
+<Aside type="tip">
+  Use `pod_outdated` first to see which pods have newer versions available and what the changes would be, then selectively update only the pods you need with the `podName` parameter.
+</Aside>
+
+<Aside type="tip">
+  When updating a single pod, its transitive dependencies may also be updated to satisfy compatibility requirements. Review the output carefully to see all changes.
+</Aside>
+
+<Aside type="tip">
+  After updating, always build and run your tests. Commit the updated `Podfile.lock` so your teammates and CI pick up the same versions.
+</Aside>
+
+<Aside type="caution">
+  Updating all pods at once can introduce breaking changes from multiple libraries simultaneously. For safer updates, update one pod at a time using the `podName` parameter and test between each update.
+</Aside>

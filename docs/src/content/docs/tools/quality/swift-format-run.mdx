@@ -1,0 +1,109 @@
+---
+title: swift_format_run
+description: Run swift-format to check or enforce consistent code formatting.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Run Apple's `swift-format` tool on your Swift source files to check and enforce consistent code formatting. Unlike SwiftLint which focuses on code style rules and best practices, `swift-format` specifically handles whitespace, indentation, line breaks, and structural formatting according to a defined style. This tool reports formatting deviations and can process files recursively.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `path` | string | Yes | — | Absolute path to the file or directory to format-check |
+| `recursive` | boolean | No | `true` | Whether to process directories recursively |
+
+## Usage Examples
+
+### Check formatting for the entire project
+
+> "Run swift-format on my FitnessTracker project"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker/FitnessTracker"
+}
+```
+
+### Check a single file
+
+> "Check the formatting of my WorkoutService file"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Services/WorkoutService.swift",
+  "recursive": false
+}
+```
+
+### Check only the top-level directory without recursing
+
+> "Run swift-format on just the files in the Sources root, not subdirectories"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker/Sources",
+  "recursive": false
+}
+```
+
+### Check formatting for test files
+
+> "Check formatting on all test files"
+
+```json
+{
+  "path": "/Users/dev/Projects/FitnessTracker/FitnessTrackerTests"
+}
+```
+
+## Example Output
+
+```
+Running swift-format...
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Services/WorkoutService.swift:
+  Line 14: Indentation uses 3 spaces, expected 4 spaces
+  Line 28: Missing blank line between function declarations
+  Line 45: Opening brace should be on the same line as the declaration
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels/ProfileViewModel.swift:
+  Line 9: Trailing comma missing in multiline collection literal
+  Line 22: Line length exceeds 100 characters (currently 118)
+
+/Users/dev/Projects/FitnessTracker/FitnessTracker/Models/UserProfile.swift:
+  Line 5: Import statements should be sorted alphabetically
+
+Summary: 6 formatting issues in 3 files (47 files checked)
+```
+
+When all files pass:
+
+```
+Running swift-format...
+
+All 47 files pass formatting checks. No issues found.
+```
+
+## Related Tools
+
+- [`swiftlint_run`](/xcode-pilot-mcp/tools/quality/swiftlint-run/) — Check for style and best-practice violations beyond formatting
+- [`swiftlint_fix`](/xcode-pilot-mcp/tools/quality/swiftlint-fix/) — Auto-correct SwiftLint violations after fixing formatting
+- [`build_warnings`](/xcode-pilot-mcp/tools/quality/build-warnings/) — Check for compiler warnings alongside formatting issues
+
+## Tips
+
+<Aside type="tip">
+  Use `swift-format` alongside SwiftLint for comprehensive code quality. `swift-format` handles low-level formatting (indentation, spacing), while SwiftLint catches higher-level style issues (force unwraps, naming conventions).
+</Aside>
+
+<Aside type="tip">
+  Set `recursive` to `false` when you only want to check files in a specific directory without descending into subdirectories. This is useful for checking just the top-level app files or a specific module.
+</Aside>
+
+<Aside type="caution">
+  `swift-format` must be installed on your system. Install it via Homebrew with `brew install swift-format` or build it from source at [github.com/swiftlang/swift-format](https://github.com/swiftlang/swift-format).
+</Aside>

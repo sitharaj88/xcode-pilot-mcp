@@ -1,0 +1,85 @@
+---
+title: spm_show_dependencies
+description: Display the full Swift Package Manager dependency tree.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Display the complete dependency tree for all Swift Package Manager packages in your project, including transitive dependencies. This shows the hierarchy of which packages depend on which, their resolved versions, and source URLs. Use this to understand your dependency graph, identify duplicate sub-dependencies, or audit what third-party code is included in your project.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | No | — | Absolute path to the `.xcodeproj`, `.xcworkspace`, or directory containing `Package.swift`. If omitted, uses the current working directory. |
+
+## Usage Examples
+
+### Show dependencies for an Xcode project
+
+> "Show me the full SPM dependency tree"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp/MyApp.xcodeproj"
+}
+```
+
+### Show dependencies for a Swift package
+
+> "What are all the transitive dependencies of my library?"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyLibrary"
+}
+```
+
+## Example Output
+
+```
+Swift Package Manager Dependencies:
+Project: /Users/johndoe/Projects/MyApp/MyApp.xcodeproj
+
+MyApp
+├── Alamofire 5.9.1 (https://github.com/Alamofire/Alamofire.git)
+├── Kingfisher 8.1.0 (https://github.com/onevcat/Kingfisher.git)
+├── SnapKit 5.7.1 (https://github.com/SnapKit/SnapKit.git)
+├── swift-composable-architecture 1.17.0 (https://github.com/pointfreeco/swift-composable-architecture.git)
+│   ├── combine-schedulers 1.0.2 (https://github.com/pointfreeco/combine-schedulers.git)
+│   │   └── xctest-dynamic-overlay 1.4.3 (https://github.com/pointfreeco/xctest-dynamic-overlay.git)
+│   ├── swift-case-paths 1.5.6 (https://github.com/pointfreeco/swift-case-paths.git)
+│   ├── swift-custom-dump 1.3.3 (https://github.com/pointfreeco/swift-custom-dump.git)
+│   │   └── xctest-dynamic-overlay 1.4.3
+│   ├── swift-dependencies 1.6.2 (https://github.com/pointfreeco/swift-dependencies.git)
+│   │   ├── combine-schedulers 1.0.2
+│   │   └── xctest-dynamic-overlay 1.4.3
+│   ├── swift-identified-collections 1.1.0 (https://github.com/pointfreeco/swift-identified-collections.git)
+│   │   └── swift-collections 1.1.4 (https://github.com/apple/swift-collections.git)
+│   └── swiftui-navigation 1.5.4 (https://github.com/pointfreeco/swiftui-navigation.git)
+│       └── swift-case-paths 1.5.6
+└── swift-collections 1.1.4
+
+Total: 13 packages (6 direct, 7 transitive)
+```
+
+## Related Tools
+
+- [`spm_resolve`](/xcode-pilot-mcp/tools/packages/spm-resolve/) — Resolve and fetch all dependencies
+- [`spm_update`](/xcode-pilot-mcp/tools/packages/spm-update/) — Update dependencies to the latest compatible versions
+
+## Tips
+
+<Aside type="tip">
+  Use this tool to audit your dependency tree before releasing your app. A large number of transitive dependencies can increase binary size and build time.
+</Aside>
+
+<Aside type="tip">
+  If you see the same package appearing at different versions in the tree, SPM will resolve it to a single compatible version. If it cannot, you will get a dependency resolution conflict.
+</Aside>
+
+<Aside type="note">
+  The dependency tree reflects what is in `Package.resolved`. Run `spm_resolve` first if you have not fetched packages yet.
+</Aside>

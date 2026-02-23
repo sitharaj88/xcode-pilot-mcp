@@ -1,0 +1,81 @@
+---
+title: simulator_boot
+description: Boot a shutdown iOS simulator to make it ready for use.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Boot a shutdown iOS simulator so it becomes ready for app installation, testing, and interaction. A simulator must be in the Booted state before you can install apps, capture screenshots, stream logs, or perform most other operations.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID or name of the simulator to boot. Use `simulator_list` to find available devices. |
+
+## Usage Examples
+
+### Boot a simulator by UDID
+
+> "Boot my iPhone 16 Pro simulator"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+### Boot a simulator by name
+
+> "Start the iPhone 15 simulator"
+
+```json
+{
+  "deviceId": "iPhone 15"
+}
+```
+
+### Boot a specific test device
+
+> "Boot my iPad Air layout testing simulator"
+
+```json
+{
+  "deviceId": "iPad Air - Layout Tests"
+}
+```
+
+## Example Output
+
+```
+Simulator booted successfully.
+
+Name: iPhone 16 Pro
+UDID: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+Runtime: iOS 18.0
+State: Booted
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find the UDID of the simulator you want to boot
+- [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/) — Shut down a running simulator when done
+- [`simulator_open`](/xcode-pilot-mcp/tools/simulator/simulator-open/) — Open the Simulator.app window for a booted device
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Install an app on the booted simulator
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch an app on the booted simulator
+
+## Tips
+
+<Aside type="tip">
+  You can pass the simulator's name instead of its UDID for convenience. However, if you have multiple simulators with the same name, use the UDID to avoid ambiguity.
+</Aside>
+
+<Aside type="note">
+  Booting a simulator does not open the Simulator.app GUI window. If you also need the visual window, follow up with [`simulator_open`](/xcode-pilot-mcp/tools/simulator/simulator-open/).
+</Aside>
+
+<Aside type="caution">
+  Booting a simulator that is already in the Booted state will return an error. Use `simulator_list` with `state: "Shutdown"` to confirm the device is shut down before booting.
+</Aside>

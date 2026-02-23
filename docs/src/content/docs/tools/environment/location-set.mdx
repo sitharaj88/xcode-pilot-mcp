@@ -1,0 +1,85 @@
+---
+title: location_set
+description: Simulate a GPS location on an iOS simulator.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Simulate a GPS location on an iOS simulator by providing latitude and longitude coordinates. This is essential for testing location-aware features such as maps, geofences, weather, and region-specific content without physically moving. The simulated location persists until explicitly cleared or the simulator is rebooted.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator (must be booted). |
+| `latitude` | number | Yes | — | The latitude coordinate to simulate (range: -90 to 90). |
+| `longitude` | number | Yes | — | The longitude coordinate to simulate (range: -180 to 180). |
+
+## Usage Examples
+
+### Set location to Apple Park, Cupertino
+
+> "Set the simulator location to Apple Park"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "latitude": 37.3349,
+  "longitude": -122.0090
+}
+```
+
+### Set location to Tokyo Tower, Japan
+
+> "Simulate the device being in Tokyo"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "latitude": 35.6586,
+  "longitude": 139.7454
+}
+```
+
+### Set location to London, UK
+
+> "I need to test the app as if the user is in London"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "latitude": 51.5074,
+  "longitude": -0.1278
+}
+```
+
+## Example Output
+
+```
+Location set successfully.
+Device: iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+Latitude: 37.3349
+Longitude: -122.0090
+```
+
+## Related Tools
+
+- [`location_clear`](/xcode-pilot-mcp/tools/environment/location-clear/) — Remove the simulated location and revert to default
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find simulator UDIDs for the `deviceId` parameter
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot a simulator before setting location
+
+## Tips
+
+<Aside type="tip">
+  Use `simulator_list` with `state: "Booted"` first to get the UDID of a running simulator, then pass it as `deviceId`.
+</Aside>
+
+<Aside type="tip">
+  To test geofence transitions, call `location_set` multiple times with different coordinates to simulate the user moving across a boundary.
+</Aside>
+
+<Aside type="note">
+  The simulated location affects all apps on the simulator, not just your app under test. Remember to call `location_clear` when you are done.
+</Aside>

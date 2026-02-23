@@ -1,0 +1,81 @@
+---
+title: signing_identities
+description: List all code signing identities available in your keychains.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+List all code signing identities (developer certificates) available in your macOS keychains. This shows both iOS and macOS development and distribution certificates, including their validity status, expiration dates, and associated team identifiers. Use this to verify that the correct signing certificates are installed before building or archiving your project.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| — | — | — | — | This tool takes no parameters. |
+
+## Usage Examples
+
+### List all signing identities
+
+> "Show me all my code signing certificates"
+
+```json
+{}
+```
+
+### Check certificates before archiving
+
+> "What signing identities do I have available for distribution?"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Signing Identities:
+
+1) Apple Development: John Doe (A1B2C3D4E5)
+   Certificate ID: 3FA2B1C0D9E8F7A6B5C4D3E2F1A0B9C8D7E6F5A4
+   Team: ABCDE12345 (Acme Corp)
+   Expires: 2027-03-15
+   Status: Valid
+
+2) Apple Distribution: Acme Corp (F6G7H8I9J0)
+   Certificate ID: 8E7D6C5B4A3F2E1D0C9B8A7F6E5D4C3B2A1F0E9D
+   Team: ABCDE12345 (Acme Corp)
+   Expires: 2027-03-15
+   Status: Valid
+
+3) Apple Development: John Doe (K1L2M3N4O5)
+   Certificate ID: 1A2B3C4D5E6F7A8B9C0D1E2F3A4B5C6D7E8F9A0B
+   Team: FGHIJ67890 (Side Project LLC)
+   Expires: 2025-11-20
+   Status: Expired
+
+Found 3 signing identities (2 valid, 1 expired).
+```
+
+## Related Tools
+
+- [`provisioning_profiles`](/xcode-pilot-mcp/tools/signing/provisioning-profiles/) — List provisioning profiles that reference these identities
+- [`keychain_list`](/xcode-pilot-mcp/tools/signing/keychain-list/) — List keychains where certificates are stored
+- [`entitlements_check`](/xcode-pilot-mcp/tools/signing/entitlements-check/) — Verify entitlements on a signed app bundle
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build and sign your app using these identities
+
+## Tips
+
+<Aside type="tip">
+  If a certificate shows as expired, open Keychain Access and delete it, then download a new one from the Apple Developer portal or regenerate it in Xcode under Settings > Accounts.
+</Aside>
+
+<Aside type="tip">
+  Look for the **Team ID** (e.g., `ABCDE12345`) in the output to confirm you are using the correct Apple Developer account, especially if you belong to multiple teams.
+</Aside>
+
+<Aside type="note">
+  This tool reads from all keychains in your search list. If a certificate is in a keychain that is locked, you may be prompted to unlock it.
+</Aside>

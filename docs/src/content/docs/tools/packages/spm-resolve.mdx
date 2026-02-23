@@ -1,0 +1,102 @@
+---
+title: spm_resolve
+description: Resolve Swift Package Manager dependencies for a project.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Resolve and fetch all Swift Package Manager (SPM) dependencies defined in your Xcode project or `Package.swift` file. This downloads the exact package versions specified in `Package.resolved`, ensuring your dependency graph is complete and ready for building. Use this after cloning a repository, switching branches, or when Xcode reports missing packages.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | No | — | Absolute path to the `.xcodeproj`, `.xcworkspace`, or directory containing `Package.swift`. If omitted, uses the current working directory. |
+| `scheme` | string | No | — | The Xcode scheme to resolve dependencies for. Useful when a workspace contains multiple projects with different dependency trees. |
+| `clonedSourcePackagesDir` | string | No | — | Custom directory to store cloned package sources. Useful for CI caches or shared builds. |
+
+## Usage Examples
+
+### Resolve packages for an Xcode project
+
+> "Resolve all Swift packages for my project"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp/MyApp.xcodeproj"
+}
+```
+
+### Resolve packages for a specific scheme
+
+> "Resolve SPM dependencies for the MyApp-Dev scheme"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp/MyApp.xcworkspace",
+  "scheme": "MyApp-Dev"
+}
+```
+
+### Resolve with a custom package cache directory
+
+> "Resolve packages and store them in our CI cache folder"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp/MyApp.xcodeproj",
+  "clonedSourcePackagesDir": "/Users/johndoe/Projects/MyApp/.spm-cache"
+}
+```
+
+### Resolve a Swift package library
+
+> "Resolve dependencies for my Swift package"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyLibrary"
+}
+```
+
+## Example Output
+
+```
+Resolving Swift Package Manager dependencies...
+Project: /Users/johndoe/Projects/MyApp/MyApp.xcodeproj
+
+Fetching https://github.com/Alamofire/Alamofire.git
+Fetching https://github.com/SnapKit/SnapKit.git
+Fetching https://github.com/onevcat/Kingfisher.git
+Fetching https://github.com/apple/swift-collections.git
+
+Resolved 4 packages:
+  Alamofire 5.9.1
+  SnapKit 5.7.1
+  Kingfisher 8.1.0
+  swift-collections 1.1.4
+
+All packages resolved successfully.
+```
+
+## Related Tools
+
+- [`spm_update`](/xcode-pilot-mcp/tools/packages/spm-update/) — Update packages to the latest compatible versions
+- [`spm_show_dependencies`](/xcode-pilot-mcp/tools/packages/spm-show-dependencies/) — View the full dependency tree
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build the project after resolving dependencies
+
+## Tips
+
+<Aside type="tip">
+  Use `clonedSourcePackagesDir` to point to a persistent cache directory in CI. This avoids re-downloading all packages on every build and can significantly speed up your pipeline.
+</Aside>
+
+<Aside type="tip">
+  If you are getting package resolution errors after switching branches, try running `spm_resolve` to re-fetch packages matching the `Package.resolved` on the new branch.
+</Aside>
+
+<Aside type="note">
+  This tool resolves packages to the exact versions in `Package.resolved`. It does not update packages to newer versions. Use `spm_update` for that.
+</Aside>

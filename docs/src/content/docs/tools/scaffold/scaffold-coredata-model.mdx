@@ -1,0 +1,108 @@
+---
+title: scaffold_coredata_model
+description: Generate a Core Data model file with entity definitions and typed attributes.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Generate a Core Data model (`.xcdatamodeld`) file with a named entity and optionally pre-defined attributes. This tool creates the data model file that Core Data uses to define your persistent object graph, saving you from manually configuring entities in the Xcode model editor.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `name` | string | Yes | — | The name of the Core Data entity (e.g., `"Workout"`) |
+| `outputPath` | string | Yes | — | Absolute path to the directory where the `.xcdatamodeld` package will be created |
+| `attributes` | array | No | — | List of attribute objects, each with `name` (string) and `type` (enum) |
+
+### Attribute Types
+
+The `type` field in each attribute object accepts one of the following values:
+
+`String`, `Integer16`, `Integer32`, `Integer64`, `Double`, `Float`, `Boolean`, `Date`, `Binary`, `UUID`, `URI`
+
+## Usage Examples
+
+### Create an entity with typed attributes
+
+> "Create a Core Data model for a Workout entity with name, duration, calories, and date"
+
+```json
+{
+  "name": "Workout",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Models",
+  "attributes": [
+    { "name": "name", "type": "String" },
+    { "name": "duration", "type": "Double" },
+    { "name": "caloriesBurned", "type": "Integer32" },
+    { "name": "completedAt", "type": "Date" },
+    { "name": "id", "type": "UUID" }
+  ]
+}
+```
+
+### Create a simple entity without attributes
+
+> "Scaffold a Core Data model called MealEntry that I'll configure later"
+
+```json
+{
+  "name": "MealEntry",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Models"
+}
+```
+
+### Create an entity with binary data for images
+
+> "Create a Core Data model for UserProfile that stores an avatar image"
+
+```json
+{
+  "name": "UserProfile",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Models",
+  "attributes": [
+    { "name": "id", "type": "UUID" },
+    { "name": "displayName", "type": "String" },
+    { "name": "email", "type": "String" },
+    { "name": "avatarData", "type": "Binary" },
+    { "name": "joinedAt", "type": "Date" },
+    { "name": "isPremium", "type": "Boolean" }
+  ]
+}
+```
+
+## Example Output
+
+```
+Created Core Data model: /Users/dev/Projects/FitnessTracker/FitnessTracker/Models/Workout.xcdatamodeld
+
+Entity: Workout
+Attributes:
+  name          String
+  duration      Double
+  caloriesBurned Integer32
+  completedAt   Date
+  id            UUID
+```
+
+## Related Tools
+
+- [`scaffold_viewmodel`](/xcode-pilot-mcp/tools/scaffold/scaffold-viewmodel/) — Create a view model that fetches and manages Core Data objects
+- [`scaffold_view`](/xcode-pilot-mcp/tools/scaffold/scaffold-view/) — Generate a SwiftUI view to display Core Data entities
+- [`project_create`](/xcode-pilot-mcp/tools/scaffold/project-create/) — Create a new project that can include Core Data support
+
+## Tips
+
+<Aside type="tip">
+  Always include a `UUID` attribute as a stable unique identifier for each entity. This makes it easier to conform to `Identifiable` and use entities in SwiftUI `List` and `ForEach` views.
+</Aside>
+
+<Aside type="tip">
+  For large binary data such as images or files, consider enabling "Allows External Storage" on the attribute in the Xcode model editor after generating it. This lets Core Data automatically store large blobs on disk instead of in the SQLite database.
+</Aside>
+
+<Aside type="caution">
+  If you create multiple entities that need relationships, you will need to define those relationships in the Xcode model editor after generating each entity. This tool creates individual entities but does not set up inter-entity relationships.
+</Aside>

@@ -1,0 +1,84 @@
+---
+title: app_open_url
+description: Open a URL or deep link on a simulator device.
+sidebar:
+  order: 7
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Opens a URL on a simulator device, triggering the system URL handling mechanism. This works with standard web URLs (which open in Safari), custom URL schemes (e.g., `myapp://`), and Universal Links (which open in the associated app). This is the primary tool for testing deep linking, push notification payloads that contain URLs, and app-to-app navigation flows.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator device. |
+| `url` | string | Yes | — | The URL or deep link to open. Can be an `https://` URL, a custom scheme URL, or a Universal Link. |
+
+## Usage Examples
+
+### Open a custom URL scheme deep link
+> "Open the product detail page in the shopping app via its deep link."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "url": "shopapp://products/12345"
+}
+```
+
+### Open a Universal Link
+> "Test the Universal Link for a shared weather forecast."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "url": "https://www.example.com/weather/forecast/san-francisco"
+}
+```
+
+### Open a web URL in Safari
+> "Open our marketing landing page in the simulator's Safari."
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-1234567890EF",
+  "url": "https://www.example.com/promo/summer-sale"
+}
+```
+
+### Test a callback URL from OAuth
+> "Simulate the OAuth callback redirect."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "url": "com.example.weatherapp://oauth/callback?code=abc123&state=xyz"
+}
+```
+
+## Example Output
+
+```
+URL opened successfully.
+Device: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+URL: shopapp://products/12345
+```
+
+## Related Tools
+
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch the app first if it needs to be running to handle the URL.
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Install the app that should handle the URL scheme.
+- [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) — Capture a screenshot to verify the correct screen loaded after opening the URL.
+- [`log_stream`](/xcode-pilot-mcp/tools/debug/log-stream/) — Stream logs to verify the app received and processed the URL correctly.
+
+## Tips
+
+<Aside type="tip">
+  For **custom URL schemes**, the target app must declare the scheme in its `Info.plist` under `CFBundleURLSchemes`. If no app is registered for the scheme, the URL will fail to open.
+</Aside>
+
+<Aside type="tip">
+  **Universal Links** on the simulator require the app to have an associated domains entitlement and the `apple-app-site-association` file to be accessible. If Universal Links are not working, the URL will fall through to Safari instead.
+</Aside>
+
+<Aside type="tip">
+  This tool is useful for testing **push notification deep links** without actually sending a push. Extract the URL from your notification payload and open it directly to verify the navigation flow.
+</Aside>

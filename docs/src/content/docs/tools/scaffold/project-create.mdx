@@ -1,0 +1,126 @@
+---
+title: project_create
+description: Create a new Xcode project from a template with a pre-configured structure.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Create a new Xcode project from a template with a pre-configured structure, bundle identifier, and deployment target. This tool generates a ready-to-build project with the appropriate directory layout, `Info.plist`, and initial source files for either SwiftUI or UIKit.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `name` | string | Yes | — | The name of the project (used for the directory, scheme, and default bundle identifier) |
+| `template` | string | Yes | — | The UI framework template. Accepted values: `"swiftui"`, `"uikit"` |
+| `platform` | string | Yes | — | Target platform. Accepted values: `"ios"`, `"macos"`, `"multiplatform"` |
+| `outputPath` | string | Yes | — | Absolute path to the directory where the project folder will be created |
+| `bundleId` | string | No | `com.example.<name>` | The bundle identifier for the project (reverse-DNS notation) |
+| `organizationName` | string | No | — | The organization name included in file headers and project metadata |
+| `minimumDeploymentTarget` | string | No | `"17.0"` | The minimum OS version the app supports |
+
+## Usage Examples
+
+### Create a SwiftUI iOS project
+
+> "Create a new SwiftUI iOS app called FitnessTracker in my Projects folder"
+
+```json
+{
+  "name": "FitnessTracker",
+  "template": "swiftui",
+  "platform": "ios",
+  "outputPath": "/Users/dev/Projects"
+}
+```
+
+### Create a UIKit project with a custom bundle ID
+
+> "Set up a new UIKit iOS project called InventoryManager for Acme Corp"
+
+```json
+{
+  "name": "InventoryManager",
+  "template": "uikit",
+  "platform": "ios",
+  "outputPath": "/Users/dev/Projects",
+  "bundleId": "com.acmecorp.inventorymanager",
+  "organizationName": "Acme Corp"
+}
+```
+
+### Create a multiplatform SwiftUI app with a lower deployment target
+
+> "Create a multiplatform SwiftUI app called NoteSync that supports back to iOS 16.0"
+
+```json
+{
+  "name": "NoteSync",
+  "template": "swiftui",
+  "platform": "multiplatform",
+  "outputPath": "/Users/dev/Projects",
+  "bundleId": "com.notesync.app",
+  "organizationName": "NoteSync LLC",
+  "minimumDeploymentTarget": "16.0"
+}
+```
+
+### Create a macOS SwiftUI app
+
+> "Scaffold a new macOS SwiftUI app called ClipboardHistory"
+
+```json
+{
+  "name": "ClipboardHistory",
+  "template": "swiftui",
+  "platform": "macos",
+  "outputPath": "/Users/dev/Projects"
+}
+```
+
+## Example Output
+
+```
+Created project "FitnessTracker" at /Users/dev/Projects/FitnessTracker
+
+Project structure:
+  FitnessTracker/
+    FitnessTracker.xcodeproj/
+    FitnessTracker/
+      FitnessTrackerApp.swift
+      ContentView.swift
+      Assets.xcassets/
+      Info.plist
+    FitnessTrackerTests/
+      FitnessTrackerTests.swift
+    FitnessTrackerUITests/
+      FitnessTrackerUITests.swift
+
+Bundle ID:    com.example.FitnessTracker
+Platform:     iOS
+Template:     SwiftUI
+Min Target:   17.0
+```
+
+## Related Tools
+
+- [`scaffold_view`](/xcode-pilot-mcp/tools/scaffold/scaffold-view/) — Add a new SwiftUI view file to an existing project
+- [`scaffold_viewmodel`](/xcode-pilot-mcp/tools/scaffold/scaffold-viewmodel/) — Generate an ObservableObject view model alongside your views
+- [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) — Build the newly created project to verify it compiles
+- [`xcode_list`](/xcode-pilot-mcp/tools/build/xcode-list/) — List the schemes in the generated project
+
+## Tips
+
+<Aside type="tip">
+  After creating a project, immediately run [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) with the generated scheme name to verify everything compiles cleanly before making changes.
+</Aside>
+
+<Aside type="tip">
+  Use `"multiplatform"` to get a single codebase that targets both iOS and macOS. This generates shared source files and platform-specific targets in the Xcode project.
+</Aside>
+
+<Aside type="caution">
+  The `outputPath` must already exist. If you specify a path like `/Users/dev/Projects` and that directory does not exist, the tool will return an error. Create the parent directory first.
+</Aside>

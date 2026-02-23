@@ -1,0 +1,97 @@
+---
+title: pod_install
+description: Install CocoaPods dependencies defined in the Podfile.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Run `pod install` to install the CocoaPods dependencies specified in your project's `Podfile`. This reads the `Podfile.lock` to install the exact pinned versions and generates or updates the `.xcworkspace` file. Use this after cloning a repository, adding a new pod to your `Podfile`, or when a teammate has updated `Podfile.lock`.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `projectPath` | string | No | — | Absolute path to the directory containing the `Podfile`. If omitted, uses the current working directory. |
+| `repoUpdate` | boolean | No | `false` | Whether to run `--repo-update` to update the local CocoaPods spec repository before installing. Set to `true` if pods cannot be found. |
+
+## Usage Examples
+
+### Install pods for a project
+
+> "Install the CocoaPods dependencies for my app"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp"
+}
+```
+
+### Install with repo update
+
+> "Install pods and update the spec repo — I just added a new pod"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp",
+  "repoUpdate": true
+}
+```
+
+### Install pods after cloning
+
+> "I just cloned the repo, install all the pods"
+
+```json
+{
+  "projectPath": "/Users/johndoe/Projects/MyApp"
+}
+```
+
+## Example Output
+
+```
+Installing CocoaPods dependencies...
+Project: /Users/johndoe/Projects/MyApp
+
+Analyzing dependencies
+Downloading dependencies
+Installing Firebase (11.6.0)
+Installing FirebaseAnalytics (11.6.0)
+Installing FirebaseCore (11.6.0)
+Installing GoogleUtilities (8.0.2)
+Installing IQKeyboardManager (7.1.1)
+Installing SDWebImage (5.20.0)
+Installing SVProgressHUD (2.3.1)
+Generating Pods project
+Integrating client project
+
+Pod installation complete! There are 4 dependencies from the Podfile and 7 total pods installed.
+
+Workspace: /Users/johndoe/Projects/MyApp/MyApp.xcworkspace
+```
+
+## Related Tools
+
+- [`pod_update`](/xcode-pilot-mcp/tools/packages/pod-update/) — Update pods to newer versions
+- [`pod_outdated`](/xcode-pilot-mcp/tools/packages/pod-outdated/) — Check which pods have newer versions available
+- [`build_app`](/xcode-pilot-mcp/tools/build/build-app/) — Build the project after installing pods
+
+## Tips
+
+<Aside type="tip">
+  Always open the `.xcworkspace` file (not `.xcodeproj`) after running `pod install`. CocoaPods integrates through the workspace, and opening the project directly will result in missing dependencies.
+</Aside>
+
+<Aside type="tip">
+  If you get a "Unable to find a specification" error, set `repoUpdate` to `true` to refresh your local spec repository. This is common when a pod was recently published.
+</Aside>
+
+<Aside type="tip">
+  Commit both `Podfile` and `Podfile.lock` to source control. The lock file ensures that all team members and CI install the exact same versions.
+</Aside>
+
+<Aside type="note">
+  Running `pod_install` does **not** update existing pods to newer versions. It installs the versions specified in `Podfile.lock`. Use `pod_update` to get newer versions.
+</Aside>

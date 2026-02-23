@@ -1,0 +1,259 @@
+---
+title: Simulator Management
+description: Create, manage, and organize simulators for different devices and OS versions.
+sidebar:
+  order: 3
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+This guide covers creating and managing simulators for testing across multiple device types and OS versions.
+
+## Discovering What's Available
+
+Before creating simulators, check what runtimes and device types are installed:
+
+### List Installed Runtimes
+
+> "What iOS simulator runtimes do I have installed?"
+
+```
+Available Runtimes:
+  iOS 17.5 (com.apple.CoreSimulator.SimRuntime.iOS-17-5)
+  iOS 18.0 (com.apple.CoreSimulator.SimRuntime.iOS-18-0)
+  watchOS 11.0 (com.apple.CoreSimulator.SimRuntime.watchOS-11-0)
+  tvOS 18.0 (com.apple.CoreSimulator.SimRuntime.tvOS-18-0)
+  visionOS 2.0 (com.apple.CoreSimulator.SimRuntime.xrOS-2-0)
+```
+
+### List Device Types
+
+> "What simulator device types are available?"
+
+```
+Available Device Types:
+  iPhone SE (3rd generation) (com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation)
+  iPhone 15 (com.apple.CoreSimulator.SimDeviceType.iPhone-15)
+  iPhone 15 Pro (com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro)
+  iPhone 15 Pro Max (com.apple.CoreSimulator.SimDeviceType.iPhone-15-Pro-Max)
+  iPhone 16 (com.apple.CoreSimulator.SimDeviceType.iPhone-16)
+  iPhone 16 Pro (com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro)
+  iPhone 16 Pro Max (com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro-Max)
+  iPad Air (M2) (com.apple.CoreSimulator.SimDeviceType.iPad-Air-M2)
+  iPad Pro 13-inch (M4) (com.apple.CoreSimulator.SimDeviceType.iPad-Pro-13-inch-M4)
+  ...
+```
+
+## Creating Simulators
+
+### Single Simulator
+
+> "Create an iPhone 16 Pro simulator with iOS 18"
+
+```json
+{
+  "name": "iPhone 16 Pro - iOS 18",
+  "deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro",
+  "runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-18-0"
+}
+```
+
+### Test Fleet for Multiple Screen Sizes
+
+Create simulators for the most common screen sizes:
+
+> "Create simulators for iPhone SE, iPhone 16, iPhone 16 Pro Max, and iPad Pro 13-inch, all on iOS 18"
+
+This executes [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/) four times:
+
+| Name | Device Type | Use Case |
+|------|------------|----------|
+| iPhone SE - iOS 18 | iPhone SE (3rd generation) | Smallest screen |
+| iPhone 16 - iOS 18 | iPhone 16 | Standard size |
+| iPhone 16 Pro Max - iOS 18 | iPhone 16 Pro Max | Largest iPhone |
+| iPad Pro 13-inch - iOS 18 | iPad Pro 13-inch (M4) | Tablet layout |
+
+### Backward Compatibility Testing
+
+> "Create an iPhone 15 simulator on iOS 17.5 for backward compatibility testing"
+
+```json
+{
+  "name": "iPhone 15 - iOS 17.5 (compat)",
+  "deviceTypeId": "com.apple.CoreSimulator.SimDeviceType.iPhone-15",
+  "runtimeId": "com.apple.CoreSimulator.SimRuntime.iOS-17-5"
+}
+```
+
+## Managing Simulator State
+
+### Boot and Use
+
+<Steps>
+
+1. **Boot the simulator**
+
+   > "Boot the iPhone 16 Pro simulator"
+
+2. **Open Simulator.app**
+
+   > "Open the Simulator app for iPhone 16 Pro"
+
+   This displays the simulator window so you can see what's happening.
+
+3. **Use the simulator** — install apps, run tests, capture screenshots
+
+4. **Shutdown when done**
+
+   > "Shut down all simulators"
+
+   Or target a specific one:
+
+   > "Shut down the iPhone SE simulator"
+
+</Steps>
+
+### Clone for Parallel Testing
+
+Clone an existing simulator to run tests in parallel without affecting the original:
+
+> "Clone the iPhone 16 simulator as 'iPhone 16 - Test A'"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "newName": "iPhone 16 - Test A"
+}
+```
+
+<Aside type="tip">
+  Cloning preserves the simulator's state, including installed apps and
+  settings. This is useful for running different test suites in parallel.
+</Aside>
+
+### Reset to Clean State
+
+Erase all data from a simulator without deleting it:
+
+> "Erase the iPhone 16 simulator to start fresh"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+This removes all installed apps, accounts, and settings — like a factory reset.
+
+## Cleanup
+
+### Delete Specific Simulators
+
+> "Delete the test clone simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+### Remove Unavailable Simulators
+
+After updating Xcode, old simulators may become "unavailable". Clean them up:
+
+> "Delete all unavailable simulators"
+
+```json
+{
+  "deviceId": "unavailable"
+}
+```
+
+<Aside type="caution">
+  Deleting a simulator is permanent. Make sure you don't have any important data
+  in the simulator before deleting it.
+</Aside>
+
+## Push Notification Testing
+
+Test push notifications on a booted simulator:
+
+> "Send a push notification to my weather app on the iPhone 16 simulator"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp",
+  "payload": "{\"aps\":{\"alert\":{\"title\":\"Weather Alert\",\"body\":\"Severe thunderstorm warning for your area\"},\"badge\":1,\"sound\":\"default\"}}"
+}
+```
+
+Test different notification types:
+
+<Tabs>
+  <TabItem label="Simple Alert">
+    ```json
+    {
+      "aps": {
+        "alert": "You have a new message",
+        "badge": 3
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Rich Notification">
+    ```json
+    {
+      "aps": {
+        "alert": {
+          "title": "Weather Alert",
+          "subtitle": "Cupertino, CA",
+          "body": "Severe thunderstorm warning until 5:00 PM"
+        },
+        "badge": 1,
+        "sound": "default",
+        "category": "WEATHER_ALERT"
+      }
+    }
+    ```
+  </TabItem>
+  <TabItem label="Silent Push">
+    ```json
+    {
+      "aps": {
+        "content-available": 1
+      },
+      "custom-data": {
+        "refresh": "weather"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## App Store Screenshot Setup
+
+Prepare simulators for App Store screenshots with a perfect status bar:
+
+> "Set up the status bar on iPhone 16 Pro for App Store screenshots"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "time": "9:41",
+  "batteryLevel": 100,
+  "batteryState": "charged",
+  "wifiBars": 3,
+  "cellularBars": 4,
+  "operatorName": "",
+  "dataNetwork": "5g"
+}
+```
+
+Then take screenshots across all your test devices for the App Store submission.
+
+## Next Steps
+
+- [Your First iOS Project](/xcode-pilot-mcp/guides/first-ios-project/) — Build and run an app from scratch
+- [Debugging Workflow](/xcode-pilot-mcp/guides/debugging-workflow/) — Use the full debugging toolkit
+- [Device & Debug Prompts](/xcode-pilot-mcp/guides/prompts-device-and-debug/) — Copy-paste prompts for simulator workflows

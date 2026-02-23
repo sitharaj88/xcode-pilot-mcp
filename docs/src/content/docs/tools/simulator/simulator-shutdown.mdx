@@ -1,0 +1,90 @@
+---
+title: simulator_shutdown
+description: Shut down one or all running iOS simulators.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Shut down a specific running simulator or shut down all running simulators at once. This is useful for freeing system resources, resetting state between test runs, or cleaning up after a testing session.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | No | `"all"` | The UDID of a specific simulator to shut down, or `"all"` to shut down every running simulator. |
+
+## Usage Examples
+
+### Shut down all running simulators
+
+> "Shut down all my simulators"
+
+```json
+{}
+```
+
+### Shut down all simulators explicitly
+
+> "Stop every running simulator"
+
+```json
+{
+  "deviceId": "all"
+}
+```
+
+### Shut down a specific simulator by UDID
+
+> "Shut down just the iPhone 16 Pro simulator"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+## Example Output
+
+### Single device shutdown
+
+```
+Simulator shut down successfully.
+
+Name: iPhone 16 Pro
+UDID: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+State: Shutdown
+```
+
+### All devices shutdown
+
+```
+All simulators shut down successfully.
+
+Shut down 3 simulator(s):
+  - iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+  - iPhone 15 (A1B2C3D4-E5F6-7890-ABCD-EF1234567890)
+  - iPad Pro 13-inch (M4) (B2C3D4E5-F6A7-8901-BCDE-F12345678901)
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Check which simulators are currently booted before shutting down
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot a simulator back up after shutdown
+- [`simulator_erase`](/xcode-pilot-mcp/tools/simulator/simulator-erase/) — Erase simulator content and settings (requires shutdown first)
+- [`simulator_delete`](/xcode-pilot-mcp/tools/simulator/simulator-delete/) — Permanently delete a simulator
+
+## Tips
+
+<Aside type="tip">
+  When no `deviceId` is provided, the tool defaults to `"all"`, shutting down every running simulator. This is a fast way to clean up after a testing session.
+</Aside>
+
+<Aside type="note">
+  Shutting down a simulator will terminate any apps running on it. Make sure to collect any logs or screenshots you need before calling shutdown.
+</Aside>
+
+<Aside type="tip">
+  Running multiple simulators simultaneously consumes significant CPU and memory. Shut down simulators you are not actively using to keep your Mac responsive.
+</Aside>

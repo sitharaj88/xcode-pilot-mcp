@@ -1,0 +1,94 @@
+---
+title: app_launch
+description: Launch an installed app on a simulator with optional arguments and console output.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Launches an installed application on a simulator device. You can pass launch arguments to configure the app's behavior at startup and optionally attach a console PTY to capture the app's standard output and standard error streams in real time.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator device. |
+| `bundleId` | string | Yes | — | The bundle identifier of the app to launch. |
+| `args` | string[] | No | `[]` | An array of launch arguments passed to the app on startup. |
+| `consolePty` | boolean | No | `false` | When `true`, attaches a console PTY to capture stdout/stderr from the app. |
+
+## Usage Examples
+
+### Basic app launch
+> "Launch the WeatherApp on the simulator."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp"
+}
+```
+
+### Launch with arguments for testing
+> "Start the app in debug mode with a specific test user."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp",
+  "args": ["-UITesting", "-mockAPI", "--user", "testuser@example.com"]
+}
+```
+
+### Launch with console output enabled
+> "Launch the app and show me its console output."
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "bundleId": "com.example.weatherapp",
+  "consolePty": true
+}
+```
+
+### Launch with environment-like flags
+> "Start the app with the staging server configuration."
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-1234567890EF",
+  "bundleId": "com.example.shopapp",
+  "args": ["-serverEnvironment", "staging", "-enableLogging"],
+  "consolePty": true
+}
+```
+
+## Example Output
+
+```
+App launched successfully.
+Device: F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+Bundle ID: com.example.weatherapp
+PID: 48291
+Arguments: -UITesting -mockAPI --user testuser@example.com
+Console PTY: attached
+```
+
+## Related Tools
+
+- [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) — Install the app before launching it.
+- [`app_terminate`](/xcode-pilot-mcp/tools/app/app-terminate/) — Stop the app when you are done.
+- [`log_stream`](/xcode-pilot-mcp/tools/debug/log-stream/) — Stream system logs filtered to your app for deeper diagnostics.
+- [`app_open_url`](/xcode-pilot-mcp/tools/app/app-open-url/) — Open a deep link in the app after it has launched.
+- [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) — Capture the screen after the app launches.
+
+## Tips
+
+<Aside type="tip">
+  Launch arguments are commonly used to enable UI testing mode, configure mock services, or switch environments. In your app code, read these with `ProcessInfo.processInfo.arguments` or `UserDefaults` (arguments prefixed with `-` are set as UserDefaults keys).
+</Aside>
+
+<Aside type="tip">
+  Use `consolePty: true` when you need to capture `print()` and `NSLog()` output directly. For more advanced log filtering with subsystem and category support, combine this with [`log_stream`](/xcode-pilot-mcp/tools/debug/log-stream/).
+</Aside>
+
+<Aside type="tip">
+  If the app is already running, launching it again will bring it to the foreground. Use [`app_terminate`](/xcode-pilot-mcp/tools/app/app-terminate/) first if you need a cold start.
+</Aside>

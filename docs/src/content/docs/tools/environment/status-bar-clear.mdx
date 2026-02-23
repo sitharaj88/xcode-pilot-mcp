@@ -1,0 +1,60 @@
+---
+title: status_bar_clear
+description: Clear all status bar overrides on an iOS simulator.
+sidebar:
+  order: 5
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Clear all previously applied status bar overrides on an iOS simulator, restoring the status bar to its default dynamic behavior. The time, battery, network indicators, and carrier name will return to reflecting the simulator's actual state.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator (must be booted). |
+
+## Usage Examples
+
+### Clear status bar overrides
+
+> "Reset the status bar back to normal"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789"
+}
+```
+
+### Clear after taking App Store screenshots
+
+> "I'm done with the screenshots, restore the status bar to defaults"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890"
+}
+```
+
+## Example Output
+
+```
+Status bar overrides cleared.
+Device: iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+```
+
+## Related Tools
+
+- [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) — Override status bar values for screenshots or testing
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find simulator UDIDs for the `deviceId` parameter
+
+## Tips
+
+<Aside type="tip">
+  After capturing your App Store screenshots, always clear the status bar overrides so you do not accidentally leave stale values during debugging sessions.
+</Aside>
+
+<Aside type="note">
+  Rebooting the simulator also clears all status bar overrides, but using this tool is faster and does not interrupt your running apps.
+</Aside>

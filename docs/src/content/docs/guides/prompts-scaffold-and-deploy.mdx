@@ -1,0 +1,369 @@
+---
+title: "Scaffold & Deploy Workflows"
+description: Multi-step prompt recipes for project creation, code generation, analysis, and deployment.
+sidebar:
+  order: 13
+  badge:
+    text: Cookbook
+    variant: tip
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+## Create a New SwiftUI Project from Scratch
+
+Go from zero to a running app in one conversation.
+
+<Steps>
+
+1. **Create the project:**
+
+   > "Create a new SwiftUI iOS project called TaskManager in ~/Projects with bundle ID com.mycompany.taskmanager"
+
+   ```json
+   {
+     "name": "TaskManager",
+     "template": "swiftui",
+     "platform": "ios",
+     "outputPath": "/Users/dev/Projects",
+     "bundleId": "com.mycompany.taskmanager",
+     "organizationName": "My Company"
+   }
+   ```
+
+2. **Build to verify:**
+
+   > "Build TaskManager for iPhone 16 simulator"
+
+3. **Boot a simulator and install:**
+
+   > "Boot the iPhone 16 simulator, install TaskManager, and launch it"
+
+4. **Take a screenshot to verify:**
+
+   > "Take a screenshot of the running app"
+
+</Steps>
+
+**One-shot version:**
+
+> "Create a new SwiftUI iOS project called TaskManager in ~/Projects, build it, boot the iPhone 16 simulator, install and launch the app, then take a screenshot"
+
+## Add a New Feature (View + ViewModel)
+
+Scaffold the files for a new feature in your existing project.
+
+<Steps>
+
+1. **Generate the ViewModel:**
+
+   > "Create a ViewModel called TaskListViewModel in ~/Projects/TaskManager/Sources/TaskManager/ViewModels"
+
+   Generated code:
+
+   ```swift
+   import Foundation
+
+   @Observable
+   class TaskListViewModel {
+       // Add your properties here
+
+       init() {}
+
+       // Add your methods here
+   }
+   ```
+
+2. **Generate the View:**
+
+   > "Create a SwiftUI view called TaskListView in ~/Projects/TaskManager/Sources/TaskManager/Views"
+
+   Generated code:
+
+   ```swift
+   import SwiftUI
+
+   struct TaskListView: View {
+       var body: some View {
+           Text("TaskListView")
+       }
+   }
+
+   #Preview {
+       TaskListView()
+   }
+   ```
+
+3. **Build to verify everything compiles:**
+
+   > "Build TaskManager for iPhone 16 simulator"
+
+</Steps>
+
+<Tabs>
+  <TabItem label="With Preview">
+    > "Create a SwiftUI view called TaskDetailView with a preview"
+
+    The default — includes `#Preview` macro.
+  </TabItem>
+  <TabItem label="Without Preview">
+    > "Create a SwiftUI view called TaskDetailView without a preview"
+
+    ```json
+    {
+      "name": "TaskDetailView",
+      "outputPath": "/Users/dev/Projects/TaskManager/Sources/TaskManager/Views",
+      "includePreview": false
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Widget Extension Setup
+
+Add a WidgetKit extension to your app.
+
+<Steps>
+
+1. **Generate the widget:**
+
+   > "Create a static widget called TaskCountWidget in ~/Projects/TaskManager/Sources/TaskManagerWidget"
+
+   Generated code includes:
+
+   - `TimelineProvider` with placeholder, snapshot, and timeline methods
+   - `TimelineEntry` with date property
+   - Widget view with `body`
+   - `@main Widget` configuration with `StaticConfiguration`
+
+2. **For a configurable widget:**
+
+   > "Create a configurable widget called TaskFilterWidget in ~/Projects/TaskManager/Sources/TaskManagerWidget"
+
+   ```json
+   {
+     "name": "TaskFilterWidget",
+     "outputPath": "/Users/dev/Projects/TaskManager/Sources/TaskManagerWidget",
+     "kind": "configurable"
+   }
+   ```
+
+</Steps>
+
+<Aside type="note">
+  After scaffolding, you'll need to add the widget target to your Xcode project
+  or Package.swift manually. The scaffold tool creates the Swift source files
+  but doesn't modify project configuration.
+</Aside>
+
+## Core Data Model Generation
+
+Generate NSManagedObject subclasses for your data model.
+
+<Tabs>
+  <TabItem label="Default Attributes">
+    > "Create a Core Data model called Task in my project's Models directory"
+
+    Default attributes: `id` (UUID), `name` (String), `createdAt` (Date).
+  </TabItem>
+  <TabItem label="Custom Attributes">
+    > "Create a Core Data model called Task with these attributes: title (String), notes (String), isDone (Boolean), priority (Integer16), dueDate (Date)"
+
+    ```json
+    {
+      "name": "Task",
+      "outputPath": "/Users/dev/Projects/TaskManager/Sources/TaskManager/Models",
+      "attributes": [
+        { "name": "title", "type": "String" },
+        { "name": "notes", "type": "String" },
+        { "name": "isDone", "type": "Boolean" },
+        { "name": "priority", "type": "Integer16" },
+        { "name": "dueDate", "type": "Date" }
+      ]
+    }
+    ```
+
+    Generated code:
+
+    ```swift
+    import CoreData
+
+    @objc(Task)
+    public class Task: NSManagedObject {
+        @NSManaged public var title: String?
+        @NSManaged public var notes: String?
+        @NSManaged public var isDone: Bool?
+        @NSManaged public var priority: Int16
+        @NSManaged public var dueDate: Date?
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+### Multiple Related Models
+
+> "Create Core Data models for a task management app:
+> - TaskList with name (String) and color (String)
+> - Task with title (String), notes (String), isDone (Boolean), priority (Integer16), dueDate (Date)
+> - Tag with name (String) and color (String)"
+
+## IPA Analysis and Permissions Audit
+
+Inspect an IPA before submission or after receiving a build.
+
+<Steps>
+
+1. **Analyze the IPA:**
+
+   > "Analyze ~/Desktop/TaskManager.ipa"
+
+   ```
+   IPA Analysis:
+     File Size: 12.4 MB
+     Bundle ID: com.mycompany.taskmanager
+     Version: 1.2.0 (42)
+     Minimum OS: 17.0
+     Architectures: arm64
+     Embedded Frameworks:
+       - SwiftUI.framework
+       - Combine.framework
+   ```
+
+2. **Check privacy permissions:**
+
+   > "What privacy permissions does ~/Desktop/TaskManager.ipa request?"
+
+   ```
+   Privacy Usage Descriptions:
+     NSCameraUsageDescription: "Take photos of tasks"
+     NSPhotoLibraryUsageDescription: "Attach photos to tasks"
+     NSLocationWhenInUseUsageDescription: "Tag tasks with your current location"
+   ```
+
+3. **Check binary size breakdown:**
+
+   > "Show the binary size breakdown for the TaskManager executable"
+
+   ```
+   Binary Size Analysis:
+     __TEXT: 2.1 MB (code + constants)
+     __DATA: 384 KB (initialized data)
+     __LINKEDIT: 1.8 MB (symbol tables)
+     Total: 4.3 MB
+   ```
+
+</Steps>
+
+## Code Signing Troubleshooting
+
+Debug signing issues step by step.
+
+<Steps>
+
+1. **Check what identities you have:**
+
+   > "List my code signing identities"
+
+   ```
+   1) ABC123DEF456 "Apple Development: dev@example.com (XYZ789)"
+   2) DEF456GHI789 "Apple Distribution: My Company (ABC123)"
+   2 valid identities found
+   ```
+
+2. **Check provisioning profiles:**
+
+   > "List my provisioning profiles"
+
+   Verify the right profile exists and isn't expired.
+
+3. **Inspect a specific profile:**
+
+   > "Inspect the provisioning profile at ~/Library/MobileDevice/Provisioning Profiles/abc123.mobileprovision"
+
+   Check the team ID, app ID, entitlements, and expiration date.
+
+4. **Check what the build expects:**
+
+   > "Show build settings for TaskManager in Release mode"
+
+   Compare `CODE_SIGN_IDENTITY`, `DEVELOPMENT_TEAM`, and `PROVISIONING_PROFILE_SPECIFIER` with what you found above.
+
+5. **Check entitlements of a built app:**
+
+   > "Show the entitlements of the built TaskManager.app"
+
+   Verify push notifications, app groups, iCloud, and other capabilities are present.
+
+</Steps>
+
+<Aside type="tip">
+  Most signing issues come from a mismatch between the provisioning profile's
+  app ID and the bundle ID in your build settings. Check both carefully.
+</Aside>
+
+## dSYM Verification for Crash Reports
+
+Ensure your dSYM files match your binary for symbolicated crash reports.
+
+<Steps>
+
+1. **After archiving, verify the dSYM:**
+
+   > "Verify that ~/Desktop/TaskManager.xcarchive/dSYMs/TaskManager.app.dSYM matches the binary at ~/Desktop/TaskManager.xcarchive/Products/Applications/TaskManager.app/TaskManager"
+
+   ```
+   dSYM Verification:
+
+   dSYM UUID: A1B2C3D4-E5F6-7890-ABCD-EF1234567890 (arm64)
+   Binary UUID: A1B2C3D4-E5F6-7890-ABCD-EF1234567890 (arm64)
+
+   Result: MATCH ✓
+   ```
+
+2. **If they don't match:**
+
+   ```
+   Result: MISMATCH ✗
+   The dSYM was not generated from the same build as the binary.
+   ```
+
+   This means you need to rebuild and re-archive.
+
+</Steps>
+
+## Full Release Checklist
+
+A comprehensive pre-release workflow.
+
+> "Run the full release checklist for TaskManager:
+> 1. Clean and build in Release mode
+> 2. Run all tests on iPhone 16 and iPad Pro simulators
+> 3. Run SwiftLint
+> 4. Check swift-format
+> 5. Archive and export IPA
+> 6. Analyze the IPA
+> 7. Check IPA permissions
+> 8. Verify dSYM matches the binary
+> 9. Show build warnings"
+
+<Steps>
+
+1. Clean build in Release
+2. Test on iPhone 16 simulator
+3. Test on iPad Pro simulator
+4. Run SwiftLint analysis
+5. Check swift-format compliance
+6. Create archive
+7. Export IPA
+8. Analyze IPA (size, bundle ID, architectures)
+9. Audit privacy permissions
+10. Verify dSYM
+11. Review build warnings
+
+</Steps>
+
+<Aside type="caution">
+  Don't skip the dSYM verification step. Without matching dSYMs, crash reports
+  from TestFlight and the App Store will be unsymbolicated and nearly impossible
+  to debug.
+</Aside>

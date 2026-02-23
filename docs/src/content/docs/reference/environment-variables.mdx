@@ -1,0 +1,140 @@
+---
+title: Environment Variables
+description: How Xcode Pilot MCP detects your development environment and available configuration.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+## Environment Detection
+
+When Xcode Pilot MCP starts, it automatically detects your development environment by running a series of checks:
+
+```
+┌─────────────────────────────────────┐
+│  1. xcode-select -p                 │
+│     → /Applications/Xcode.app/...   │
+│                                     │
+│  2. which xcrun                     │
+│     → /usr/bin/xcrun                │
+│                                     │
+│  3. which xcodebuild                │
+│     → /usr/bin/xcodebuild           │
+│                                     │
+│  4. xcrun simctl help               │
+│     → simctl available? ✓           │
+│                                     │
+│  5. xcrun devicectl help            │
+│     → devicectl available? ✓        │
+└─────────────────────────────────────┘
+```
+
+The detected environment is stored as:
+
+| Property | Source | Description |
+|----------|--------|-------------|
+| `xcodePath` | `xcode-select -p` | Path to the active Xcode developer directory |
+| `xcrunPath` | `which xcrun` | Path to the `xcrun` binary |
+| `xcodebuildPath` | `which xcodebuild` | Path to the `xcodebuild` binary |
+| `simctlAvailable` | `xcrun simctl help` | Whether simulator control is available |
+| `devicectlAvailable` | `xcrun devicectl help` | Whether physical device control is available (Xcode 15+) |
+
+## Configurable Environment Variables
+
+### DEVELOPER_DIR
+
+Override the Xcode developer directory. This takes precedence over `xcode-select -p`.
+
+| Variable | Type | Default |
+|----------|------|---------|
+| `DEVELOPER_DIR` | string | Auto-detected via `xcode-select -p` |
+
+**When to use:**
+
+- You have multiple Xcode versions installed and want to target a specific one
+- You're testing against an Xcode beta
+- Your CI environment needs to use a non-default Xcode
+
+**MCP client configuration:**
+
+```json
+{
+  "mcpServers": {
+    "xcode-pilot": {
+      "command": "npx",
+      "args": ["xcode-pilot-mcp"],
+      "env": {
+        "DEVELOPER_DIR": "/Applications/Xcode-16.1-beta.app/Contents/Developer"
+      }
+    }
+  }
+}
+```
+
+**Verify your current setting:**
+
+```bash
+# Check active Xcode
+xcode-select -p
+
+# List all installed Xcode versions
+ls /Applications/ | grep Xcode
+
+# Switch system-wide (alternative to DEVELOPER_DIR)
+sudo xcode-select -s /Applications/Xcode-16.1-beta.app/Contents/Developer
+```
+
+<Aside type="caution">
+  `DEVELOPER_DIR` only affects the Xcode Pilot MCP server process. It does not
+  change the system-wide Xcode selection. Other tools and processes will still
+  use the default Xcode unless they also set `DEVELOPER_DIR`.
+</Aside>
+
+## Tool Availability
+
+Some tools require specific software to be installed:
+
+| Dependency | Tools That Require It | How to Install |
+|------------|----------------------|----------------|
+| **Xcode** | All tools | Mac App Store |
+| **Xcode CLI Tools** | All tools | `xcode-select --install` |
+| **simctl** | All simulator tools, app lifecycle, debug, environment | Included with Xcode |
+| **devicectl** | Physical device tools | Included with Xcode 15+ |
+| **SwiftLint** | `swiftlint_run`, `swiftlint_fix` | `brew install swiftlint` |
+| **swift-format** | `swift_format_run` | `brew install swift-format` |
+| **CocoaPods** | `pod_install`, `pod_update`, `pod_outdated` | `sudo gem install cocoapods` |
+
+<Aside type="note">
+  If a required tool is missing, the MCP server will return a clear error
+  message indicating what needs to be installed. The server itself will still
+  start and other tools will continue to work.
+</Aside>
+
+## Timeouts
+
+Commands have category-appropriate timeouts:
+
+| Category | Default Timeout | Notes |
+|----------|----------------|-------|
+| Build, Test, Archive | 600s (10 min) | Large projects may need longer |
+| Package resolution | 300s (5 min) | Network-dependent |
+| Export IPA | 300s (5 min) | Depends on archive size |
+| List, Settings, Info | 30s | Quick metadata queries |
+| All other commands | 120s (2 min) | Standard operations |
+| Log streaming | Configurable | Via `timeout` parameter |
+| Screen recording | Configurable | Via `duration` parameter |
+
+## Logging
+
+The server logs to **stderr** (stdout is reserved for MCP protocol communication).
+
+Log levels: `debug`, `info`, `warn`, `error`
+
+Example log output:
+
+```
+[2025-02-23T14:30:45.123Z] [INFO] Detecting Xcode environment...
+[2025-02-23T14:30:45.456Z] [INFO] Environment detected {"xcodePath":"/Applications/Xcode.app/Contents/Developer","simctlAvailable":true,"devicectlAvailable":true}
+[2025-02-23T14:30:45.789Z] [INFO] Xcode Pilot MCP server started
+```

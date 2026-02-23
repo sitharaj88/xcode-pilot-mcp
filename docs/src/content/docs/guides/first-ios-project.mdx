@@ -1,0 +1,169 @@
+---
+title: Your First iOS Project
+description: End-to-end workflow from creating a project to running it on a simulator.
+sidebar:
+  order: 1
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+This guide walks you through the full lifecycle of creating, building, and running an iOS app using Xcode Pilot MCP — entirely through natural language prompts.
+
+## What You'll Do
+
+1. Create a new SwiftUI project
+2. Build the project
+3. Create and boot a simulator
+4. Install and launch the app
+5. Take a screenshot
+
+## The Workflow
+
+<Steps>
+
+1. **Create the project**
+
+   > "Create a new SwiftUI iOS project called WeatherApp in ~/Projects"
+
+   This uses [`project_create`](/xcode-pilot-mcp/tools/scaffold/project-create/) to generate a complete Swift Package with source files, tests, and assets.
+
+   ```
+   Created project WeatherApp at /Users/dev/Projects/WeatherApp
+   ├── Package.swift
+   ├── Sources/WeatherApp/
+   │   ├── WeatherAppApp.swift
+   │   └── ContentView.swift
+   └── Tests/WeatherAppTests/
+   ```
+
+2. **Check available schemes**
+
+   > "List the schemes in ~/Projects/WeatherApp"
+
+   This uses [`xcode_list`](/xcode-pilot-mcp/tools/build/xcode-list/) to discover what's available.
+
+   ```
+   Schemes:
+     WeatherApp
+   ```
+
+3. **Build for simulator**
+
+   > "Build WeatherApp for iPhone 16 simulator"
+
+   This uses [`xcode_build`](/xcode-pilot-mcp/tools/build/xcode-build/) with the correct scheme and destination.
+
+   ```json
+   {
+     "scheme": "WeatherApp",
+     "projectPath": "/Users/dev/Projects/WeatherApp",
+     "destination": "platform=iOS Simulator,name=iPhone 16,OS=latest"
+   }
+   ```
+
+   ```
+   ** BUILD SUCCEEDED **
+   ```
+
+4. **Find or create a simulator**
+
+   > "List my booted simulators"
+
+   If none are running:
+
+   > "Boot the iPhone 16 simulator"
+
+   This uses [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) and [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/).
+
+5. **Open the Simulator app**
+
+   > "Open the Simulator app for my iPhone 16"
+
+   Uses [`simulator_open`](/xcode-pilot-mcp/tools/simulator/simulator-open/) to bring up the visual simulator window.
+
+6. **Install the app**
+
+   > "Install the built WeatherApp on the iPhone 16 simulator"
+
+   Uses [`app_install`](/xcode-pilot-mcp/tools/app/app-install/) with the .app path from the build output in DerivedData.
+
+   ```
+   App installed successfully on F3A1B2C3-D4E5-6789-ABCD-EF0123456789
+   ```
+
+7. **Launch the app**
+
+   > "Launch com.example.WeatherApp on the iPhone 16 simulator"
+
+   Uses [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) to start the app.
+
+   ```
+   App launched: com.example.WeatherApp (PID: 12345)
+   ```
+
+8. **Take a screenshot**
+
+   > "Take a screenshot of the iPhone 16 simulator"
+
+   Uses [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) to capture the current screen state.
+
+   ```
+   Screenshot saved to /tmp/screenshot-20250223-143052.png
+   ```
+
+</Steps>
+
+## The One-Shot Version
+
+Experienced users can combine multiple steps in a single prompt:
+
+> "Create a new SwiftUI iOS project called WeatherApp in ~/Projects, build it for iPhone 16 simulator, boot the simulator, install the app, launch it, and take a screenshot"
+
+The AI assistant will execute all 6+ tool calls in sequence, handling paths and device IDs automatically.
+
+## Common Variations
+
+<Tabs>
+  <TabItem label="UIKit Project">
+    > "Create a new UIKit iOS project called WeatherApp in ~/Projects"
+
+    ```json
+    {
+      "name": "WeatherApp",
+      "template": "uikit",
+      "platform": "ios",
+      "outputPath": "/Users/dev/Projects"
+    }
+    ```
+  </TabItem>
+  <TabItem label="macOS Project">
+    > "Create a new SwiftUI macOS project called WeatherApp in ~/Projects"
+
+    ```json
+    {
+      "name": "WeatherApp",
+      "template": "swiftui",
+      "platform": "macos",
+      "outputPath": "/Users/dev/Projects"
+    }
+    ```
+  </TabItem>
+  <TabItem label="Multiplatform">
+    > "Create a new multiplatform SwiftUI project called WeatherApp in ~/Projects"
+
+    ```json
+    {
+      "name": "WeatherApp",
+      "template": "swiftui",
+      "platform": "multiplatform",
+      "outputPath": "/Users/dev/Projects"
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Next Steps
+
+- [Debugging Workflow](/xcode-pilot-mcp/guides/debugging-workflow/) — Learn to capture logs, record screens, and audit accessibility
+- [Simulator Management](/xcode-pilot-mcp/guides/simulator-management/) — Create and manage multiple simulators for testing
+- [Prompt Cookbook](/xcode-pilot-mcp/guides/prompts-quick-reference/) — Ready-to-use prompts for every scenario

@@ -1,0 +1,87 @@
+---
+title: scaffold_viewmodel
+description: Generate an ObservableObject view model file for MVVM architecture.
+sidebar:
+  order: 3
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Generate a new Swift file containing an `@Observable` class (or `ObservableObject` for older deployment targets) that serves as a view model in the MVVM pattern. The generated file includes the proper imports and a clean starting structure ready for you to add properties and methods.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `name` | string | Yes | — | The name of the view model (e.g., `"ProfileHeader"` generates `ProfileHeaderViewModel.swift`) |
+| `outputPath` | string | Yes | — | Absolute path to the directory where the file will be created |
+
+## Usage Examples
+
+### Create a view model for a profile screen
+
+> "Create a view model for the ProfileHeader view"
+
+```json
+{
+  "name": "ProfileHeader",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels"
+}
+```
+
+### Create a view model for a data-heavy screen
+
+> "Scaffold a WorkoutHistory view model in the ViewModels directory"
+
+```json
+{
+  "name": "WorkoutHistory",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels"
+}
+```
+
+### Create a view model in a feature-based folder structure
+
+> "Generate a view model called MealPlanner inside the Nutrition feature folder"
+
+```json
+{
+  "name": "MealPlanner",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Features/Nutrition"
+}
+```
+
+## Example Output
+
+```
+Created view model file: /Users/dev/Projects/FitnessTracker/FitnessTracker/ViewModels/ProfileHeaderViewModel.swift
+
+File contents:
+  import Foundation
+  import Observation
+
+  @Observable
+  final class ProfileHeaderViewModel {
+
+  }
+```
+
+## Related Tools
+
+- [`scaffold_view`](/xcode-pilot-mcp/tools/scaffold/scaffold-view/) — Create a matching SwiftUI view for this view model
+- [`scaffold_coredata_model`](/xcode-pilot-mcp/tools/scaffold/scaffold-coredata-model/) — Generate a Core Data model if the view model needs persistent storage
+- [`project_create`](/xcode-pilot-mcp/tools/scaffold/project-create/) — Create a new project with the full directory structure
+
+## Tips
+
+<Aside type="tip">
+  Use the same `name` value for both `scaffold_view` and `scaffold_viewmodel` to maintain a consistent naming convention. For example, passing `"WorkoutHistory"` to both tools creates `WorkoutHistoryView.swift` and `WorkoutHistoryViewModel.swift`.
+</Aside>
+
+<Aside type="tip">
+  Place view models in a dedicated `ViewModels/` directory or co-locate them with their views in feature folders. Both approaches work well as long as you stay consistent across the project.
+</Aside>
+
+<Aside type="note">
+  The generated class uses the `@Observable` macro (available in iOS 17+). If your project targets iOS 16 or earlier, you may need to change it to `ObservableObject` with `@Published` properties.
+</Aside>

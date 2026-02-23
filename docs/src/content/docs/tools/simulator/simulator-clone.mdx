@@ -1,0 +1,91 @@
+---
+title: simulator_clone
+description: Clone an existing iOS simulator to create an identical copy.
+sidebar:
+  order: 10
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Clone an existing simulator to create an identical copy with a new name. The cloned simulator inherits all installed apps, user data, settings, and configurations from the source device. This is a fast way to duplicate a pre-configured test environment without setting everything up from scratch.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the source simulator to clone. Use `simulator_list` to find the UDID. |
+| `newName` | string | Yes | — | The name for the newly cloned simulator. |
+
+## Usage Examples
+
+### Clone a pre-configured test simulator
+
+> "Clone my test iPhone so I have a backup before I run destructive tests"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "newName": "iPhone 16 Pro - Test Backup"
+}
+```
+
+### Clone a simulator for parallel testing
+
+> "Duplicate my iPad simulator so I can run two test suites in parallel"
+
+```json
+{
+  "deviceId": "B2C3D4E5-F6A7-8901-BCDE-F12345678901",
+  "newName": "iPad Pro 13-inch - Parallel Runner 2"
+}
+```
+
+### Clone a simulator with a specific app configuration
+
+> "Clone the simulator where I've already set up the staging environment"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "newName": "iPhone 15 - Staging Clone"
+}
+```
+
+## Example Output
+
+```
+Simulator cloned successfully.
+
+Source: iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+Clone:  iPhone 16 Pro - Test Backup (7E8F9A0B-C1D2-3456-789A-BCDEF0123456)
+Runtime: iOS 18.0
+State: Shutdown
+
+The cloned simulator contains all apps, data, and settings from the source.
+```
+
+## Related Tools
+
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find the UDID of the simulator you want to clone
+- [`simulator_create`](/xcode-pilot-mcp/tools/simulator/simulator-create/) — Create a brand new simulator from scratch instead of cloning
+- [`simulator_boot`](/xcode-pilot-mcp/tools/simulator/simulator-boot/) — Boot the cloned simulator to start using it
+- [`simulator_delete`](/xcode-pilot-mcp/tools/simulator/simulator-delete/) — Delete a cloned simulator you no longer need
+- [`simulator_erase`](/xcode-pilot-mcp/tools/simulator/simulator-erase/) — Erase the clone without deleting the device
+
+## Tips
+
+<Aside type="tip">
+  Clone a fully configured simulator (with your app installed, logged in, permissions granted) before running destructive or state-altering tests. This lets you quickly return to the configured state by booting the clone.
+</Aside>
+
+<Aside type="caution">
+  The source simulator must be shut down before cloning. If it is currently booted, shut it down first with [`simulator_shutdown`](/xcode-pilot-mcp/tools/simulator/simulator-shutdown/).
+</Aside>
+
+<Aside type="tip">
+  Use cloning to set up parallel test execution. Clone the same simulator multiple times and run different test suites on each clone simultaneously to reduce overall CI/CD pipeline time.
+</Aside>
+
+<Aside type="note">
+  The cloned simulator gets a new UDID. The original simulator is not modified. Both the source and clone can be used independently after cloning.
+</Aside>

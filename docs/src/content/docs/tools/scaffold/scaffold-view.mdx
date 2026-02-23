@@ -1,0 +1,93 @@
+---
+title: scaffold_view
+description: Generate a new SwiftUI view file with optional preview provider.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Generate a new SwiftUI view file with a struct conforming to `View`, a `body` property, and an optional `#Preview` block. This tool creates a well-structured starting point for any SwiftUI view, saving you from writing boilerplate code by hand.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `name` | string | Yes | — | The name of the view (e.g., `"ProfileHeader"` generates `ProfileHeaderView.swift`) |
+| `outputPath` | string | Yes | — | Absolute path to the directory where the file will be created |
+| `includePreview` | boolean | No | `true` | Whether to include a `#Preview` block at the bottom of the file |
+
+## Usage Examples
+
+### Create a basic view with preview
+
+> "Create a new SwiftUI view called ProfileHeader in my Views folder"
+
+```json
+{
+  "name": "ProfileHeader",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Views"
+}
+```
+
+### Create a view without preview
+
+> "Scaffold a SettingsRow view without a preview provider"
+
+```json
+{
+  "name": "SettingsRow",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Views/Settings",
+  "includePreview": false
+}
+```
+
+### Create a reusable component view
+
+> "Generate a SwiftUI view called ActivityRingChart for my components"
+
+```json
+{
+  "name": "ActivityRingChart",
+  "outputPath": "/Users/dev/Projects/FitnessTracker/FitnessTracker/Components"
+}
+```
+
+## Example Output
+
+```
+Created view file: /Users/dev/Projects/FitnessTracker/FitnessTracker/Views/ProfileHeaderView.swift
+
+File contents:
+  import SwiftUI
+
+  struct ProfileHeaderView: View {
+      var body: some View {
+          Text("ProfileHeader")
+      }
+  }
+
+  #Preview {
+      ProfileHeaderView()
+  }
+```
+
+## Related Tools
+
+- [`scaffold_viewmodel`](/xcode-pilot-mcp/tools/scaffold/scaffold-viewmodel/) — Create a matching view model for this view
+- [`project_create`](/xcode-pilot-mcp/tools/scaffold/project-create/) — Create a full project if you have not started one yet
+- [`scaffold_widget`](/xcode-pilot-mcp/tools/scaffold/scaffold-widget/) — Scaffold a widget extension with its own view hierarchy
+
+## Tips
+
+<Aside type="tip">
+  Pair each view with a view model by running [`scaffold_viewmodel`](/xcode-pilot-mcp/tools/scaffold/scaffold-viewmodel/) with the same name. This gives you a clean MVVM structure from the start.
+</Aside>
+
+<Aside type="tip">
+  Set `includePreview` to `false` for small helper views or subviews that are always composed inside a parent view. This keeps the file concise.
+</Aside>
+
+<Aside type="note">
+  The generated file name appends `View` to the name you provide. Passing `"ProfileHeader"` creates `ProfileHeaderView.swift` with a struct named `ProfileHeaderView`.
+</Aside>

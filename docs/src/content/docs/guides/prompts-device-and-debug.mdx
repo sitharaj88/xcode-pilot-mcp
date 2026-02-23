@@ -1,0 +1,344 @@
+---
+title: "Device & Debug Workflows"
+description: Multi-step prompt recipes for simulator fleets, debugging sessions, location testing, and more.
+sidebar:
+  order: 12
+  badge:
+    text: Cookbook
+    variant: tip
+---
+
+import { Steps, Aside, Tabs, TabItem } from "@astrojs/starlight/components";
+
+## Set Up a Simulator Fleet
+
+Create a comprehensive test fleet for covering all screen sizes and OS versions.
+
+<Steps>
+
+1. **Check available runtimes and device types:**
+
+   > "List all available simulator runtimes and device types"
+
+2. **Create the fleet:**
+
+   > "Create these simulators, all on iOS 18:
+   > - iPhone SE (3rd generation)
+   > - iPhone 16
+   > - iPhone 16 Pro Max
+   > - iPad Pro 13-inch (M4)"
+
+3. **Add backward compatibility devices:**
+
+   > "Create an iPhone 15 simulator on iOS 17.5 for backward compatibility"
+
+4. **Boot them all for testing:**
+
+   > "Boot all 5 simulators I just created"
+
+</Steps>
+
+<Aside type="tip">
+  After creating your fleet, clone your most-used simulator to quickly create
+  clean copies for parallel test runs.
+</Aside>
+
+## Full Debug Session
+
+A complete debugging workflow for investigating a bug.
+
+<Steps>
+
+1. **Start logging:**
+
+   > "Stream logs from the iPhone 16 simulator for 15 seconds, filtering for com.example.weatherapp"
+
+   Reproduce the bug while logs are streaming.
+
+2. **Capture the crash state:**
+
+   > "Take a screenshot of the simulator"
+
+3. **Collect historical context:**
+
+   > "Collect the last 5 minutes of error-level logs from the simulator"
+
+4. **Record video reproduction:**
+
+   > "Record the simulator screen for 20 seconds — I'll reproduce the bug"
+
+5. **Run accessibility audit:**
+
+   > "Run an accessibility audit on the current screen"
+
+6. **Collect full diagnostics (if needed):**
+
+   > "Collect simulator diagnostics to ~/Desktop/debug-report"
+
+</Steps>
+
+**One-shot version:**
+
+> "I need to debug a crash. Stream logs for 10 seconds, take a screenshot, collect the last 3 minutes of error logs, and record 15 seconds of video"
+
+## Location Testing Workflow
+
+Test location-dependent features like maps, weather, or geo-fencing.
+
+<Steps>
+
+1. **Set a location:**
+
+   > "Set the simulator location to Apple Park (37.3349, -122.0090)"
+
+2. **Launch the app:**
+
+   > "Launch com.example.weatherapp on the simulator"
+
+3. **Grant location permission:**
+
+   > "Grant location permission to com.example.weatherapp"
+
+4. **Screenshot the result:**
+
+   > "Take a screenshot"
+
+5. **Test another location:**
+
+   > "Move the simulator location to Times Square NYC (40.7580, -73.9855)"
+
+6. **Screenshot again:**
+
+   > "Take another screenshot"
+
+7. **Clean up:**
+
+   > "Clear the simulated location"
+
+</Steps>
+
+### Common Test Coordinates
+
+| Location | Coordinates | Use Case |
+|----------|------------|----------|
+| Apple Park, Cupertino | 37.3349, -122.0090 | US West Coast |
+| Times Square, NYC | 40.7580, -73.9855 | US East Coast |
+| London Eye | 51.5033, -0.1196 | UK / Europe |
+| Tokyo Tower | 35.6586, 139.7454 | Asia Pacific |
+| Sydney Opera House | -33.8568, 151.2153 | Southern hemisphere |
+| North Pole | 90.0000, 0.0000 | Edge case testing |
+| Null Island | 0.0000, 0.0000 | Zero coordinate edge case |
+
+## Push Notification Testing
+
+<Tabs>
+  <TabItem label="Basic Alert">
+    > "Send a push notification to com.example.weatherapp with title 'New Feature' and body 'Check out the new radar map'"
+
+    ```json
+    {
+      "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+      "bundleId": "com.example.weatherapp",
+      "payload": "{\"aps\":{\"alert\":{\"title\":\"New Feature\",\"body\":\"Check out the new radar map\"},\"sound\":\"default\"}}"
+    }
+    ```
+  </TabItem>
+  <TabItem label="Badge Update">
+    > "Send a push notification that sets the badge to 5"
+
+    ```json
+    {
+      "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+      "bundleId": "com.example.weatherapp",
+      "payload": "{\"aps\":{\"badge\":5}}"
+    }
+    ```
+  </TabItem>
+  <TabItem label="Custom Data">
+    > "Send a push notification with custom weather alert data"
+
+    ```json
+    {
+      "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+      "bundleId": "com.example.weatherapp",
+      "payload": "{\"aps\":{\"alert\":{\"title\":\"Severe Weather\",\"body\":\"Tornado warning in your area\"},\"sound\":\"alarm.caf\",\"category\":\"WEATHER_ALERT\"},\"weather\":{\"type\":\"tornado\",\"severity\":\"extreme\",\"expires\":\"2025-03-01T18:00:00Z\"}}"
+    }
+    ```
+  </TabItem>
+  <TabItem label="Silent Push">
+    > "Send a silent push to trigger a background refresh"
+
+    ```json
+    {
+      "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+      "bundleId": "com.example.weatherapp",
+      "payload": "{\"aps\":{\"content-available\":1},\"refresh\":\"weather-data\"}"
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+**Multi-notification test:**
+
+> "Send 3 different push notifications to my weather app — a simple alert, a badge update to 3, and a silent push — with 2 seconds between each"
+
+## Status Bar Setup for App Store Screenshots
+
+<Steps>
+
+1. **Set the perfect status bar:**
+
+   > "Override the status bar on my iPhone 16 Pro simulator: time 9:41, battery 100% charged, WiFi 3 bars, cellular 4 bars, 5G network, no carrier name"
+
+   ```json
+   {
+     "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+     "time": "9:41",
+     "batteryLevel": 100,
+     "batteryState": "charged",
+     "wifiBars": 3,
+     "cellularBars": 4,
+     "dataNetwork": "5g",
+     "operatorName": ""
+   }
+   ```
+
+2. **Navigate to the screen you want to capture**
+
+3. **Take screenshots across all devices:**
+
+   > "Take screenshots on iPhone SE, iPhone 16, iPhone 16 Pro Max, and iPad Pro simulators and save them to ~/Desktop/screenshots/"
+
+4. **Clean up:**
+
+   > "Clear the status bar overrides on all simulators"
+
+</Steps>
+
+## Dark Mode Comparison Screenshots
+
+<Steps>
+
+1. **Light mode screenshots:**
+
+   > "Set all simulators to light mode"
+
+   > "Take screenshots on all booted simulators, saving to ~/Desktop/screenshots/light/"
+
+2. **Dark mode screenshots:**
+
+   > "Switch all simulators to dark mode"
+
+   > "Take screenshots on all booted simulators, saving to ~/Desktop/screenshots/dark/"
+
+</Steps>
+
+**One-shot version:**
+
+> "Take screenshots of my app in both light mode and dark mode on the iPhone 16 simulator, saving them to ~/Desktop"
+
+## Physical Device Deployment
+
+Deploy and test on a real device.
+
+<Steps>
+
+1. **Check connected devices:**
+
+   > "List all connected physical iOS devices"
+
+   ```
+   Connected Devices:
+     iPhone 15 Pro (00001234-ABCDEF012345)
+       Model: iPhone 15 Pro
+       OS: iOS 18.0
+       State: Connected
+   ```
+
+2. **Build for device:**
+
+   > "Build WeatherApp for physical iOS device in Release mode"
+
+   ```json
+   {
+     "scheme": "WeatherApp",
+     "destination": "generic/platform=iOS",
+     "configuration": "Release"
+   }
+   ```
+
+3. **Install on device:**
+
+   > "Install WeatherApp on my connected iPhone"
+
+   ```json
+   {
+     "deviceId": "00001234-ABCDEF012345",
+     "appPath": "/Users/dev/Library/Developer/Xcode/DerivedData/WeatherApp-abc/Build/Products/Release-iphoneos/WeatherApp.app"
+   }
+   ```
+
+4. **Launch the app:**
+
+   > "Launch com.example.weatherapp on my physical device"
+
+5. **Stream device logs:**
+
+   > "Stream console logs from my iPhone for 30 seconds"
+
+</Steps>
+
+## Privacy Permission Testing
+
+Test how your app handles different permission states.
+
+<Steps>
+
+1. **Grant all needed permissions:**
+
+   > "Grant camera, microphone, and photo library access to com.example.weatherapp on the simulator"
+
+2. **Test the happy path** — app has all permissions
+
+3. **Revoke a permission:**
+
+   > "Revoke camera access from com.example.weatherapp"
+
+4. **Test the degraded experience** — app handles missing camera
+
+5. **Reset everything:**
+
+   > "Reset all privacy permissions for com.example.weatherapp"
+
+6. **Test the first-launch experience** — permission prompts appear
+
+</Steps>
+
+Available privacy services:
+
+| Service | Description |
+|---------|-------------|
+| `camera` | Camera access |
+| `microphone` | Microphone access |
+| `photos` | Full photo library access |
+| `photos-add` | Add-only photo access |
+| `location` | When-in-use location |
+| `location-always` | Always-on location |
+| `contacts` | Full contacts access |
+| `contacts-limited` | Limited contacts |
+| `calendar` | Calendar events |
+| `reminders` | Reminders |
+| `health` | HealthKit data |
+| `homekit` | HomeKit accessories |
+| `media-library` | Apple Music library |
+| `motion` | Motion & fitness |
+| `siri` | SiriKit |
+| `speech-recognition` | Speech recognition |
+| `faceid` | Face ID |
+| `usertracking` | App tracking transparency |
+| `all` | All permissions at once |
+
+<Aside type="tip">
+  Always test the "denied" state for every permission your app requests. Users
+  can deny permissions at any time, and your app should handle this gracefully.
+</Aside>

@@ -1,0 +1,129 @@
+---
+title: device_appearance
+description: Switch a simulator or device between light and dark appearance mode.
+sidebar:
+  order: 7
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The `device_appearance` tool sets the system appearance of a booted simulator or connected physical device to either light or dark mode. This triggers the same appearance change that occurs when a user toggles the setting in Settings > Display & Brightness, causing all apps to immediately adopt the new color scheme. Use this tool to verify your app's dark mode support, capture screenshots in both appearances, or test contrast and readability without manually navigating through the Settings app.
+
+## Parameters
+
+| Parameter    | Type   | Required | Default | Description                                                         |
+|--------------|--------|----------|---------|---------------------------------------------------------------------|
+| `deviceId`   | string | Yes      | —       | UDID of the simulator or physical device to update.                 |
+| `appearance` | enum   | Yes      | —       | The appearance mode to set. One of `"light"` or `"dark"`.           |
+
+## Usage Examples
+
+### Switch to dark mode
+
+> "Set my simulator to dark mode"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "appearance": "dark"
+}
+```
+
+### Switch back to light mode
+
+> "Switch the simulator back to light mode"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "appearance": "light"
+}
+```
+
+### Dark mode screenshot workflow
+
+> "Set dark mode, then take a screenshot of the app"
+
+First set the appearance:
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "appearance": "dark"
+}
+```
+
+Then call [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/):
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Projects/WeatherApp/screenshots/home-dark.png"
+}
+```
+
+### Test both appearances in sequence
+
+> "Capture screenshots in both light and dark mode for the home screen"
+
+Set light mode and capture:
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "appearance": "light"
+}
+```
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Projects/WeatherApp/screenshots/home-light.png"
+}
+```
+
+Then switch to dark mode and capture:
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "appearance": "dark"
+}
+```
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "outputPath": "/Users/developer/Projects/WeatherApp/screenshots/home-dark.png"
+}
+```
+
+## Example Output
+
+```
+Appearance changed to dark on device A1B2C3D4-E5F6-7890-ABCD-EF1234567890.
+Device: iPhone 16 Pro
+Previous appearance: light
+Current appearance: dark
+```
+
+## Related Tools
+
+- [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) — Capture a screenshot after switching appearance to document the visual result.
+- [`screen_record`](/xcode-pilot-mcp/tools/debug/screen-record/) — Record the screen while toggling appearances to show the transition.
+- [`accessibility_audit`](/xcode-pilot-mcp/tools/debug/accessibility-audit/) — Run an accessibility audit in dark mode to catch contrast violations that only appear against dark backgrounds.
+- [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) — Combine with appearance changes for polished, consistent App Store screenshots.
+
+## Tips
+
+<Aside type="tip">
+  The appearance change takes effect immediately across the entire system and all running apps. There is no need to relaunch your app after calling this tool -- SwiftUI views and UIKit views that use system colors and dynamic assets will update automatically.
+</Aside>
+
+<Aside type="tip">
+  Build a screenshot workflow by calling `device_appearance` with `"light"`, taking a screenshot, then switching to `"dark"` and taking another. This produces a complete set of appearance-variant screenshots with minimal effort.
+</Aside>
+
+<Aside type="tip">
+  Use `device_appearance` before running [`accessibility_audit`](/xcode-pilot-mcp/tools/debug/accessibility-audit/) in both modes. Contrast ratio issues are often mode-specific: a color pairing that passes WCAG AA in light mode may fail in dark mode (or vice versa).
+</Aside>

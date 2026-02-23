@@ -1,0 +1,82 @@
+---
+title: physical_device_list
+description: List all connected physical iOS devices with their details.
+sidebar:
+  order: 1
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+List all physical iOS devices currently connected to your Mac via USB or paired over Wi-Fi. This tool reports each device's name, model, OS version, UDID, and connection state. Use it to discover device identifiers before installing, launching, or streaming console logs from a physical device.
+
+## Parameters
+
+This tool takes no parameters.
+
+## Usage Examples
+
+### List all connected devices
+
+> "Show me all the physical devices connected to my Mac"
+
+```json
+{}
+```
+
+## Example Output
+
+```
+Connected Physical Devices:
+
+iPhone 15 Pro Max
+  UDID:         00008130-001A2B3C4D5E6F78
+  Model:        iPhone16,2
+  OS Version:   18.2
+  Connection:   USB
+  State:        Available
+
+iPad Air (5th generation)
+  UDID:         00008103-000A1B2C3D4E5F60
+  Model:        iPad13,17
+  OS Version:   17.5.1
+  Connection:   Wi-Fi
+  State:        Available
+
+iPhone 14
+  UDID:         00008110-001122334455AABB
+  Model:        iPhone15,3
+  OS Version:   18.0
+  Connection:   USB
+  State:        Available
+
+Total devices found: 3
+```
+
+When no devices are connected:
+
+```
+Connected Physical Devices:
+
+No physical devices found. Connect a device via USB or ensure Wi-Fi pairing is enabled.
+```
+
+## Related Tools
+
+- [`physical_device_install`](/xcode-pilot-mcp/tools/device/physical-device-install/) — Install an app onto a connected device using its UDID
+- [`physical_device_launch`](/xcode-pilot-mcp/tools/device/physical-device-launch/) — Launch an installed app on a connected device
+- [`physical_device_console`](/xcode-pilot-mcp/tools/device/physical-device-console/) — Stream console logs from a connected device
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — List simulator devices if you need to test without a physical device
+
+## Tips
+
+<Aside type="tip">
+  Run this tool first whenever you need to interact with a physical device. The UDID from the output is required by [`physical_device_install`](/xcode-pilot-mcp/tools/device/physical-device-install/), [`physical_device_launch`](/xcode-pilot-mcp/tools/device/physical-device-launch/), and [`physical_device_console`](/xcode-pilot-mcp/tools/device/physical-device-console/).
+</Aside>
+
+<Aside type="tip">
+  If a device shows up but its state is not "Available," it may need to be unlocked, trusted, or updated. Check that the device is unlocked and that you have tapped "Trust" on the device when prompted.
+</Aside>
+
+<Aside type="note">
+  Wi-Fi-paired devices must be on the same network as your Mac and must have been previously paired via USB with the "Connect via network" checkbox enabled in Xcode's Devices & Simulators window.
+</Aside>

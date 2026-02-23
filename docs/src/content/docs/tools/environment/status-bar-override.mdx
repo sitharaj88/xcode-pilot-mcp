@@ -1,0 +1,120 @@
+---
+title: status_bar_override
+description: Override the status bar appearance on an iOS simulator.
+sidebar:
+  order: 4
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+Override the iOS simulator status bar to display specific values for time, battery, network indicators, and carrier name. This is particularly useful for taking consistent, polished screenshots for App Store submissions, marketing materials, or design reviews where you need a clean, predictable status bar.
+
+## Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `deviceId` | string | Yes | — | The UDID of the target simulator (must be booted). |
+| `time` | string | No | — | The time string to display (e.g., `"9:41"`). |
+| `batteryLevel` | number | No | — | Battery percentage to display (0–100). |
+| `batteryState` | string | No | — | Battery state indicator. Accepted values: `"charged"`, `"charging"`, `"discharging"`. |
+| `wifiBars` | number | No | — | Number of Wi-Fi signal bars to show (0–3). |
+| `cellularBars` | number | No | — | Number of cellular signal bars to show (0–4). |
+| `operatorName` | string | No | — | The carrier/operator name to display (e.g., `"Carrier"`). |
+| `dataNetwork` | string | No | — | The data network type label. Accepted values: `"wifi"`, `"4g"`, `"5g"`, `"lte"`. |
+
+## Usage Examples
+
+### Apple-style screenshot status bar
+
+> "Set up the status bar for App Store screenshots — 9:41, full battery, full signal"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "time": "9:41",
+  "batteryLevel": 100,
+  "batteryState": "charged",
+  "wifiBars": 3,
+  "cellularBars": 4,
+  "operatorName": "Carrier",
+  "dataNetwork": "5g"
+}
+```
+
+### Low battery state for testing
+
+> "Show the status bar with low battery and weak signal"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "batteryLevel": 10,
+  "batteryState": "discharging",
+  "cellularBars": 1,
+  "wifiBars": 0,
+  "dataNetwork": "lte"
+}
+```
+
+### Set only the time
+
+> "Change the status bar time to 9:41 for the screenshot"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "time": "9:41"
+}
+```
+
+### Custom operator name for localization screenshots
+
+> "Set the carrier name to 'docomo' for Japanese App Store screenshots"
+
+```json
+{
+  "deviceId": "F3A1B2C3-D4E5-6789-ABCD-EF0123456789",
+  "time": "9:41",
+  "batteryLevel": 100,
+  "batteryState": "charged",
+  "wifiBars": 3,
+  "cellularBars": 4,
+  "operatorName": "docomo",
+  "dataNetwork": "5g"
+}
+```
+
+## Example Output
+
+```
+Status bar overridden successfully.
+Device: iPhone 16 Pro (F3A1B2C3-D4E5-6789-ABCD-EF0123456789)
+Overrides applied:
+  Time: 9:41
+  Battery Level: 100%
+  Battery State: charged
+  Wi-Fi Bars: 3
+  Cellular Bars: 4
+  Operator Name: Carrier
+  Data Network: 5g
+```
+
+## Related Tools
+
+- [`status_bar_clear`](/xcode-pilot-mcp/tools/environment/status-bar-clear/) — Remove all status bar overrides and restore defaults
+- [`simulator_screenshot`](/xcode-pilot-mcp/tools/simulator/simulator-screenshot/) — Capture a screenshot after setting up the status bar
+- [`simulator_list`](/xcode-pilot-mcp/tools/simulator/simulator-list/) — Find simulator UDIDs for the `deviceId` parameter
+
+## Tips
+
+<Aside type="tip">
+  Apple uses **9:41** as the standard time in all marketing materials and App Store screenshots. Set `time: "9:41"` with full battery and signal bars for professional-looking screenshots.
+</Aside>
+
+<Aside type="tip">
+  You can set only the parameters you care about — any omitted parameters will remain at their current values on the simulator.
+</Aside>
+
+<Aside type="note">
+  Status bar overrides persist until explicitly cleared with `status_bar_clear` or until the simulator is rebooted.
+</Aside>

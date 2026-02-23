@@ -1,0 +1,132 @@
+---
+title: log_collect
+description: Collect historical device logs from a specified time range with optional formatting.
+sidebar:
+  order: 2
+---
+
+import { Aside } from "@astrojs/starlight/components";
+
+The `log_collect` tool retrieves historical logs from a simulator or physical device for a specified time window. Unlike `log_stream`, which captures logs in real time, `log_collect` reaches back into the device's unified log archive to fetch entries that have already been recorded. This is ideal for post-mortem debugging when you need to examine what happened before, during, or after a crash without having had a live stream running.
+
+## Parameters
+
+| Parameter   | Type   | Required | Default | Description                                                                                       |
+|-------------|--------|----------|---------|---------------------------------------------------------------------------------------------------|
+| `deviceId`  | string | Yes      | —       | UDID of the simulator or physical device to collect logs from.                                    |
+| `predicate` | string | No       | —       | NSPredicate-style filter expression (e.g., `process == "WeatherApp"`).                            |
+| `last`      | string | No       | —       | Time range to look back. Accepts durations like `"30s"`, `"5m"`, or `"1h"`.                      |
+| `style`     | enum   | No       | —       | Output format. One of `"compact"` (human-readable one-liner per entry) or `"json"` (structured).  |
+
+## Usage Examples
+
+### Collect the last 5 minutes of logs
+
+> "Get me the last 5 minutes of logs from the simulator"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "last": "5m"
+}
+```
+
+### Collect app-specific logs in compact format
+
+> "Show me recent WeatherApp logs from the past minute in compact format"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "predicate": "subsystem == \"com.myteam.WeatherApp\"",
+  "last": "1m",
+  "style": "compact"
+}
+```
+
+### Collect crash-related logs as JSON
+
+> "Get the last 30 seconds of logs filtered to crash reports, formatted as JSON"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "predicate": "eventMessage CONTAINS \"crash\" OR eventMessage CONTAINS \"fatal\"",
+  "last": "30s",
+  "style": "json"
+}
+```
+
+### Investigate a networking failure in the last hour
+
+> "Collect all networking logs from the past hour for my app"
+
+```json
+{
+  "deviceId": "A1B2C3D4-E5F6-7890-ABCD-EF1234567890",
+  "predicate": "subsystem == \"com.myteam.WeatherApp\" AND category == \"networking\"",
+  "last": "1h",
+  "style": "compact"
+}
+```
+
+## Example Output
+
+### Compact style
+
+```
+2026-02-23 14:28:45.112  WeatherApp[1842] [networking] Starting request: GET https://api.weather.example.com/v1/forecast?lat=37.7749&lon=-122.4194
+2026-02-23 14:28:45.890  WeatherApp[1842] [networking] Response received: 200 OK (245 bytes, 778ms)
+2026-02-23 14:29:10.003  WeatherApp[1842] [networking] Starting request: GET https://api.weather.example.com/v1/alerts?lat=37.7749&lon=-122.4194
+2026-02-23 14:29:10.550  WeatherApp[1842] [networking] Connection error: The request timed out. (NSURLErrorDomain -1001)
+2026-02-23 14:29:10.551  WeatherApp[1842] [networking] Retry scheduled in 2.0 seconds (attempt 1 of 3)
+2026-02-23 14:29:12.560  WeatherApp[1842] [networking] Starting request: GET https://api.weather.example.com/v1/alerts?lat=37.7749&lon=-122.4194 (retry 1)
+2026-02-23 14:29:13.001  WeatherApp[1842] [networking] Response received: 200 OK (82 bytes, 441ms)
+
+Collected 7 log entries from the last 1m.
+```
+
+### JSON style
+
+```json
+[
+  {
+    "timestamp": "2026-02-23T14:28:45.112000Z",
+    "process": "WeatherApp",
+    "pid": 1842,
+    "subsystem": "com.myteam.WeatherApp",
+    "category": "networking",
+    "level": "info",
+    "message": "Starting request: GET https://api.weather.example.com/v1/forecast?lat=37.7749&lon=-122.4194"
+  },
+  {
+    "timestamp": "2026-02-23T14:29:10.550000Z",
+    "process": "WeatherApp",
+    "pid": 1842,
+    "subsystem": "com.myteam.WeatherApp",
+    "category": "networking",
+    "level": "error",
+    "message": "Connection error: The request timed out. (NSURLErrorDomain -1001)"
+  }
+]
+```
+
+## Related Tools
+
+- [`log_stream`](/xcode-pilot-mcp/tools/debug/log-stream/) — Stream live logs in real time instead of collecting historical entries.
+- [`diagnostics`](/xcode-pilot-mcp/tools/debug/diagnostics/) — Collect a comprehensive diagnostic report that includes logs, crash reports, and system information.
+- [`app_launch`](/xcode-pilot-mcp/tools/app/app-launch/) — Launch an app and capture its console output from the moment it starts.
+
+## Tips
+
+<Aside type="tip">
+  Use `"json"` style when you need to parse log entries programmatically or feed them into another tool. The structured format makes it easy to filter, aggregate, or search through results.
+</Aside>
+
+<Aside type="tip">
+  Combine `predicate` and `last` to narrow results efficiently. Collecting an hour of unfiltered system logs can produce thousands of entries, so always apply a subsystem or process filter when possible.
+</Aside>
+
+<Aside type="tip">
+  After a crash, run `log_collect` with `last` set to `"30s"` or `"1m"` and a predicate matching your app's process name. The logs leading up to the crash often reveal the root cause faster than a stack trace alone.
+</Aside>
