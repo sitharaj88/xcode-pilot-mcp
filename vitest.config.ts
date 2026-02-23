@@ -1,26 +1,10 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  plugins: [
-    {
-      name: "resolve-js-to-ts",
-      enforce: "pre",
-      async resolveId(source, importer, options) {
-        if (!importer || !source.endsWith(".js") || !source.startsWith(".")) {
-          return null;
-        }
-        const tsSource = source.replace(/\.js$/, ".ts");
-        const resolved = await this.resolve(tsSource, importer, {
-          ...options,
-          skipSelf: true,
-        });
-        return resolved || null;
-      },
-    },
-  ],
   test: {
-    globals: true,
-    testTimeout: 10000,
+    globals: false,
+    environment: "node",
+    include: ["tests/**/*.test.ts"],
     coverage: {
       provider: "v8",
       reporter: ["text", "lcov"],
@@ -30,5 +14,8 @@ export default defineConfig({
         statements: 15,
       },
     },
+    testTimeout: 10_000,
+    hookTimeout: 10_000,
+    restoreMocks: true,
   },
 });
