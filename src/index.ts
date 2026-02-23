@@ -4,7 +4,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { detectEnvironment } from "./environment.js";
 import { logger } from "./utils/logger.js";
-import { registerBuildTools } from "./tools/build/index.js";
+import { registerBuildTools } from "./tools/xcodebuild/index.js";
 import { registerSimulatorTools } from "./tools/simulator/index.js";
 import { registerAppTools } from "./tools/app/index.js";
 import { registerDebugTools } from "./tools/debug/index.js";

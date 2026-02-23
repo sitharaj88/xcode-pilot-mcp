@@ -1,7 +1,7 @@
 import { executeCommand } from "../../executor.js";
 import type { Environment } from "../../types.js";
 import { execResultResponse, type ToolResponse } from "../../utils/response.js";
-import { resolveProjectArgs } from "../build/build-utils.js";
+import { resolveProjectArgs } from "../xcodebuild/build-utils.js";
 
 interface SpmResolveArgs {
   projectPath?: string;

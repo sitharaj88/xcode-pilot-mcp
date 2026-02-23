@@ -6,14 +6,14 @@ const { execFile } = vi.hoisted(() => ({
 
 vi.mock("node:child_process", () => ({ execFile, spawn: vi.fn() }));
 
-import { xcodeBuild } from "../../src/tools/build/build.js";
-import { xcodeClean } from "../../src/tools/build/clean.js";
-import { xcodeArchive } from "../../src/tools/build/archive.js";
-import { xcodeExport } from "../../src/tools/build/export.js";
-import { xcodeTest, xcodeTestWithoutBuilding } from "../../src/tools/build/test.js";
-import { xcodeList } from "../../src/tools/build/list.js";
-import { xcodeBuildSettings } from "../../src/tools/build/build-settings.js";
-import { resolveProjectArgs } from "../../src/tools/build/build-utils.js";
+import { xcodeBuild } from "../../src/tools/xcodebuild/build.js";
+import { xcodeClean } from "../../src/tools/xcodebuild/clean.js";
+import { xcodeArchive } from "../../src/tools/xcodebuild/archive.js";
+import { xcodeExport } from "../../src/tools/xcodebuild/export.js";
+import { xcodeTest, xcodeTestWithoutBuilding } from "../../src/tools/xcodebuild/test.js";
+import { xcodeList } from "../../src/tools/xcodebuild/list.js";
+import { xcodeBuildSettings } from "../../src/tools/xcodebuild/build-settings.js";
+import { resolveProjectArgs } from "../../src/tools/xcodebuild/build-utils.js";
 import type { Environment } from "../../src/types.js";
 
 const env: Environment = {
