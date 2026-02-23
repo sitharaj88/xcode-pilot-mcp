@@ -1,9 +1,23 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  resolve: {
-    extensions: [".ts", ".js", ".mts", ".mjs"],
-  },
+  plugins: [
+    {
+      name: "resolve-js-to-ts",
+      enforce: "pre",
+      async resolveId(source, importer, options) {
+        if (!importer || !source.endsWith(".js") || !source.startsWith(".")) {
+          return null;
+        }
+        const tsSource = source.replace(/\.js$/, ".ts");
+        const resolved = await this.resolve(tsSource, importer, {
+          ...options,
+          skipSelf: true,
+        });
+        return resolved || null;
+      },
+    },
+  ],
   test: {
     globals: true,
     testTimeout: 10000,
