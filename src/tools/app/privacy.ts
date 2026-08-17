@@ -1,6 +1,7 @@
 import { executeCommand } from "../../executor.js";
 import type { Environment } from "../../types.js";
 import { textResponse, errorResponse, type ToolResponse } from "../../utils/response.js";
+import { validateBundleId } from "../../utils/validation.js";
 
 interface PrivacyArgs {
   deviceId: string;
@@ -9,10 +10,17 @@ interface PrivacyArgs {
   bundleId?: string;
 }
 
-export async function appPrivacy(args: PrivacyArgs, _env: Environment): Promise<ToolResponse> {
+export async function appPrivacy(args: PrivacyArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const cmdArgs = ["simctl", "privacy", args.deviceId, args.action, args.service];
 
   if (args.bundleId) {
+    validateBundleId(args.bundleId);
     cmdArgs.push(args.bundleId);
   } else if (args.action !== "reset") {
     return errorResponse("bundleId is required for grant and revoke actions");

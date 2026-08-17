@@ -7,7 +7,6 @@ import { locationClear } from "./location-clear.js";
 import { pushNotification } from "./push-notification.js";
 import { statusBarOverride } from "./status-bar-override.js";
 import { statusBarClear } from "./status-bar-clear.js";
-import { keyboardInput } from "./keyboard-input.js";
 
 export function registerEnvironmentTools(server: McpServer, environment: Environment): void {
   server.tool(
@@ -15,8 +14,8 @@ export function registerEnvironmentTools(server: McpServer, environment: Environ
     "Set a simulated GPS location on a simulator",
     {
       deviceId: z.string().describe("Simulator UDID"),
-      latitude: z.number().describe("Latitude coordinate"),
-      longitude: z.number().describe("Longitude coordinate"),
+      latitude: z.number().min(-90).max(90).describe("Latitude coordinate"),
+      longitude: z.number().min(-180).max(180).describe("Longitude coordinate"),
     },
     withErrorHandling(async (args) => locationSet(args, environment)),
   );
@@ -72,15 +71,5 @@ export function registerEnvironmentTools(server: McpServer, environment: Environ
       deviceId: z.string().describe("Simulator UDID"),
     },
     withErrorHandling(async (args) => statusBarClear(args, environment)),
-  );
-
-  server.tool(
-    "keyboard_input",
-    "Send text input to a simulator",
-    {
-      deviceId: z.string().describe("Simulator UDID"),
-      text: z.string().describe("Text to input"),
-    },
-    withErrorHandling(async (args) => keyboardInput(args, environment)),
   );
 }

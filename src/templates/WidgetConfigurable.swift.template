@@ -1,0 +1,62 @@
+import WidgetKit
+import SwiftUI
+import AppIntents
+
+struct {{NAME}}Entry: TimelineEntry {
+    let date: Date
+    let message: String
+    let configuration: {{NAME}}ConfigIntent
+}
+
+struct {{NAME}}ConfigIntent: WidgetConfigurationIntent {
+    static var title: LocalizedStringResource = "{{NAME}} Configuration"
+    static var description = IntentDescription("Configure your {{NAME}} widget.")
+
+    @Parameter(title: "Message", default: "Hello")
+    var message: String
+}
+
+struct {{NAME}}Provider: AppIntentTimelineProvider {
+    func placeholder(in context: Context) -> {{NAME}}Entry {
+        {{NAME}}Entry(date: Date(), message: "Placeholder", configuration: {{NAME}}ConfigIntent())
+    }
+
+    func snapshot(for configuration: {{NAME}}ConfigIntent, in context: Context) async -> {{NAME}}Entry {
+        {{NAME}}Entry(date: Date(), message: configuration.message, configuration: configuration)
+    }
+
+    func timeline(for configuration: {{NAME}}ConfigIntent, in context: Context) async -> Timeline<{{NAME}}Entry> {
+        let entry = {{NAME}}Entry(date: Date(), message: configuration.message, configuration: configuration)
+        return Timeline(entries: [entry], policy: .atEnd)
+    }
+}
+
+struct {{NAME}}View: View {
+    var entry: {{NAME}}Provider.Entry
+
+    var body: some View {
+        VStack {
+            Text(entry.message)
+            Text(entry.date, style: .time)
+        }
+    }
+}
+
+@main
+struct {{NAME}}: Widget {
+    let kind: String = "{{NAME}}"
+
+    var body: some WidgetConfiguration {
+        AppIntentConfiguration(kind: kind, intent: {{NAME}}ConfigIntent.self, provider: {{NAME}}Provider()) { entry in
+            {{NAME}}View(entry: entry)
+        }
+        .configurationDisplayName("{{NAME}}")
+        .description("A configurable widget.")
+    }
+}
+
+#Preview(as: .systemSmall) {
+    {{NAME}}()
+} timeline: {
+    {{NAME}}Entry(date: .now, message: "Preview", configuration: {{NAME}}ConfigIntent())
+}

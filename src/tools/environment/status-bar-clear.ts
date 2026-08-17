@@ -8,8 +8,14 @@ interface StatusBarClearArgs {
 
 export async function statusBarClear(
   args: StatusBarClearArgs,
-  _env: Environment,
+  env: Environment,
 ): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const result = await executeCommand("xcrun", ["simctl", "status_bar", args.deviceId, "clear"]);
 
   if (!result.success) {

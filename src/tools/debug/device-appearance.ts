@@ -9,8 +9,14 @@ interface DeviceAppearanceArgs {
 
 export async function deviceAppearance(
   args: DeviceAppearanceArgs,
-  _env: Environment,
+  env: Environment,
 ): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const result = await executeCommand("xcrun", [
     "simctl",
     "ui",

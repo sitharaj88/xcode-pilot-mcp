@@ -5,7 +5,4 @@ struct {{NAME}}: View {
         Text("{{NAME}}")
     }
 }
-
-#Preview {
-    {{NAME}}()
-}
+{{PREVIEW_BLOCK}}

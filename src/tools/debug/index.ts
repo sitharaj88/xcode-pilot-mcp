@@ -7,7 +7,6 @@ import { logCollect } from "./log-collect.js";
 import { screenshot } from "./screenshot.js";
 import { screenRecord } from "./screen-record.js";
 import { diagnostics } from "./diagnostics.js";
-import { accessibilityAudit } from "./accessibility-audit.js";
 import { deviceAppearance } from "./device-appearance.js";
 
 export function registerDebugTools(server: McpServer, environment: Environment): void {
@@ -68,15 +67,6 @@ export function registerDebugTools(server: McpServer, environment: Environment):
       outputPath: z.string().optional().describe("Output directory for the diagnostic archive"),
     },
     withErrorHandling(async (args) => diagnostics(args, environment)),
-  );
-
-  server.tool(
-    "accessibility_audit",
-    "Run an accessibility audit on the current screen of a simulator (requires Xcode 15+)",
-    {
-      deviceId: z.string().describe("Simulator UDID"),
-    },
-    withErrorHandling(async (args) => accessibilityAudit(args, environment)),
   );
 
   server.tool(

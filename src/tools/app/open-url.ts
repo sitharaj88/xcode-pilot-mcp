@@ -7,7 +7,13 @@ interface OpenUrlArgs {
   url: string;
 }
 
-export async function appOpenUrl(args: OpenUrlArgs, _env: Environment): Promise<ToolResponse> {
+export async function appOpenUrl(args: OpenUrlArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const result = await executeCommand("xcrun", ["simctl", "openurl", args.deviceId, args.url]);
 
   if (!result.success) {

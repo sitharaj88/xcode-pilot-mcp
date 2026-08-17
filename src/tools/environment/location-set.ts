@@ -8,7 +8,13 @@ interface LocationSetArgs {
   longitude: number;
 }
 
-export async function locationSet(args: LocationSetArgs, _env: Environment): Promise<ToolResponse> {
+export async function locationSet(args: LocationSetArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const result = await executeCommand("xcrun", [
     "simctl",
     "location",

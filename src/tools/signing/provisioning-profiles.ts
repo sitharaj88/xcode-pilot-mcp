@@ -1,9 +1,16 @@
 import { readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { homedir } from "node:os";
-import { executeCommand } from "../../executor.js";
+import { executeCommand, executeCommandWithStdin } from "../../executor.js";
 import type { Environment } from "../../types.js";
 import { textResponse, errorResponse, type ToolResponse } from "../../utils/response.js";
+
+interface ProfileInfo {
+  Name?: string;
+  UUID?: string;
+  TeamName?: string;
+  ExpirationDate?: string;
+}
 
 export async function provisioningProfiles(_env: Environment): Promise<ToolResponse> {
   const profilesDir = join(homedir(), "Library", "MobileDevice", "Provisioning Profiles");
@@ -28,27 +35,50 @@ export async function provisioningProfiles(_env: Environment): Promise<ToolRespo
     });
 
     if (result.success) {
-      const nameMatch = result.stdout.match(/<key>Name<\/key>\s*<string>([^<]+)<\/string>/);
-      const uuidMatch = result.stdout.match(/<key>UUID<\/key>\s*<string>([^<]+)<\/string>/);
-      const teamMatch = result.stdout.match(/<key>TeamName<\/key>\s*<string>([^<]+)<\/string>/);
-      const expirationMatch = result.stdout.match(
-        /<key>ExpirationDate<\/key>\s*<date>([^<]+)<\/date>/,
-      );
-
-      profiles.push(
-        [
-          `File: ${file}`,
-          `  Name: ${nameMatch?.[1] ?? "Unknown"}`,
-          `  UUID: ${uuidMatch?.[1] ?? "Unknown"}`,
-          `  Team: ${teamMatch?.[1] ?? "Unknown"}`,
-          `  Expires: ${expirationMatch?.[1] ?? "Unknown"}`,
-          `  Size: ${stat.size} bytes`,
-        ].join("\n"),
-      );
+      const info = await parseProfileXml(result.stdout);
+      if (info) {
+        profiles.push(
+          [
+            `File: ${file}`,
+            `  Name: ${info.Name ?? "Unknown"}`,
+            `  UUID: ${info.UUID ?? "Unknown"}`,
+            `  Team: ${info.TeamName ?? "Unknown"}`,
+            `  Expires: ${info.ExpirationDate ?? "Unknown"}`,
+            `  Size: ${stat.size} bytes`,
+          ].join("\n"),
+        );
+      } else {
+        profiles.push(
+          `File: ${file}\n  (Could not be parsed; showing filename only)\n  Size: ${stat.size} bytes`,
+        );
+      }
     } else {
       profiles.push(`File: ${file}\n  (Failed to decode)`);
     }
   }
 
   return textResponse(`Found ${files.length} provisioning profile(s):\n\n${profiles.join("\n\n")}`);
+}
+
+async function parseProfileXml(xml: string): Promise<ProfileInfo | null> {
+  // plutil -convert json rejects plists containing <data> values (DeveloperCertificates),
+  // so extract each field individually with raw output instead.
+  const fields: Array<keyof ProfileInfo> = ["Name", "UUID", "TeamName", "ExpirationDate"];
+  const info: ProfileInfo = {};
+  let extractedAny = false;
+
+  for (const field of fields) {
+    const result = await executeCommandWithStdin(
+      "plutil",
+      ["-extract", field, "raw", "-o", "-", "-"],
+      xml,
+      { timeout: 10_000 },
+    );
+    if (result.success && result.stdout.trim()) {
+      info[field] = result.stdout.trim();
+      extractedAny = true;
+    }
+  }
+
+  return extractedAny ? info : null;
 }

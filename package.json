@@ -1,9 +1,10 @@
 {
   "name": "xcode-pilot-mcp",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "MCP server for iOS/macOS development with Xcode, Simulator, and device management",
   "type": "module",
   "main": "./build/index.js",
+  "types": "./build/index.d.ts",
   "bin": {
     "xcode-pilot-mcp": "./build/index.js"
   },
@@ -15,6 +16,7 @@
     "dev": "tsc --watch",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "smoke": "node scripts/smoke-test.js",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",

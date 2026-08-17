@@ -1,4 +1,5 @@
-import { readdirSync, existsSync } from "node:fs";
+import { readdirSync, existsSync, statSync, readFileSync } from "node:fs";
+import { gunzipSync } from "node:zlib";
 import { join } from "node:path";
 import { homedir } from "node:os";
 import { executeCommand } from "../../executor.js";
@@ -9,6 +10,8 @@ interface BuildWarningsArgs {
   projectPath?: string;
   derivedDataPath?: string;
 }
+
+const MAX_FALLBACK_LINES = 200;
 
 export async function buildWarnings(
   args: BuildWarningsArgs,
@@ -21,14 +24,14 @@ export async function buildWarnings(
     return errorResponse(`DerivedData directory not found: ${derivedData}`);
   }
 
-  const logsDir = findLatestBuildLogs(derivedData, args.projectPath);
-  if (!logsDir) {
+  const logFile = findNewestBuildLog(derivedData, args.projectPath);
+  if (!logFile) {
     return errorResponse("No build logs found. Build the project first with xcode_build.");
   }
 
   const result = await executeCommand(
     "xcrun",
-    ["xclogparser", "parse", "--project", logsDir, "--reporter", "json"],
+    ["xclogparser", "parse", "--file", logFile, "--reporter", "issues"],
     { timeout: 30_000 },
   );
 
@@ -36,38 +39,80 @@ export async function buildWarnings(
     return textResponse(result.stdout);
   }
 
-  // Fallback: search for warnings in build log text
-  const grepResult = await executeCommand(
-    "grep",
-    ["-r", "warning:", logsDir, "--include=*.xcactivitylog"],
-    { timeout: 30_000 },
-  );
-
-  if (grepResult.stdout) {
-    return textResponse(`Build warnings found:\n\n${grepResult.stdout}`);
-  }
-
-  return textResponse("No build warnings found in recent build logs.");
+  return extractWarningsFromLog(logFile);
 }
 
-function findLatestBuildLogs(derivedData: string, projectPath?: string): string | null {
+function findNewestBuildLog(derivedData: string, projectPath?: string): string | null {
   try {
-    const dirs = readdirSync(derivedData)
-      .filter((d) => {
-        if (projectPath) {
-          const projectName = projectPath
-            .split("/")
-            .pop()
-            ?.replace(/\.(xcworkspace|xcodeproj)$/, "");
-          return projectName && d.toLowerCase().startsWith(projectName.toLowerCase());
-        }
-        return true;
-      })
-      .map((d) => join(derivedData, d, "Logs", "Build"))
-      .filter((d) => existsSync(d));
+    const projectFilter = projectPath
+      ?.split("/")
+      .pop()
+      ?.replace(/\.(xcworkspace|xcodeproj)$/, "")
+      .toLowerCase();
 
-    return dirs.length > 0 ? dirs[0] : null;
+    const candidateDirs = readdirSync(derivedData)
+      .filter((d) => !projectFilter || d.toLowerCase().startsWith(projectFilter))
+      .map((d) => join(derivedData, d))
+      .filter((d) => {
+        try {
+          return statSync(d).isDirectory();
+        } catch {
+          return false;
+        }
+      })
+      .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
+
+    for (const dir of candidateDirs) {
+      const buildLogsDir = join(dir, "Logs", "Build");
+      if (!existsSync(buildLogsDir)) continue;
+
+      const logs = readdirSync(buildLogsDir)
+        .filter((f) => f.endsWith(".xcactivitylog"))
+        .map((f) => join(buildLogsDir, f))
+        .sort((a, b) => statSync(b).mtimeMs - statSync(a).mtimeMs);
+
+      if (logs.length > 0) {
+        return logs[0];
+      }
+    }
+
+    return null;
   } catch {
     return null;
   }
+}
+
+function extractWarningsFromLog(logFile: string): ToolResponse {
+  let decompressed: string;
+  try {
+    const compressed = readFileSync(logFile);
+    decompressed = gunzipSync(compressed).toString("utf-8");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return errorResponse(`Failed to decompress build log ${logFile}: ${message}`);
+  }
+
+  const seen = new Set<string>();
+  const matches: string[] = [];
+
+  for (const rawLine of decompressed.split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || (!line.includes("warning:") && !line.includes("error:"))) {
+      continue;
+    }
+    if (seen.has(line)) {
+      continue;
+    }
+    seen.add(line);
+    matches.push(line);
+    if (matches.length >= MAX_FALLBACK_LINES) {
+      break;
+    }
+  }
+
+  if (matches.length === 0) {
+    return textResponse("No build warnings found in recent build logs.");
+  }
+
+  return textResponse(`Build warnings found (${matches.length}):\n\n${matches.join("\n")}`);
 }

@@ -1,6 +1,7 @@
 import { executeCommand } from "../../executor.js";
 import type { Environment } from "../../types.js";
-import { execResultResponse, type ToolResponse } from "../../utils/response.js";
+import { type ToolResponse } from "../../utils/response.js";
+import { lintExecResponse } from "./lint-response.js";
 
 interface SwiftlintFixArgs {
   path?: string;
@@ -17,5 +18,8 @@ export async function swiftlintFix(
   if (args.config) cmdArgs.push("--config", args.config);
 
   const result = await executeCommand("swiftlint", cmdArgs, { timeout: 120_000 });
-  return execResultResponse(result);
+  return lintExecResponse(
+    result,
+    "SwiftLint failed. Is swiftlint installed? (brew install swiftlint)",
+  );
 }

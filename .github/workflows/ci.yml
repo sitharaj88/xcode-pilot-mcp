@@ -66,3 +66,24 @@ jobs:
           test -f build/index.js
           test -d build/tools
           test -d build/templates
+      - run: npm run smoke
+      - name: Verify npm pack includes templates
+        run: |
+          npm pack --dry-run | grep build/templates
+
+  macos:
+    name: Build (macOS)
+    runs-on: macos-14
+    needs: [quality, test]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run smoke
+      - run: xcodebuild -version
+      - run: xcrun simctl list devices booted || true
+      - run: npm test

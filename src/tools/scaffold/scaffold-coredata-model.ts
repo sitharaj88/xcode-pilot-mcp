@@ -2,7 +2,8 @@ import { writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import type { Environment } from "../../types.js";
 import { textResponse, errorResponse, type ToolResponse } from "../../utils/response.js";
-import { validateSafeName } from "../../utils/validation.js";
+import { validateAbsolutePath, validateSafeName } from "../../utils/validation.js";
+import { loadTemplate, renderTemplate } from "./template.js";
 
 interface Attribute {
   name: string;
@@ -37,6 +38,7 @@ export async function scaffoldCoreDataModel(
   _env: Environment,
 ): Promise<ToolResponse> {
   validateSafeName(args.name);
+  validateAbsolutePath(args.outputPath);
 
   const filePath = join(args.outputPath, `${args.name}+CoreData.swift`);
 
@@ -52,25 +54,24 @@ export async function scaffoldCoreDataModel(
     { name: "createdAt", type: "Date" },
   ];
 
+  for (const attr of attrs) {
+    validateSafeName(attr.name);
+  }
+
   const properties = attrs
     .map((a) => `    @NSManaged public var ${a.name}: ${swiftType(a.type)}?`)
     .join("\n");
 
-  const content = `import Foundation
-import CoreData
-
-@objc(${args.name})
-public class ${args.name}: NSManagedObject {
-    @nonobjc public class func fetchRequest() -> NSFetchRequest<${args.name}> {
-        return NSFetchRequest<${args.name}>(entityName: "${args.name}")
-    }
-
-${properties}
-}
-
-extension ${args.name}: Identifiable {}
-`;
+  const template = loadTemplate("CoreDataModel.swift.template");
+  const content = renderTemplate(template, [
+    ["PROPERTIES", properties],
+    ["NAME", args.name],
+  ]);
 
   writeFileSync(filePath, content);
-  return textResponse(`Core Data model created: ${filePath}`);
+  return textResponse(
+    `Core Data model created: ${filePath}\n\n` +
+      "Note: this generates only the NSManagedObject subclass. " +
+      `A matching "${args.name}" entity with these attributes must also exist in your .xcdatamodeld file.`,
+  );
 }

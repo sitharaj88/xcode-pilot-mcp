@@ -17,6 +17,7 @@ Launches an installed application on a simulator device. You can pass launch arg
 | `bundleId` | string | Yes | — | The bundle identifier of the app to launch. |
 | `args` | string[] | No | `[]` | An array of launch arguments passed to the app on startup. |
 | `consolePty` | boolean | No | `false` | When `true`, attaches a console PTY to capture stdout/stderr from the app. |
+| `timeout` | number | No | 30 | When `consolePty` is true, duration in seconds to capture console output (1-300 sec). |
 
 ## Usage Examples
 

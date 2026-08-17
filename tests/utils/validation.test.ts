@@ -39,8 +39,8 @@ describe("validateBundleId", () => {
 describe("validateSafeName", () => {
   it("accepts valid names", () => {
     expect(validateSafeName("MyApp")).toBe("MyApp");
-    expect(validateSafeName("my-app")).toBe("my-app");
     expect(validateSafeName("my_app_2")).toBe("my_app_2");
+    expect(validateSafeName("_privateName")).toBe("_privateName");
   });
 
   it("rejects invalid names", () => {
@@ -48,5 +48,6 @@ describe("validateSafeName", () => {
     expect(() => validateSafeName("123start")).toThrow(ValidationError);
     expect(() => validateSafeName("has spaces")).toThrow(ValidationError);
     expect(() => validateSafeName("has.dots")).toThrow(ValidationError);
+    expect(() => validateSafeName("my-app")).toThrow(ValidationError);
   });
 });

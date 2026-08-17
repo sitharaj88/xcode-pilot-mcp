@@ -7,9 +7,7 @@ public class {{NAME}}: NSManagedObject {
         return NSFetchRequest<{{NAME}}>(entityName: "{{NAME}}")
     }
 
-    @NSManaged public var id: UUID?
-    @NSManaged public var name: String?
-    @NSManaged public var createdAt: Date?
+{{PROPERTIES}}
 }
 
 extension {{NAME}}: Identifiable {}

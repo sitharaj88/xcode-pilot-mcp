@@ -13,7 +13,13 @@ export async function entitlementsCheck(
 ): Promise<ToolResponse> {
   validateAbsolutePath(args.appPath);
 
-  const result = await executeCommand("codesign", ["-d", "--entitlements", "-", args.appPath]);
+  const result = await executeCommand("codesign", [
+    "-d",
+    "--entitlements",
+    "-",
+    "--xml",
+    args.appPath,
+  ]);
 
   return execResultResponse(result);
 }

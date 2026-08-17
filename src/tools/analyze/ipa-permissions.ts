@@ -1,10 +1,12 @@
-import { mkdtempSync, rmSync, existsSync, readdirSync } from "node:fs";
+import { mkdtempSync, rmSync, existsSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { executeCommand } from "../../executor.js";
 import type { Environment } from "../../types.js";
 import { textResponse, errorResponse, type ToolResponse } from "../../utils/response.js";
 import { validateAbsolutePath } from "../../utils/validation.js";
+
+const MAX_IPA_SIZE = 4 * 1024 * 1024 * 1024;
 
 interface IpaPermissionsArgs {
   ipaPath: string;
@@ -15,6 +17,20 @@ export async function ipaPermissions(
   _env: Environment,
 ): Promise<ToolResponse> {
   validateAbsolutePath(args.ipaPath);
+
+  let ipaSize: number;
+  try {
+    ipaSize = statSync(args.ipaPath).size;
+  } catch {
+    return errorResponse(`IPA file not found: ${args.ipaPath}`);
+  }
+
+  if (ipaSize > MAX_IPA_SIZE) {
+    return errorResponse(
+      `IPA file is too large to analyze: ${(ipaSize / 1024 / 1024 / 1024).toFixed(2)} GB ` +
+        `(limit is ${MAX_IPA_SIZE / 1024 / 1024 / 1024} GB): ${args.ipaPath}`,
+    );
+  }
 
   const tempDir = mkdtempSync(join(tmpdir(), "ipa-perms-"));
 
@@ -50,7 +66,13 @@ export async function ipaPermissions(
       return errorResponse("Failed to read Info.plist");
     }
 
-    const plist = JSON.parse(plistResult.stdout);
+    let plist: Record<string, unknown>;
+    try {
+      plist = JSON.parse(plistResult.stdout);
+    } catch {
+      return errorResponse("Failed to parse Info.plist as JSON");
+    }
+
     const permissions: string[] = [];
 
     for (const [key, value] of Object.entries(plist)) {

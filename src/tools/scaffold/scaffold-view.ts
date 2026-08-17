@@ -2,7 +2,8 @@ import { writeFileSync, existsSync, mkdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import type { Environment } from "../../types.js";
 import { textResponse, errorResponse, type ToolResponse } from "../../utils/response.js";
-import { validateSafeName } from "../../utils/validation.js";
+import { validateAbsolutePath, validateSafeName } from "../../utils/validation.js";
+import { loadTemplate, renderTemplate } from "./template.js";
 
 interface ScaffoldViewArgs {
   name: string;
@@ -15,6 +16,7 @@ export async function scaffoldView(
   _env: Environment,
 ): Promise<ToolResponse> {
   validateSafeName(args.name);
+  validateAbsolutePath(args.outputPath);
 
   const includePreview = args.includePreview !== false;
   const filePath = join(args.outputPath, `${args.name}.swift`);
@@ -25,22 +27,19 @@ export async function scaffoldView(
 
   mkdirSync(dirname(filePath), { recursive: true });
 
-  let content = `import SwiftUI
-
-struct ${args.name}: View {
-    var body: some View {
-        Text("${args.name}")
-    }
-}
-`;
-
-  if (includePreview) {
-    content += `
+  const previewBlock = includePreview
+    ? `
 #Preview {
-    ${args.name}()
+    {{NAME}}()
 }
-`;
-  }
+`
+    : "";
+
+  const template = loadTemplate("SwiftUIView.swift.template");
+  const content = renderTemplate(template, [
+    ["PREVIEW_BLOCK", previewBlock],
+    ["NAME", args.name],
+  ]);
 
   writeFileSync(filePath, content);
   return textResponse(`SwiftUI View created: ${filePath}`);

@@ -8,7 +8,7 @@ export default defineConfig({
     starlight({
       title: "Xcode Pilot MCP",
       description:
-        "67 tools for iOS/macOS development via the Model Context Protocol",
+        "65 tools for iOS/macOS development via the Model Context Protocol",
       logo: {
         src: "./src/assets/logo.svg",
         replacesTitle: false,

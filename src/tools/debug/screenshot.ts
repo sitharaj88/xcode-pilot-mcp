@@ -9,7 +9,13 @@ interface ScreenshotArgs {
   outputPath?: string;
 }
 
-export async function screenshot(args: ScreenshotArgs, _env: Environment): Promise<ToolResponse> {
+export async function screenshot(args: ScreenshotArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const outputPath = args.outputPath || join(tmpdir(), `screenshot-${Date.now()}.png`);
 
   const result = await executeCommand("xcrun", [

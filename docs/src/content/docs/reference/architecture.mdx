@@ -36,7 +36,7 @@ Start
   ├─► Create MCP Server
   │     McpServer("xcode-pilot", "1.0.0")
   │
-  ├─► Register Tools (67 tools)
+  ├─► Register Tools (65 tools)
   │     registerBuildTools(server, env)
   │     registerSimulatorTools(server, env)
   │     registerAppTools(server, env)
@@ -66,11 +66,11 @@ src/
 │   ├── validation.ts     # Input validation (paths, bundle IDs, names)
 │   └── logger.ts         # Structured logging to stderr
 └── tools/
-    ├── build/            # 8 tools — xcodebuild operations
+    ├── xcodebuild/       # 8 tools — xcodebuild operations
     ├── simulator/        # 10 tools — xcrun simctl operations
     ├── app/              # 8 tools — app lifecycle on simulator
-    ├── debug/            # 7 tools — logging, screenshots, recording
-    ├── environment/      # 6 tools — location, push, status bar
+    ├── debug/            # 6 tools — logging, screenshots, recording
+    ├── environment/      # 5 tools — location, push, status bar
     ├── signing/          # 5 tools — code signing, profiles, keychains
     ├── packages/         # 6 tools — SPM + CocoaPods
     ├── scaffold/         # 5 tools — project + file generation

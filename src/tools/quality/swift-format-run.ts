@@ -1,6 +1,7 @@
 import { executeCommand } from "../../executor.js";
 import type { Environment } from "../../types.js";
-import { execResultResponse, type ToolResponse } from "../../utils/response.js";
+import { type ToolResponse } from "../../utils/response.js";
+import { lintExecResponse } from "./lint-response.js";
 
 interface SwiftFormatRunArgs {
   path: string;
@@ -17,5 +18,8 @@ export async function swiftFormatRun(
   cmdArgs.push(args.path);
 
   const result = await executeCommand("swift-format", cmdArgs, { timeout: 120_000 });
-  return execResultResponse(result);
+  return lintExecResponse(
+    result,
+    "swift-format failed. Is swift-format installed? (brew install swift-format)",
+  );
 }

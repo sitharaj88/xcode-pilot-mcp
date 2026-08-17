@@ -111,7 +111,6 @@ Current appearance: dark
 
 - [`screenshot`](/xcode-pilot-mcp/tools/debug/screenshot/) — Capture a screenshot after switching appearance to document the visual result.
 - [`screen_record`](/xcode-pilot-mcp/tools/debug/screen-record/) — Record the screen while toggling appearances to show the transition.
-- [`accessibility_audit`](/xcode-pilot-mcp/tools/debug/accessibility-audit/) — Run an accessibility audit in dark mode to catch contrast violations that only appear against dark backgrounds.
 - [`status_bar_override`](/xcode-pilot-mcp/tools/environment/status-bar-override/) — Combine with appearance changes for polished, consistent App Store screenshots.
 
 ## Tips
@@ -122,8 +121,4 @@ Current appearance: dark
 
 <Aside type="tip">
   Build a screenshot workflow by calling `device_appearance` with `"light"`, taking a screenshot, then switching to `"dark"` and taking another. This produces a complete set of appearance-variant screenshots with minimal effort.
-</Aside>
-
-<Aside type="tip">
-  Use `device_appearance` before running [`accessibility_audit`](/xcode-pilot-mcp/tools/debug/accessibility-audit/) in both modes. Contrast ratio issues are often mode-specific: a color pairing that passes WCAG AA in light mode may fail in dark mode (or vice versa).
 </Aside>

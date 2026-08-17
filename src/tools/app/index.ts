@@ -40,6 +40,14 @@ export function registerAppTools(server: McpServer, environment: Environment): v
       bundleId: z.string().describe("App bundle identifier"),
       args: z.array(z.string()).optional().describe("Launch arguments"),
       consolePty: z.boolean().optional().describe("Attach console output"),
+      timeout: z
+        .number()
+        .min(1)
+        .max(300)
+        .optional()
+        .describe(
+          "When consolePty is true, duration in seconds to capture console output before stopping (default: 30)",
+        ),
     },
     withErrorHandling(async (args) => appLaunch(args, environment)),
   );

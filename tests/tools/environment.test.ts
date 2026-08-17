@@ -11,7 +11,6 @@ import { locationSet } from "../../src/tools/environment/location-set.js";
 import { locationClear } from "../../src/tools/environment/location-clear.js";
 import { statusBarOverride } from "../../src/tools/environment/status-bar-override.js";
 import { statusBarClear } from "../../src/tools/environment/status-bar-clear.js";
-import { keyboardInput } from "../../src/tools/environment/keyboard-input.js";
 import { pushNotification } from "../../src/tools/environment/push-notification.js";
 import type { Environment } from "../../src/types.js";
 
@@ -19,9 +18,12 @@ const env: Environment = {
   xcodePath: "/Applications/Xcode.app/Contents/Developer",
   xcrunPath: "/usr/bin/xcrun",
   xcodebuildPath: "/usr/bin/xcodebuild",
+  xcodebuildAvailable: true,
   simctlAvailable: true,
   devicectlAvailable: true,
 };
+
+const noSimctlEnv: Environment = { ...env, simctlAvailable: false };
 
 function mockSuccess(stdout = "") {
   execFile.mockImplementation(
@@ -48,6 +50,12 @@ describe("locationSet", () => {
       expect.anything(),
     );
   });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await locationSet({ deviceId: "ABC", latitude: 0, longitude: 0 }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
+  });
 });
 
 describe("locationClear", () => {
@@ -57,6 +65,12 @@ describe("locationClear", () => {
     mockSuccess();
     const res = await locationClear({ deviceId: "ABC" }, env);
     expect(res.content[0].text).toContain("cleared");
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await locationClear({ deviceId: "ABC" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
   });
 });
 
@@ -72,10 +86,51 @@ describe("pushNotification", () => {
     expect(res.content[0].text).toContain("Invalid JSON");
   });
 
+  it("rejects a payload missing the aps key", async () => {
+    const res = await pushNotification(
+      { deviceId: "ABC", bundleId: "com.example.app", payload: '{"alert":"Hello"}' },
+      env,
+    );
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("aps");
+  });
+
+  it("rejects a payload exceeding the APNs 4096 byte limit", async () => {
+    const bigAlert = "x".repeat(5000);
+    const res = await pushNotification(
+      {
+        deviceId: "ABC",
+        bundleId: "com.example.app",
+        payload: JSON.stringify({ aps: { alert: bigAlert } }),
+      },
+      env,
+    );
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("too large");
+  });
+
+  it("rejects an invalid bundleId", async () => {
+    await expect(
+      pushNotification(
+        { deviceId: "ABC", bundleId: "not a bundle id", payload: '{"aps":{"alert":"Hello"}}' },
+        env,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await pushNotification(
+      { deviceId: "ABC", bundleId: "com.example.app", payload: '{"aps":{"alert":"Hello"}}' },
+      noSimctlEnv,
+    );
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
+  });
+
   it("sends push notification with valid payload", async () => {
     const EventEmitter = await import("node:events").then((m) => m.EventEmitter);
     const mockChild = Object.assign(new EventEmitter(), {
-      stdin: { write: vi.fn(), end: vi.fn() },
+      stdin: { write: vi.fn(), end: vi.fn(), on: vi.fn() },
       stdout: new EventEmitter(),
       stderr: new EventEmitter(),
     });
@@ -118,6 +173,12 @@ describe("statusBarOverride", () => {
       expect.anything(),
     );
   });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await statusBarOverride({ deviceId: "ABC" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
+  });
 });
 
 describe("statusBarClear", () => {
@@ -128,14 +189,10 @@ describe("statusBarClear", () => {
     const res = await statusBarClear({ deviceId: "ABC" }, env);
     expect(res.content[0].text).toContain("reset");
   });
-});
 
-describe("keyboardInput", () => {
-  beforeEach(() => vi.clearAllMocks());
-
-  it("sends keyboard input", async () => {
-    mockSuccess();
-    const res = await keyboardInput({ deviceId: "ABC", text: "Hello" }, env);
-    expect(res.content[0].text).toContain("Hello");
+  it("guards when simctl is unavailable", async () => {
+    const res = await statusBarClear({ deviceId: "ABC" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
   });
 });

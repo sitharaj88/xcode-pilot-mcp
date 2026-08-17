@@ -7,6 +7,8 @@ import { textResponse, errorResponse, type ToolResponse } from "../../utils/resp
 import { validateAbsolutePath } from "../../utils/validation.js";
 import { statSync, readdirSync, existsSync } from "node:fs";
 
+const MAX_IPA_SIZE = 4 * 1024 * 1024 * 1024;
+
 interface IpaAnalyzeArgs {
   ipaPath: string;
 }
@@ -19,6 +21,13 @@ export async function ipaAnalyze(args: IpaAnalyzeArgs, _env: Environment): Promi
     ipaSize = statSync(args.ipaPath).size;
   } catch {
     return errorResponse(`IPA file not found: ${args.ipaPath}`);
+  }
+
+  if (ipaSize > MAX_IPA_SIZE) {
+    return errorResponse(
+      `IPA file is too large to analyze: ${(ipaSize / 1024 / 1024 / 1024).toFixed(2)} GB ` +
+        `(limit is ${MAX_IPA_SIZE / 1024 / 1024 / 1024} GB): ${args.ipaPath}`,
+    );
   }
 
   const tempDir = mkdtempSync(join(tmpdir(), "ipa-"));

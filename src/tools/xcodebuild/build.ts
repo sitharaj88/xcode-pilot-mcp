@@ -11,6 +11,7 @@ interface BuildArgs {
   sdk?: string;
   derivedDataPath?: string;
   extraArgs?: string[];
+  timeoutSeconds?: number;
 }
 
 export async function xcodeBuild(args: BuildArgs, env: Environment): Promise<ToolResponse> {
@@ -22,7 +23,8 @@ export async function xcodeBuild(args: BuildArgs, env: Environment): Promise<Too
   if (args.derivedDataPath) cmdArgs.push("-derivedDataPath", args.derivedDataPath);
   if (args.extraArgs) cmdArgs.push(...args.extraArgs);
 
-  const options: ExecOptions = { timeout: 600_000 };
+  const timeout = (args.timeoutSeconds ?? 600) * 1000;
+  const options: ExecOptions = { timeout };
   const result = await executeCommand(env.xcodebuildPath, cmdArgs, options);
   return execResultResponse(result);
 }

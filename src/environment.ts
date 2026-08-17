@@ -7,24 +7,25 @@ export async function detectEnvironment(): Promise<Environment> {
 
   const xcodeResult = await executeCommand("xcode-select", ["-p"], { timeout: 10_000 });
   if (!xcodeResult.success) {
-    throw new Error(
+    logger.warn(
       "Xcode is not installed or xcode-select path is not set. " +
         "Install Xcode from the App Store and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
     );
   }
-  const xcodePath = xcodeResult.stdout.trim();
+  const xcodePath = xcodeResult.success ? xcodeResult.stdout.trim() : "";
 
   const xcrunResult = await executeCommand("which", ["xcrun"], { timeout: 5_000 });
   if (!xcrunResult.success) {
-    throw new Error("xcrun not found. Ensure Xcode Command Line Tools are installed.");
+    logger.warn("xcrun not found. Ensure Xcode Command Line Tools are installed.");
   }
-  const xcrunPath = xcrunResult.stdout.trim();
+  const xcrunPath = xcrunResult.success ? xcrunResult.stdout.trim() : "";
 
   const xcodebuildResult = await executeCommand("which", ["xcodebuild"], { timeout: 5_000 });
   if (!xcodebuildResult.success) {
-    throw new Error("xcodebuild not found. Ensure Xcode is installed.");
+    logger.warn("xcodebuild not found. Ensure Xcode is installed.");
   }
-  const xcodebuildPath = xcodebuildResult.stdout.trim();
+  const xcodebuildPath = xcodebuildResult.success ? xcodebuildResult.stdout.trim() : "";
+  const xcodebuildAvailable = xcodebuildResult.success;
 
   const simctlCheck = await executeCommand("xcrun", ["simctl", "help"], { timeout: 10_000 });
   const simctlAvailable = simctlCheck.success;
@@ -38,12 +39,14 @@ export async function detectEnvironment(): Promise<Environment> {
     xcodePath,
     xcrunPath,
     xcodebuildPath,
+    xcodebuildAvailable,
     simctlAvailable,
     devicectlAvailable,
   };
 
   logger.info("Environment detected", {
     xcodePath,
+    xcodebuildAvailable,
     simctlAvailable,
     devicectlAvailable,
   });

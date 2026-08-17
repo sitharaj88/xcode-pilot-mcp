@@ -7,7 +7,13 @@ interface InstallArgs {
   appPath: string;
 }
 
-export async function appInstall(args: InstallArgs, _env: Environment): Promise<ToolResponse> {
+export async function appInstall(args: InstallArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const result = await executeCommand("xcrun", ["simctl", "install", args.deviceId, args.appPath]);
 
   if (!result.success) {

@@ -9,7 +9,13 @@ interface LogStreamArgs {
   timeout?: number;
 }
 
-export async function logStream(args: LogStreamArgs, _env: Environment): Promise<ToolResponse> {
+export async function logStream(args: LogStreamArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const duration = args.timeout ?? 10;
   const cmdArgs = ["simctl", "spawn", args.deviceId, "log", "stream"];
 
@@ -20,8 +26,13 @@ export async function logStream(args: LogStreamArgs, _env: Environment): Promise
     let output = "";
     const child = spawn("xcrun", cmdArgs);
 
+    let killTimer: ReturnType<typeof setTimeout> | undefined;
+
     const timer = setTimeout(() => {
       child.kill("SIGINT");
+      killTimer = setTimeout(() => {
+        child.kill("SIGKILL");
+      }, 5000);
     }, duration * 1000);
 
     child.stdout?.on("data", (data: Buffer) => {
@@ -37,6 +48,7 @@ export async function logStream(args: LogStreamArgs, _env: Environment): Promise
 
     child.on("close", () => {
       clearTimeout(timer);
+      if (killTimer) clearTimeout(killTimer);
       if (output.trim()) {
         resolve(textResponse(output));
       } else {
@@ -46,6 +58,7 @@ export async function logStream(args: LogStreamArgs, _env: Environment): Promise
 
     child.on("error", (err) => {
       clearTimeout(timer);
+      if (killTimer) clearTimeout(killTimer);
       resolve(errorResponse(`Failed to stream logs: ${err.message}`));
     });
   });

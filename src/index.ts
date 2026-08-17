@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { detectEnvironment } from "./environment.js";
@@ -16,6 +19,28 @@ import { registerAnalyzeTools } from "./tools/analyze/index.js";
 import { registerQualityTools } from "./tools/quality/index.js";
 import { registerDeviceTools } from "./tools/device/index.js";
 
+function readPackageVersion(): string {
+  const moduleDir = dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    join(moduleDir, "..", "package.json"),
+    join(moduleDir, "..", "..", "package.json"),
+  ];
+
+  for (const candidate of candidates) {
+    try {
+      const pkg = JSON.parse(readFileSync(candidate, "utf-8")) as { version?: string };
+      if (pkg.version) {
+        return pkg.version;
+      }
+    } catch {
+      continue;
+    }
+  }
+
+  logger.warn("Could not resolve package.json version, defaulting to 0.0.0");
+  return "0.0.0";
+}
+
 async function main(): Promise<void> {
   logger.info("Starting xcode-pilot MCP server...");
 
@@ -23,7 +48,7 @@ async function main(): Promise<void> {
 
   const server = new McpServer({
     name: "xcode-pilot",
-    version: "1.0.0",
+    version: readPackageVersion(),
   });
 
   registerBuildTools(server, environment);
@@ -38,7 +63,7 @@ async function main(): Promise<void> {
   registerQualityTools(server, environment);
   registerDeviceTools(server, environment);
 
-  logger.info("All tools registered (67 tools across 11 categories)");
+  logger.info("All tools registered");
 
   const transport = new StdioServerTransport();
   await server.connect(transport);

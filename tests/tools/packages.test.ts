@@ -117,6 +117,19 @@ describe("podUpdate", () => {
       expect.anything(),
     );
   });
+
+  it("rejects pod name starting with dash", async () => {
+    mockSuccess("Updated");
+    let threw = false;
+    try {
+      await podUpdate({ podName: "-repo-update" }, env);
+    } catch (error) {
+      threw = true;
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toContain("dash");
+    }
+    expect(threw).toBe(true);
+  });
 });
 
 describe("podOutdated", () => {

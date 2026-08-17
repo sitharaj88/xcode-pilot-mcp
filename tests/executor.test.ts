@@ -35,6 +35,7 @@ describe("executeCommand", () => {
     expect(result.stderr).toBe("");
     expect(result.exitCode).toBe(0);
     expect(result.timedOut).toBe(false);
+    expect(result.bufferExceeded).toBe(false);
   });
 
   it("returns failure with stderr on command error", async () => {
@@ -74,6 +75,29 @@ describe("executeCommand", () => {
 
     const result = await executeCommand("slowcmd", []);
     expect(result.timedOut).toBe(true);
+    expect(result.bufferExceeded).toBe(false);
+    expect(result.success).toBe(false);
+  });
+
+  it("detects maxBuffer overflow distinctly from timeout", async () => {
+    const error = Object.assign(new Error("stdout maxBuffer length exceeded"), {
+      signal: "SIGTERM",
+      killed: true,
+    });
+    execFile.mockImplementation(
+      (
+        _cmd: string,
+        _args: string[],
+        _opts: unknown,
+        callback: (err: Error, stdout: string, stderr: string) => void,
+      ) => {
+        callback(error, "partial output", "");
+      },
+    );
+
+    const result = await executeCommand("bigcmd", []);
+    expect(result.bufferExceeded).toBe(true);
+    expect(result.timedOut).toBe(false);
     expect(result.success).toBe(false);
   });
 
@@ -127,7 +151,7 @@ describe("executeCommandWithStdin", () => {
   it("writes data to stdin and returns result", async () => {
     const EventEmitter = await import("node:events").then((m) => m.EventEmitter);
     const mockChild = Object.assign(new EventEmitter(), {
-      stdin: { write: vi.fn(), end: vi.fn() },
+      stdin: Object.assign(new EventEmitter(), { write: vi.fn(), end: vi.fn() }),
       stdout: new EventEmitter(),
       stderr: new EventEmitter(),
     });
@@ -143,5 +167,31 @@ describe("executeCommandWithStdin", () => {
     expect(result.stdout).toBe("success");
     expect(mockChild.stdin.write).toHaveBeenCalledWith('{"aps":{}}');
     expect(mockChild.stdin.end).toHaveBeenCalled();
+  });
+
+  it("resolves without crashing when the child exits before stdin is drained (EPIPE)", async () => {
+    const EventEmitter = await import("node:events").then((m) => m.EventEmitter);
+    const stdin = new EventEmitter();
+    const mockChild = Object.assign(new EventEmitter(), {
+      stdin: Object.assign(stdin, {
+        write: vi.fn(() => {
+          stdin.emit("error", Object.assign(new Error("write EPIPE"), { code: "EPIPE" }));
+          return false;
+        }),
+        end: vi.fn(),
+      }),
+      stdout: new EventEmitter(),
+      stderr: new EventEmitter(),
+    });
+    spawn.mockReturnValue(mockChild);
+
+    const largeStdin = "x".repeat(1_000_000);
+    const promise = executeCommandWithStdin("xcrun", ["simctl", "push"], largeStdin);
+
+    mockChild.emit("close", 0);
+
+    const result = await promise;
+    expect(result.success).toBe(true);
+    expect(result.exitCode).toBe(0);
   });
 });

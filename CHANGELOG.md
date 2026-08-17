@@ -5,6 +5,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.0] - 2026-08-17
+
+### Fixed
+
+- `physical_device_console` — Reimplemented to require bundleId and launch app via `devicectl device process launch --console`
+- `physical_device_list` — Fixed JSON output parsing by using temp file
+- `app_launch` with `consolePty` — Now returns captured console output in response instead of returning early
+- `project_create` — Rewritten to generate XcodeGen project.yml and run `xcodegen generate`
+- `scaffold_widget` kind:"configurable" — Fixed to use modern AppIntents-based API (iOS 17+)
+- `build_warnings` — Fixed gzip handling and build log parsing
+- Entitlements XML extraction — Fixed --xml format parsing
+- Provisioning profile parsing — Improved robustness with header/footer validation
+- Response truncation — Implemented head+tail strategy to preserve both start and end of long logs; 100KB cap on success and error output
+- Error response cap — Errors now properly capped at 100KB to prevent protocol overflow
+- Log capture timeout vs maxBuffer — Clarified semantics and fixed edge cases
+- Graceful startup without Xcode — Server now starts successfully and provides clear guidance when xcodebuild/devicectl unavailable
+- Swift identifier validation — Fixed to accept leading underscore
+
+### Added
+
+- `timeoutSeconds` parameter (30-3600 sec) on all xcodebuild tools with appropriate defaults
+- `app_launch` `timeout` parameter (1-300 sec, default 30) for console capture duration
+- `physical_device_console` `timeout` parameter (1-300 sec, default 10)
+- Bundle ID validation with required format checks
+- Latitude/longitude range validation (±90/±180) in `location_set`
+- IPA size guard to warn on large binaries
+- Availability guards for Xcode/devicectl detection at startup
+- WidgetConfigurable.swift.template for iOS 17+ AppIntents widgets
+- Templates now documented as source of truth for scaffold tools
+
+### Removed
+
+- `keyboard_input` tool — iOS simulator no longer exposes reliable keyboard input API
+- `accessibility_audit` tool — Functionality moved to native Xcode accessibility inspector
+
+### Changed
+
+- `physical_device_list` — Now uses --json-output via temporary file (no user-facing change)
+- `project_create` — Now generates both sources and XcodeGen project.yml; runs `xcodegen generate` if installed
+- `scaffold_coredata_model` — Documentation clarified: response notes matching .xcdatamodeld entity is required
+- Physical device + simulator tools — Return clear guidance instead of raw errors when tools unavailable
+
 ## [1.0.0] - 2025-02-23
 
 ### Added

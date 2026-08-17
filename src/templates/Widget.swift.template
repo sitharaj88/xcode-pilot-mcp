@@ -43,6 +43,12 @@ struct {{NAME}}: Widget {
             {{NAME}}View(entry: entry)
         }
         .configurationDisplayName("{{NAME}}")
-        .description("A widget.")
+        .description("A static widget.")
     }
+}
+
+#Preview(as: .systemSmall) {
+    {{NAME}}()
+} timeline: {
+    {{NAME}}Entry(date: .now, message: "Preview")
 }

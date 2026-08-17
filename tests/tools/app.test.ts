@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 
-const { execFile } = vi.hoisted(() => ({
+const { execFile, spawn } = vi.hoisted(() => ({
   execFile: vi.fn(),
+  spawn: vi.fn(),
 }));
 
-vi.mock("node:child_process", () => ({ execFile, spawn: vi.fn() }));
+vi.mock("node:child_process", () => ({ execFile, spawn }));
 
 import { appInstall } from "../../src/tools/app/install.js";
 import { appUninstall } from "../../src/tools/app/uninstall.js";
@@ -20,9 +21,12 @@ const env: Environment = {
   xcodePath: "/Applications/Xcode.app/Contents/Developer",
   xcrunPath: "/usr/bin/xcrun",
   xcodebuildPath: "/usr/bin/xcodebuild",
+  xcodebuildAvailable: true,
   simctlAvailable: true,
   devicectlAvailable: true,
 };
+
+const noSimctlEnv: Environment = { ...env, simctlAvailable: false };
 
 function mockSuccess(stdout = "") {
   execFile.mockImplementation(
@@ -55,6 +59,12 @@ describe("appInstall", () => {
     const res = await appInstall({ deviceId: "ABC", appPath: "/bad" }, env);
     expect(res.isError).toBe(true);
   });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appInstall({ deviceId: "ABC", appPath: "/path/to/App.app" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
+  });
 });
 
 describe("appUninstall", () => {
@@ -64,6 +74,18 @@ describe("appUninstall", () => {
     mockSuccess();
     const res = await appUninstall({ deviceId: "ABC", bundleId: "com.example.app" }, env);
     expect(res.content[0].text).toContain("uninstalled");
+  });
+
+  it("rejects an invalid bundleId", async () => {
+    await expect(
+      appUninstall({ deviceId: "ABC", bundleId: "not a bundle id" }, env),
+    ).rejects.toThrow();
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appUninstall({ deviceId: "ABC", bundleId: "com.example.app" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
   });
 });
 
@@ -76,15 +98,76 @@ describe("appLaunch", () => {
     expect(res.content[0].text).toContain("com.example.app");
   });
 
-  it("includes console-pty flag", async () => {
-    mockSuccess();
-    await appLaunch({ deviceId: "ABC", bundleId: "com.example.app", consolePty: true }, env);
-    expect(execFile).toHaveBeenCalledWith(
-      "xcrun",
-      expect.arrayContaining(["--console-pty"]),
-      expect.anything(),
-      expect.anything(),
-    );
+  it("rejects an invalid bundleId", async () => {
+    await expect(
+      appLaunch({ deviceId: "ABC", bundleId: "not a bundle id" }, env),
+    ).rejects.toThrow();
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appLaunch({ deviceId: "ABC", bundleId: "com.example.app" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
+  });
+
+  describe("with consolePty", () => {
+    it("captures console output via spawn and SIGINTs after the timeout", async () => {
+      vi.useFakeTimers();
+      const EventEmitter = await import("node:events").then((m) => m.EventEmitter);
+      const mockChild = Object.assign(new EventEmitter(), {
+        stdout: new EventEmitter(),
+        stderr: new EventEmitter(),
+        kill: vi.fn(),
+      });
+      spawn.mockReturnValue(mockChild);
+
+      const promise = appLaunch(
+        { deviceId: "ABC", bundleId: "com.example.app", consolePty: true, timeout: 5 },
+        env,
+      );
+
+      expect(spawn).toHaveBeenCalledWith(
+        "xcrun",
+        expect.arrayContaining(["--console-pty", "ABC", "com.example.app"]),
+      );
+
+      mockChild.stdout.emit("data", Buffer.from("console line\n"));
+      vi.advanceTimersByTime(5000);
+      expect(mockChild.kill).toHaveBeenCalledWith("SIGINT");
+      mockChild.emit("close", null);
+
+      const res = await promise;
+      expect(res.isError).toBeUndefined();
+      expect(res.content[0].text).toContain("console line");
+      expect(res.content[0].text).toContain("stopped after 5s");
+
+      vi.useRealTimers();
+    });
+
+    it("escalates to SIGKILL if the process does not close after SIGINT", async () => {
+      vi.useFakeTimers();
+      const EventEmitter = await import("node:events").then((m) => m.EventEmitter);
+      const mockChild = Object.assign(new EventEmitter(), {
+        stdout: new EventEmitter(),
+        stderr: new EventEmitter(),
+        kill: vi.fn(),
+      });
+      spawn.mockReturnValue(mockChild);
+
+      const promise = appLaunch(
+        { deviceId: "ABC", bundleId: "com.example.app", consolePty: true, timeout: 5 },
+        env,
+      );
+
+      vi.advanceTimersByTime(5000);
+      expect(mockChild.kill).toHaveBeenCalledWith("SIGINT");
+      vi.advanceTimersByTime(5000);
+      expect(mockChild.kill).toHaveBeenCalledWith("SIGKILL");
+      mockChild.emit("close", null);
+
+      await promise;
+      vi.useRealTimers();
+    });
   });
 });
 
@@ -95,6 +178,18 @@ describe("appTerminate", () => {
     mockSuccess();
     const res = await appTerminate({ deviceId: "ABC", bundleId: "com.example.app" }, env);
     expect(res.content[0].text).toContain("terminated");
+  });
+
+  it("rejects an invalid bundleId", async () => {
+    await expect(
+      appTerminate({ deviceId: "ABC", bundleId: "not a bundle id" }, env),
+    ).rejects.toThrow();
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appTerminate({ deviceId: "ABC", bundleId: "com.example.app" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
   });
 });
 
@@ -117,6 +212,21 @@ describe("appGetContainer", () => {
       expect.anything(),
     );
   });
+
+  it("rejects an invalid bundleId", async () => {
+    await expect(
+      appGetContainer({ deviceId: "ABC", bundleId: "not a bundle id" }, env),
+    ).rejects.toThrow();
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appGetContainer(
+      { deviceId: "ABC", bundleId: "com.example.app" },
+      noSimctlEnv,
+    );
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
+  });
 });
 
 describe("appList", () => {
@@ -127,6 +237,12 @@ describe("appList", () => {
     const res = await appList({ deviceId: "ABC" }, env);
     expect(res.content[0].text).toContain("com.example.app");
   });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appList({ deviceId: "ABC" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
+  });
 });
 
 describe("appOpenUrl", () => {
@@ -136,6 +252,12 @@ describe("appOpenUrl", () => {
     mockSuccess();
     const res = await appOpenUrl({ deviceId: "ABC", url: "https://example.com" }, env);
     expect(res.content[0].text).toContain("https://example.com");
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appOpenUrl({ deviceId: "ABC", url: "https://example.com" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
   });
 });
 
@@ -161,5 +283,20 @@ describe("appPrivacy", () => {
     const res = await appPrivacy({ deviceId: "ABC", action: "grant", service: "camera" }, env);
     expect(res.isError).toBe(true);
     expect(res.content[0].text).toContain("bundleId is required");
+  });
+
+  it("rejects an invalid bundleId when provided", async () => {
+    await expect(
+      appPrivacy(
+        { deviceId: "ABC", action: "grant", service: "camera", bundleId: "not a bundle id" },
+        env,
+      ),
+    ).rejects.toThrow();
+  });
+
+  it("guards when simctl is unavailable", async () => {
+    const res = await appPrivacy({ deviceId: "ABC", action: "reset", service: "all" }, noSimctlEnv);
+    expect(res.isError).toBe(true);
+    expect(res.content[0].text).toContain("simctl is unavailable");
   });
 });

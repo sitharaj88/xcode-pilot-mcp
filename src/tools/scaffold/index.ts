@@ -11,13 +11,20 @@ import { scaffoldWidget } from "./scaffold-widget.js";
 export function registerScaffoldTools(server: McpServer, environment: Environment): void {
   server.tool(
     "project_create",
-    "Create a new Xcode project with SwiftUI or UIKit template, Package.swift, source files, and tests",
+    "Create a new Xcode app project (source tree + XcodeGen project.yml). If xcodegen is installed " +
+      "on PATH, runs `xcodegen generate` and returns the resulting .xcodeproj path; otherwise " +
+      "creates the source tree and project.yml and reports how to generate the .xcodeproj manually",
     {
-      name: z.string().describe("Project name (alphanumeric, hyphens, underscores)"),
+      name: z
+        .string()
+        .describe("Project name (must start with a letter; letters, numbers, underscores)"),
       template: z.enum(["swiftui", "uikit"]).describe("Project template: SwiftUI or UIKit"),
       platform: z.enum(["ios", "macos", "multiplatform"]).describe("Target platform"),
       outputPath: z.string().describe("Parent directory where the project folder will be created"),
-      bundleId: z.string().optional().describe("Bundle identifier (default: com.example.<name>)"),
+      bundleId: z
+        .string()
+        .optional()
+        .describe("Bundle identifier (default: com.<organizationName>.<name>)"),
       organizationName: z.string().optional().describe("Organization name"),
       minimumDeploymentTarget: z
         .string()
@@ -83,7 +90,8 @@ export function registerScaffoldTools(server: McpServer, environment: Environmen
 
   server.tool(
     "scaffold_widget",
-    "Generate a WidgetKit extension template with timeline provider and view",
+    "Generate a WidgetKit extension: 'static' uses TimelineProvider/StaticConfiguration, " +
+      "'configurable' uses the AppIntents-based WidgetConfigurationIntent/AppIntentConfiguration API (iOS 17+)",
     {
       name: z.string().describe("Widget name (e.g., StatusWidget)"),
       outputPath: z.string().describe("Directory to create the file in"),

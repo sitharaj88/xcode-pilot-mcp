@@ -24,13 +24,15 @@ export function executeCommand(
       },
       (error, stdout, stderr) => {
         if (error) {
-          const timedOut = error.signal === "SIGTERM" || error.killed === true;
+          const bufferExceeded = error.message.includes("maxBuffer");
+          const timedOut = !bufferExceeded && (error.signal === "SIGTERM" || error.killed === true);
           resolve({
             success: false,
             stdout: stdout ?? "",
             stderr: stderr ?? error.message,
             exitCode: error.code && typeof error.code === "number" ? error.code : 1,
             timedOut,
+            bufferExceeded,
           });
           return;
         }
@@ -41,6 +43,7 @@ export function executeCommand(
           stderr: stderr ?? "",
           exitCode: 0,
           timedOut: false,
+          bufferExceeded: false,
         });
       },
     );
@@ -93,6 +96,7 @@ export function executeCommandWithStdin(
           stderr,
           exitCode: 1,
           timedOut: true,
+          bufferExceeded: false,
         });
       }
     }, timeout);
@@ -121,6 +125,7 @@ export function executeCommandWithStdin(
           stderr,
           exitCode: code ?? 1,
           timedOut: false,
+          bufferExceeded: false,
         });
       }
     });
@@ -135,11 +140,18 @@ export function executeCommandWithStdin(
           stderr: err.message,
           exitCode: 1,
           timedOut: false,
+          bufferExceeded: false,
         });
       }
     });
 
-    child.stdin?.write(stdinData);
-    child.stdin?.end();
+    child.stdin?.on("error", () => {});
+
+    try {
+      child.stdin?.write(stdinData);
+      child.stdin?.end();
+    } catch {
+      // ignore write errors on a closed stdin
+    }
   });
 }

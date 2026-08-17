@@ -1,5 +1,5 @@
 import { executeCommand } from "../../executor.js";
-import type { Environment } from "../../types.js";
+import type { Environment, ExecOptions } from "../../types.js";
 import { execResultResponse, type ToolResponse } from "../../utils/response.js";
 import { validateAbsolutePath } from "../../utils/validation.js";
 
@@ -7,6 +7,7 @@ interface ExportArgs {
   archivePath: string;
   exportPath: string;
   exportOptionsPlist: string;
+  timeoutSeconds?: number;
 }
 
 export async function xcodeExport(args: ExportArgs, env: Environment): Promise<ToolResponse> {
@@ -24,6 +25,8 @@ export async function xcodeExport(args: ExportArgs, env: Environment): Promise<T
     args.exportOptionsPlist,
   ];
 
-  const result = await executeCommand(env.xcodebuildPath, cmdArgs, { timeout: 300_000 });
+  const timeout = (args.timeoutSeconds ?? 300) * 1000;
+  const options: ExecOptions = { timeout };
+  const result = await executeCommand(env.xcodebuildPath, cmdArgs, options);
   return execResultResponse(result);
 }

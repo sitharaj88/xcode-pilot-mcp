@@ -11,7 +11,8 @@ export default defineConfig({
       include: ["src/**/*.ts"],
       exclude: ["src/index.ts", "src/templates/**"],
       thresholds: {
-        statements: 15,
+        statements: 50,
+        lines: 70,
       },
     },
     testTimeout: 10_000,

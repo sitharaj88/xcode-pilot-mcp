@@ -24,9 +24,9 @@ export function validateBundleId(bundleId: string): string {
 }
 
 export function validateSafeName(name: string): string {
-  if (!name || !/^[a-zA-Z][a-zA-Z0-9_-]*$/.test(name)) {
+  if (!name || !/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name)) {
     throw new ValidationError(
-      `Invalid name: "${name}". Must start with a letter and contain only letters, numbers, hyphens, and underscores.`,
+      `Invalid name: "${name}". Must start with a letter or underscore and contain only letters, numbers, and underscores.`,
     );
   }
   return name;

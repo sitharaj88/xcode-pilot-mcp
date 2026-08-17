@@ -1,6 +1,6 @@
 import { executeCommand } from "../../executor.js";
 import type { Environment } from "../../types.js";
-import { execResultResponse, type ToolResponse } from "../../utils/response.js";
+import { execResultResponse, errorResponse, type ToolResponse } from "../../utils/response.js";
 
 interface LogCollectArgs {
   deviceId: string;
@@ -9,7 +9,13 @@ interface LogCollectArgs {
   style?: string;
 }
 
-export async function logCollect(args: LogCollectArgs, _env: Environment): Promise<ToolResponse> {
+export async function logCollect(args: LogCollectArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const cmdArgs = ["simctl", "spawn", args.deviceId, "log", "show"];
 
   if (args.last) cmdArgs.push("--last", args.last);

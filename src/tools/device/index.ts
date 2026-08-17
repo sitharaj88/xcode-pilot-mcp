@@ -37,10 +37,16 @@ export function registerDeviceTools(server: McpServer, environment: Environment)
 
   server.tool(
     "physical_device_console",
-    "Stream console logs from a connected physical device for a specified duration",
+    "Launch an app on a physical device and stream its console output for N seconds",
     {
       deviceId: z.string().describe("Device identifier"),
-      timeout: z.number().optional().describe("Duration in seconds to capture logs (default: 10)"),
+      bundleId: z.string().describe("App bundle identifier to launch"),
+      timeout: z
+        .number()
+        .min(1)
+        .max(300)
+        .optional()
+        .describe("Duration in seconds to capture console output (default: 10)"),
     },
     withErrorHandling(async (args) => physicalDeviceConsole(args, environment)),
   );

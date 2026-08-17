@@ -2,6 +2,8 @@ import type { ExecResult } from "../types.js";
 import { logger } from "./logger.js";
 
 const MAX_RESPONSE_LENGTH = 100_000;
+const HEAD_LENGTH = 30_000;
+const TAIL_LENGTH = 70_000;
 
 export interface ToolResponse {
   [key: string]: unknown;
@@ -9,25 +11,38 @@ export interface ToolResponse {
   isError?: boolean;
 }
 
-export function textResponse(text: string): ToolResponse {
-  const truncated =
-    text.length > MAX_RESPONSE_LENGTH
-      ? text.slice(0, MAX_RESPONSE_LENGTH) + "\n\n... [output truncated]"
-      : text;
+function truncateHeadTail(text: string): string {
+  if (text.length <= MAX_RESPONSE_LENGTH) {
+    return text;
+  }
 
+  const head = text.slice(0, HEAD_LENGTH);
+  const tail = text.slice(text.length - TAIL_LENGTH);
+  const omitted = text.length - HEAD_LENGTH - TAIL_LENGTH;
+
+  return `${head}\n\n... [output truncated: ${omitted} chars omitted] ...\n\n${tail}`;
+}
+
+export function textResponse(text: string): ToolResponse {
   return {
-    content: [{ type: "text", text: truncated }],
+    content: [{ type: "text", text: truncateHeadTail(text) }],
   };
 }
 
 export function errorResponse(text: string): ToolResponse {
   return {
-    content: [{ type: "text", text }],
+    content: [{ type: "text", text: truncateHeadTail(text) }],
     isError: true,
   };
 }
 
 export function execResultResponse(result: ExecResult): ToolResponse {
+  if (result.bufferExceeded) {
+    return errorResponse(
+      `Output exceeded the 10MB buffer limit.\n\nPartial stdout:\n${result.stdout}\n\nPartial stderr:\n${result.stderr}`,
+    );
+  }
+
   if (result.timedOut) {
     return errorResponse(
       `Command timed out.\n\nPartial stdout:\n${result.stdout}\n\nPartial stderr:\n${result.stderr}`,

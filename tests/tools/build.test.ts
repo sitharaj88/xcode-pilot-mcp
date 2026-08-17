@@ -104,6 +104,28 @@ describe("xcodeBuild", () => {
     const res = await xcodeBuild({ scheme: "MyApp" }, env);
     expect(res.isError).toBe(true);
   });
+
+  it("uses default timeout when not specified", async () => {
+    mockSuccess();
+    await xcodeBuild({ scheme: "MyApp" }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 600000 }),
+      expect.anything(),
+    );
+  });
+
+  it("uses custom timeoutSeconds when specified", async () => {
+    mockSuccess();
+    await xcodeBuild({ scheme: "MyApp", timeoutSeconds: 900 }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 900000 }),
+      expect.anything(),
+    );
+  });
 });
 
 describe("xcodeClean", () => {
@@ -127,6 +149,44 @@ describe("xcodeArchive", () => {
       "/usr/bin/xcodebuild",
       expect.arrayContaining(["archive", "-archivePath", "/tmp/MyApp.xcarchive"]),
       expect.anything(),
+      expect.anything(),
+    );
+  });
+
+  it("rejects relative archivePath", async () => {
+    mockSuccess("Archive Succeeded");
+    let threw = false;
+    try {
+      await xcodeArchive({ scheme: "MyApp", archivePath: "MyApp.xcarchive" }, env);
+    } catch (error) {
+      threw = true;
+      expect(error).toBeInstanceOf(Error);
+      expect((error as Error).message).toContain("absolute");
+    }
+    expect(threw).toBe(true);
+  });
+
+  it("uses default timeout when not specified", async () => {
+    mockSuccess("Archive Succeeded");
+    await xcodeArchive({ scheme: "MyApp", archivePath: "/tmp/MyApp.xcarchive" }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 600000 }),
+      expect.anything(),
+    );
+  });
+
+  it("uses custom timeoutSeconds when specified", async () => {
+    mockSuccess("Archive Succeeded");
+    await xcodeArchive(
+      { scheme: "MyApp", archivePath: "/tmp/MyApp.xcarchive", timeoutSeconds: 900 },
+      env,
+    );
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 900000 }),
       expect.anything(),
     );
   });
@@ -182,6 +242,31 @@ describe("xcodeTest", () => {
       expect.anything(),
     );
   });
+
+  it("uses default timeout when not specified", async () => {
+    mockSuccess();
+    await xcodeTest({ scheme: "MyApp", destination: "platform=iOS Simulator" }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 600000 }),
+      expect.anything(),
+    );
+  });
+
+  it("uses custom timeoutSeconds when specified", async () => {
+    mockSuccess();
+    await xcodeTest(
+      { scheme: "MyApp", destination: "platform=iOS Simulator", timeoutSeconds: 900 },
+      env,
+    );
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 900000 }),
+      expect.anything(),
+    );
+  });
 });
 
 describe("xcodeTestWithoutBuilding", () => {
@@ -201,6 +286,31 @@ describe("xcodeTestWithoutBuilding", () => {
     );
     expect(res.content[0].text).toBeDefined();
   });
+
+  it("uses default timeout when not specified", async () => {
+    mockSuccess();
+    await xcodeTestWithoutBuilding({ scheme: "MyApp", destination: "platform=iOS Simulator" }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 600000 }),
+      expect.anything(),
+    );
+  });
+
+  it("uses custom timeoutSeconds when specified", async () => {
+    mockSuccess();
+    await xcodeTestWithoutBuilding(
+      { scheme: "MyApp", destination: "platform=iOS Simulator", timeoutSeconds: 900 },
+      env,
+    );
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 900000 }),
+      expect.anything(),
+    );
+  });
 });
 
 describe("xcodeList", () => {
@@ -211,6 +321,28 @@ describe("xcodeList", () => {
     const res = await xcodeList({}, env);
     expect(res.content[0].text).toContain("MyApp");
   });
+
+  it("uses default timeout when not specified", async () => {
+    mockSuccess();
+    await xcodeList({}, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 120000 }),
+      expect.anything(),
+    );
+  });
+
+  it("uses custom timeoutSeconds when specified", async () => {
+    mockSuccess();
+    await xcodeList({ timeoutSeconds: 180 }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 180000 }),
+      expect.anything(),
+    );
+  });
 });
 
 describe("xcodeBuildSettings", () => {
@@ -220,5 +352,27 @@ describe("xcodeBuildSettings", () => {
     mockSuccess("PRODUCT_NAME = MyApp");
     const res = await xcodeBuildSettings({ scheme: "MyApp" }, env);
     expect(res.content[0].text).toContain("PRODUCT_NAME");
+  });
+
+  it("uses default timeout when not specified", async () => {
+    mockSuccess();
+    await xcodeBuildSettings({ scheme: "MyApp" }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 120000 }),
+      expect.anything(),
+    );
+  });
+
+  it("uses custom timeoutSeconds when specified", async () => {
+    mockSuccess();
+    await xcodeBuildSettings({ scheme: "MyApp", timeoutSeconds: 180 }, env);
+    expect(execFile).toHaveBeenCalledWith(
+      "/usr/bin/xcodebuild",
+      expect.anything(),
+      expect.objectContaining({ timeout: 180000 }),
+      expect.anything(),
+    );
   });
 });

@@ -44,7 +44,7 @@ The detected environment is stored as:
 
 ### DEVELOPER_DIR
 
-Override the Xcode developer directory. This takes precedence over `xcode-select -p`.
+Override the Xcode developer directory. This takes precedence over `xcode-select -p` and is inherited by all child processes (xcrun, xcodebuild, simctl, devicectl).
 
 | Variable | Type | Default |
 |----------|------|---------|
@@ -55,6 +55,10 @@ Override the Xcode developer directory. This takes precedence over `xcode-select
 - You have multiple Xcode versions installed and want to target a specific one
 - You're testing against an Xcode beta
 - Your CI environment needs to use a non-default Xcode
+
+**How it works:**
+
+Set `DEVELOPER_DIR` in the MCP server configuration's `env` block. The server's environment is inherited by all child processes, so xcrun, xcodebuild, simctl, and devicectl will all respect this setting.
 
 **MCP client configuration:**
 
@@ -86,10 +90,49 @@ sudo xcode-select -s /Applications/Xcode-16.1-beta.app/Contents/Developer
 ```
 
 <Aside type="caution">
-  `DEVELOPER_DIR` only affects the Xcode Pilot MCP server process. It does not
+  `DEVELOPER_DIR` only affects the Xcode Pilot MCP server process and its child processes. It does not
   change the system-wide Xcode selection. Other tools and processes will still
   use the default Xcode unless they also set `DEVELOPER_DIR`.
 </Aside>
+
+### LOG_LEVEL
+
+Control the verbosity of server logs written to stderr.
+
+| Variable | Type | Default | Valid Values |
+|----------|------|---------|--------------|
+| `LOG_LEVEL` | string | `info` | `debug`, `info`, `warn`, `error` |
+
+**When to use:**
+
+- `debug` — Verbose logging for troubleshooting tool execution and environment detection
+- `info` — Standard operational logging (default)
+- `warn` — Only warnings and errors
+- `error` — Only errors
+
+**MCP client configuration:**
+
+```json
+{
+  "mcpServers": {
+    "xcode-pilot": {
+      "command": "npx",
+      "args": ["xcode-pilot-mcp"],
+      "env": {
+        "LOG_LEVEL": "debug"
+      }
+    }
+  }
+}
+```
+
+**Example debug output:**
+
+```
+[2025-02-23T14:30:45.123Z] [DEBUG] Executing command: xcrun simctl list devices -j
+[2025-02-23T14:30:45.456Z] [DEBUG] Command succeeded with 12 simulator devices
+[2025-02-23T14:30:45.789Z] [INFO] Tool registered: simulator_list
+```
 
 ## Tool Availability
 
@@ -104,6 +147,7 @@ Some tools require specific software to be installed:
 | **SwiftLint** | `swiftlint_run`, `swiftlint_fix` | `brew install swiftlint` |
 | **swift-format** | `swift_format_run` | `brew install swift-format` |
 | **CocoaPods** | `pod_install`, `pod_update`, `pod_outdated` | `sudo gem install cocoapods` |
+| **XcodeGen** | `project_create` (optional, for .xcodeproj generation) | `brew install xcodegen` |
 
 <Aside type="note">
   If a required tool is missing, the MCP server will return a clear error

@@ -7,7 +7,7 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.3-blue.svg)](https://www.typescriptlang.org)
 [![Docs](https://img.shields.io/badge/docs-online-blue.svg)](https://sitharaj88.github.io/xcode-pilot-mcp/)
 
-A comprehensive [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for iOS and macOS development. Provides **67 tools** across **11 categories** that give AI assistants full control over the Xcode development lifecycle — from building and testing to simulator management, app deployment, code signing, and more.
+A comprehensive [Model Context Protocol](https://modelcontextprotocol.io) (MCP) server for iOS and macOS development. Provides **65 tools** across **11 categories** that give AI assistants full control over the Xcode development lifecycle — from building and testing to simulator management, app deployment, code signing, and more.
 
 > The iOS equivalent of [android-pilot-mcp](https://github.com/sitharaj88/android-pilot-mcp).
 
@@ -37,8 +37,8 @@ A comprehensive [Model Context Protocol](https://modelcontextprotocol.io) (MCP) 
 | **Build & Compile**       |   8   | Build, clean, archive, export IPA, run tests with `xcodebuild`       |
 | **Simulator Management**  |  10   | Create, boot, shutdown, delete, clone simulators with `xcrun simctl` |
 | **App Lifecycle**         |   8   | Install, launch, terminate apps, manage permissions                  |
-| **Debugging & Logging**   |   7   | Stream logs, capture screenshots, record screen, accessibility audit |
-| **Simulator Environment** |   6   | Set GPS location, send push notifications, override status bar       |
+| **Debugging & Logging**   |   6   | Stream logs, capture screenshots, record screen                      |
+| **Simulator Environment** |   5   | Set GPS location, send push notifications, override status bar       |
 | **Code Signing**          |   5   | List identities, inspect provisioning profiles, check entitlements   |
 | **Package Management**    |   6   | SPM resolve/update, CocoaPods install/update/outdated                |
 | **Project Scaffolding**   |   5   | Create projects, generate SwiftUI views, ViewModels, widgets         |
@@ -65,6 +65,7 @@ A comprehensive [Model Context Protocol](https://modelcontextprotocol.io) (MCP) 
 | SwiftLint    | `brew install swiftlint`    | `swiftlint_run`, `swiftlint_fix`            |
 | swift-format | `brew install swift-format` | `swift_format_run`                          |
 | CocoaPods    | `gem install cocoapods`     | `pod_install`, `pod_update`, `pod_outdated` |
+| XcodeGen     | `brew install xcodegen`     | `project_create` (generates .xcodeproj)     |
 
 ---
 
@@ -360,16 +361,16 @@ launch it, and stream the device console logs for 20 seconds.
 
 ### Build & Compile (8 tools)
 
-| Tool                          | Description                           | Key Parameters                                                                                       |
-| ----------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| `xcode_build`                 | Build project/workspace               | `scheme` (req), `projectPath`, `configuration`, `destination`, `sdk`, `derivedDataPath`, `extraArgs` |
-| `xcode_clean`                 | Clean build artifacts                 | `scheme` (req), `projectPath`                                                                        |
-| `xcode_archive`               | Create archive for distribution       | `scheme` (req), `archivePath` (req), `projectPath`, `configuration`                                  |
-| `xcode_export`                | Export IPA from archive               | `archivePath` (req), `exportPath` (req), `exportOptionsPlist` (req)                                  |
-| `xcode_test`                  | Run unit and UI tests                 | `scheme` (req), `destination` (req), `projectPath`, `testPlan`, `onlyTesting`, `skipTesting`         |
-| `xcode_test_without_building` | Run tests without rebuilding          | Same as `xcode_test`                                                                                 |
-| `xcode_list`                  | List schemes, targets, configurations | `projectPath`                                                                                        |
-| `xcode_build_settings`        | Show resolved build settings          | `projectPath`, `scheme`, `configuration`                                                             |
+| Tool                          | Description                           | Key Parameters                                                                                                         |
+| ----------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `xcode_build`                 | Build project/workspace               | `scheme` (req), `projectPath`, `configuration`, `destination`, `sdk`, `derivedDataPath`, `extraArgs`, `timeoutSeconds` |
+| `xcode_clean`                 | Clean build artifacts                 | `scheme` (req), `projectPath`, `timeoutSeconds`                                                                        |
+| `xcode_archive`               | Create archive for distribution       | `scheme` (req), `archivePath` (req), `projectPath`, `configuration`, `timeoutSeconds`                                  |
+| `xcode_export`                | Export IPA from archive               | `archivePath` (req), `exportPath` (req), `exportOptionsPlist` (req), `timeoutSeconds`                                  |
+| `xcode_test`                  | Run unit and UI tests                 | `scheme` (req), `destination` (req), `projectPath`, `testPlan`, `onlyTesting`, `skipTesting`, `timeoutSeconds`         |
+| `xcode_test_without_building` | Run tests without rebuilding          | `scheme` (req), `destination` (req), `projectPath`, `testPlan`, `onlyTesting`, `skipTesting`, `timeoutSeconds`         |
+| `xcode_list`                  | List schemes, targets, configurations | `projectPath`, `timeoutSeconds`                                                                                        |
+| `xcode_build_settings`        | Show resolved build settings          | `projectPath`, `scheme`, `configuration`, `timeoutSeconds`                                                             |
 
 ### Simulator Management (10 tools)
 
@@ -392,7 +393,7 @@ launch it, and stream the device console logs for 20 seconds.
 | ------------------- | ------------------------------ | ----------------------------------------------------------------------- |
 | `app_install`       | Install .app on simulator      | `deviceId` (req), `appPath` (req)                                       |
 | `app_uninstall`     | Uninstall by bundle ID         | `deviceId` (req), `bundleId` (req)                                      |
-| `app_launch`        | Launch app by bundle ID        | `deviceId` (req), `bundleId` (req), `args`, `consolePty`                |
+| `app_launch`        | Launch app by bundle ID        | `deviceId` (req), `bundleId` (req), `args`, `consolePty`, `timeout`     |
 | `app_terminate`     | Terminate running app          | `deviceId` (req), `bundleId` (req)                                      |
 | `app_get_container` | Get app container path         | `deviceId` (req), `bundleId` (req), `container` ("app"/"data"/"groups") |
 | `app_list`          | List installed apps            | `deviceId` (req)                                                        |
@@ -406,17 +407,16 @@ launch it, and stream the device console logs for 20 seconds.
 
 </details>
 
-### Debugging & Logging (7 tools)
+### Debugging & Logging (6 tools)
 
-| Tool                  | Description                         | Key Parameters                                                   |
-| --------------------- | ----------------------------------- | ---------------------------------------------------------------- |
-| `log_stream`          | Stream live logs for N seconds      | `deviceId` (req), `predicate`, `level`, `timeout` (default: 10s) |
-| `log_collect`         | Collect recent logs                 | `deviceId` (req), `predicate`, `last` ("5m", "1h"), `style`      |
-| `screenshot`          | Capture screenshot as PNG           | `deviceId` (req), `outputPath` (auto-generated if omitted)       |
-| `screen_record`       | Record screen as MP4                | `deviceId` (req), `outputPath`, `duration` (default: 10s)        |
-| `diagnostics`         | Collect diagnostic report           | `outputPath`                                                     |
-| `accessibility_audit` | Run accessibility audit (Xcode 15+) | `deviceId` (req)                                                 |
-| `device_appearance`   | Set light/dark mode                 | `deviceId` (req), `appearance` ("light"/"dark")                  |
+| Tool                | Description                    | Key Parameters                                                   |
+| ------------------- | ------------------------------ | ---------------------------------------------------------------- |
+| `log_stream`        | Stream live logs for N seconds | `deviceId` (req), `predicate`, `level`, `timeout` (default: 10s) |
+| `log_collect`       | Collect recent logs            | `deviceId` (req), `predicate`, `last` ("5m", "1h"), `style`      |
+| `screenshot`        | Capture screenshot as PNG      | `deviceId` (req), `outputPath` (auto-generated if omitted)       |
+| `screen_record`     | Record screen as MP4           | `deviceId` (req), `outputPath`, `duration` (default: 10s)        |
+| `diagnostics`       | Collect diagnostic report      | `outputPath`                                                     |
+| `device_appearance` | Set light/dark mode            | `deviceId` (req), `appearance` ("light"/"dark")                  |
 
 <details>
 <summary><strong>Log predicate examples</strong></summary>
@@ -430,16 +430,15 @@ process == "MyApp"
 
 </details>
 
-### Simulator Environment (6 tools)
+### Simulator Environment (5 tools)
 
 | Tool                  | Description                     | Key Parameters                                                                                                      |
 | --------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `location_set`        | Set GPS coordinates             | `deviceId` (req), `latitude` (req), `longitude` (req)                                                               |
+| `location_set`        | Set GPS coordinates             | `deviceId` (req), `latitude` (req, -90 to 90), `longitude` (req, -180 to 180)                                       |
 | `location_clear`      | Clear simulated location        | `deviceId` (req)                                                                                                    |
 | `push_notification`   | Send push via APNs JSON payload | `deviceId` (req), `bundleId` (req), `payload` (req, JSON string)                                                    |
 | `status_bar_override` | Override status bar             | `deviceId` (req), `time`, `batteryLevel`, `batteryState`, `wifiBars`, `cellularBars`, `operatorName`, `dataNetwork` |
 | `status_bar_clear`    | Reset status bar to defaults    | `deviceId` (req)                                                                                                    |
-| `keyboard_input`      | Send text input to simulator    | `deviceId` (req), `text` (req)                                                                                      |
 
 <details>
 <summary><strong>Push notification payload example</strong></summary>
@@ -485,11 +484,11 @@ process == "MyApp"
 
 | Tool                      | Description                    | Key Parameters                                                                                                                                                          |
 | ------------------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `project_create`          | Create new Xcode project       | `name` (req), `template` ("swiftui"/"uikit"), `platform` ("ios"/"macos"/"multiplatform"), `outputPath` (req), `bundleId`, `organizationName`, `minimumDeploymentTarget` |
+| `project_create`          | Create new project + XcodeGen  | `name` (req), `template` ("swiftui"/"uikit"), `platform` ("ios"/"macos"/"multiplatform"), `outputPath` (req), `bundleId`, `organizationName`, `minimumDeploymentTarget` |
 | `scaffold_view`           | Generate SwiftUI View          | `name` (req), `outputPath` (req), `includePreview` (default: true)                                                                                                      |
 | `scaffold_viewmodel`      | Generate @Observable ViewModel | `name` (req), `outputPath` (req)                                                                                                                                        |
-| `scaffold_coredata_model` | Generate Core Data model       | `name` (req), `outputPath` (req), `attributes` (array of {name, type})                                                                                                  |
-| `scaffold_widget`         | Generate WidgetKit extension   | `name` (req), `outputPath` (req), `kind` ("static"/"configurable")                                                                                                      |
+| `scaffold_coredata_model` | Generate Core Data model       | `name` (req), `outputPath` (req), `attributes` (array of {name, type}); requires matching .xcdatamodeld entity                                                          |
+| `scaffold_widget`         | Generate WidgetKit extension   | `name` (req), `outputPath` (req), `kind` ("static"/"configurable"); iOS 17+ for AppIntents-based configurable widgets                                                   |
 
 <details>
 <summary><strong>Supported Core Data attribute types</strong></summary>
@@ -518,12 +517,12 @@ process == "MyApp"
 
 ### Physical Devices (4 tools)
 
-| Tool                      | Description                            | Key Parameters                             |
-| ------------------------- | -------------------------------------- | ------------------------------------------ |
-| `physical_device_list`    | List connected iOS devices (Xcode 15+) | —                                          |
-| `physical_device_install` | Install app on device                  | `deviceId` (req), `appPath` (req)          |
-| `physical_device_launch`  | Launch app on device                   | `deviceId` (req), `bundleId` (req)         |
-| `physical_device_console` | Stream device console logs             | `deviceId` (req), `timeout` (default: 10s) |
+| Tool                      | Description                            | Key Parameters                                                         |
+| ------------------------- | -------------------------------------- | ---------------------------------------------------------------------- |
+| `physical_device_list`    | List connected iOS devices (Xcode 15+) | —                                                                      |
+| `physical_device_install` | Install app on device                  | `deviceId` (req), `appPath` (req)                                      |
+| `physical_device_launch`  | Launch app on device                   | `deviceId` (req), `bundleId` (req)                                     |
+| `physical_device_console` | Launch app and stream console output   | `deviceId` (req), `bundleId` (req), `timeout` (1-300 sec, default: 10) |
 
 ---
 
@@ -540,24 +539,25 @@ src/
 │   ├── validation.ts     # Path, bundle ID, and name validation
 │   └── logger.ts         # Structured stderr logging (stdout reserved for MCP protocol)
 ├── tools/
-│   ├── build/            # 8 tools — xcodebuild build, clean, archive, export, test
+│   ├── xcodebuild/       # 8 tools — xcodebuild build, clean, archive, export, test
 │   ├── simulator/        # 10 tools — xcrun simctl create, boot, shutdown, list, clone
 │   ├── app/              # 8 tools — install, launch, terminate, privacy, openurl
-│   ├── debug/            # 7 tools — log stream/collect, screenshot, screen record
-│   ├── environment/      # 6 tools — location, push notifications, status bar
+│   ├── debug/            # 6 tools — log stream/collect, screenshot, screen record
+│   ├── environment/      # 5 tools — location, push notifications, status bar
 │   ├── signing/          # 5 tools — identities, profiles, entitlements
 │   ├── packages/         # 6 tools — SPM resolve/update, pod install/update
 │   ├── scaffold/         # 5 tools — project creation, view/viewmodel/widget generation
 │   ├── analyze/          # 4 tools — IPA analysis, binary size, dSYM verification
 │   ├── quality/          # 4 tools — SwiftLint, swift-format, build warnings
 │   └── device/           # 4 tools — physical device list, install, launch, console
-└── templates/            # Swift project and component templates
+└── templates/            # Swift project and component templates (source of truth for scaffold tools)
     ├── SwiftUIView.swift.template
     ├── ViewModel.swift.template
     ├── CoreDataModel.swift.template
-    └── Widget.swift.template
+    ├── Widget.swift.template
+    └── WidgetConfigurable.swift.template
 
-tests/                    # 112 tests across 15 test files
+tests/                    # 195 tests across 15 test files
 ├── executor.test.ts
 ├── environment.test.ts
 ├── utils/
@@ -572,9 +572,9 @@ tests/                    # 112 tests across 15 test files
 - **Zod validation** — all input parameters validated at the MCP registration layer
 - **JSON-first** — prefers `-j` flag for JSON output from simctl commands
 - **Graceful errors** — actionable error messages (e.g., "Is the simulator booted?")
-- **Response truncation** — long outputs (>100KB) are truncated to prevent protocol overflows
-- **Timeout management** — configurable per-tool (builds get 600s, quick queries get 30s)
-- **No Xcode required at install** — environment detection happens at runtime
+- **Response truncation** — long outputs are truncated using head+tail (start and end) to preserve both log boundaries; 100KB cap on success and error output
+- **Timeout management** — configurable per-tool with optional `timeoutSeconds` param; defaults vary by operation
+- **No Xcode required at install** — environment detection happens at runtime; graceful guidance when tools unavailable
 
 ---
 

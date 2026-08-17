@@ -6,7 +6,13 @@ interface DiagnosticsArgs {
   outputPath?: string;
 }
 
-export async function diagnostics(args: DiagnosticsArgs, _env: Environment): Promise<ToolResponse> {
+export async function diagnostics(args: DiagnosticsArgs, env: Environment): Promise<ToolResponse> {
+  if (!env.simctlAvailable) {
+    return errorResponse(
+      "simctl is unavailable. Install full Xcode (not just Command Line Tools) and run: sudo xcode-select --switch /Applications/Xcode.app/Contents/Developer",
+    );
+  }
+
   const cmdArgs = ["simctl", "diagnose", "-b"];
 
   if (args.outputPath) cmdArgs.push("-o", args.outputPath);

@@ -87,11 +87,12 @@ src/
 │   │   ├── <tool>.ts     # Individual tool handler
 │   │   └── ...
 │   └── ...
-└── templates/            # Swift project and component templates
+└── templates/            # Swift project and component templates (source of truth for scaffold tools)
     ├── SwiftUIView.swift.template
     ├── ViewModel.swift.template
     ├── CoreDataModel.swift.template
-    └── Widget.swift.template
+    ├── Widget.swift.template
+    └── WidgetConfigurable.swift.template
 
 tests/
 ├── executor.test.ts       # Tests for command execution
@@ -113,7 +114,7 @@ tests/
 
 1. **`src/index.ts`** creates a `McpServer` instance
 2. **`detectEnvironment()`** verifies Xcode is installed and locates tools (`xcrun`, `xcodebuild`, `simctl`, `devicectl`)
-3. **11 `register*Tools()` functions** register all 67 tools with the server
+3. **11 `register*Tools()` functions** register all 65 tools with the server
 4. **`StdioServerTransport`** connects the server to stdin/stdout
 5. **Graceful shutdown** handlers clean up on SIGINT/SIGTERM
 
@@ -348,14 +349,14 @@ For each tool, test:
 ```bash
 npm test                    # All tests
 npm run test:coverage       # With coverage
-npx vitest run tests/tools/build.test.ts  # Single file
+npx vitest run tests/tools/xcodebuild.test.ts  # Single file
 npx vitest --reporter=verbose  # Verbose output
 ```
 
 ### Coverage Target
 
-- **Statements**: >= 15% (minimum threshold in vitest.config.ts)
-- **Goal**: >= 80% for new code
+- **Enforced threshold**: Configured in `vitest.config.ts`
+- **Goal**: >= 80% coverage for new code
 
 ---
 
